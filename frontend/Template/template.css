@@ -1,0 +1,342 @@
+/* CSS Order */
+/* Layout */
+/* Box Model */
+/* Typography */
+/* Visuals */
+/* Miscellaneous */
+/* em for spacing / sizing in local context*/
+/* rem for global consistency */
+/* 1rem = 16px */
+
+/* Copy code from template.html */
+/* Add template.css and template.js script to every customer web page */
+/* Adds responsive header, breadcrumbs, background and footer :) */
+
+/* Miscellaneous */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    font-family: "DM Sans", Arial, Helvetica, sans-serif;
+
+    background-color: #FFFFFF;
+    /* background: url("/assets/images/Background.jpg") no-repeat center center / cover fixed; */
+}
+
+main {
+    margin: 80px 0 0 0;
+    padding: 0;
+}
+
+.divider {
+    width: 100%;
+    margin: 8px 0;
+    border: 1px solid rgba(71, 71, 71, 0.5)
+}
+
+
+
+/* Breadcrumbs */
+#breadcrumbs ul {
+    margin: 0;
+    padding: 1rem 2rem;
+
+    font-size: 1rem;
+    list-style: none;
+}
+
+#breadcrumbs li {
+    display: inline;
+}
+
+#breadcrumbs li a {
+    color: rgba(71, 71, 71, 0.5);
+    text-decoration: none;
+}
+
+#breadcrumbs li:last-child a {
+    color: #474747;
+}
+
+
+
+/* Logo */
+.logo {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    gap: 0.5rem;
+
+    font-size: 1rem;
+    font-family: "Playfair Display";
+    font-style: italic;
+    color: #474747
+}
+
+.logo h1 {
+    margin: 0;
+}
+
+
+
+/* Header */
+header {
+    width: 100%;
+    height: 80px;
+    padding: 1rem 1.5rem;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.25);
+    background-color: white;
+}
+
+/* Header Hamburger & Brand */
+.header-brand {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+#hamburger {
+    height: 100%;
+    padding: 8px;
+    border-width: 0;
+
+    display: none;
+}
+
+/* Header Navigation */
+#nav-links {
+    padding: 0;
+
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 0.2rem;
+
+    list-style-type: none;
+}
+
+#nav-links li{
+    padding: 0.2rem 0.8rem;
+    border-radius: 15px;
+}
+
+#nav-links li a {
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+/* Change number of :nth-child(n) to match the current site */
+/* Place this code in your css page */
+/* #nav-links li:nth-child(n) {
+    background-color: #DBDFD0;
+} */
+
+/* Divider, Cart & User */
+#nav-links :nth-child(5), #nav-links :nth-child(6), #nav-links :nth-child(7) {
+    display: none;
+}
+
+#nav-links.active {
+    display: flex;
+}
+
+/* Header Cart & User */
+.header-actions {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#cart {
+    width: 100%;
+    height: 100%;
+    padding: 0.6rem 1.2rem;
+    border: 0.10rem solid #474747;
+    border-radius: 25px;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    text-decoration: none;
+    text-align: center;
+    font-size: 1.0rem;
+    font-weight: bold;
+    color: #474747;
+}
+
+#user {
+    width: 100%;
+    height: 100%;
+    padding: 0.6em 0.6em;
+    border: 0.10rem solid #474747;
+    border-radius: 25px;
+    
+    display: flex;
+    justify-content: center;
+}
+
+#user a {
+    display: flex;
+}
+
+
+
+/* Footer */
+footer {
+    width: 100%;
+    height: 100%;
+    margin-top: 80px;
+    padding: 2rem;
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    gap: 2rem;
+
+    background-color: #474747;
+}
+
+footer p, footer h3 {
+    margin: 0;
+
+    font-size: 1rem;
+    color: white;
+}
+
+/* Footer Subfooter */
+.sub_footer {
+    width: 100%;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Footer Branding & Socials */
+.footer-branding {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+}
+
+.footer-branding .logo {
+    color: #FFFFFF;
+}
+
+.footer-branding ul {
+    margin: 0;
+    padding: 0;
+}
+
+.footer-branding ul li {
+    margin: 0.2rem;
+
+    display: inline;
+}
+
+/* Footer Navigation */
+.footer-nav {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 2rem;
+}
+
+.footer-nav ul {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.footer-nav ul li {
+    margin: 0.5rem 0;
+}
+
+.footer-nav ul li a {
+    text-decoration: none;
+    color: #DBDFD0;
+}
+
+/* Footer Info */
+.footer-info h3 {
+    margin-bottom: 0.5rem;
+}
+
+.footer-info p {
+    color: #DBDFD0;
+}
+
+
+
+/* @media */
+@media (max-width: 780px) {
+    #hamburger {
+        display: flex;
+    }
+
+    #nav-links {
+        width: 100%;
+        margin: 0;
+        padding: 1.5rem;
+        border-radius: 0px 0px 15px 15px;
+
+        display: none;
+        flex-flow: column nowrap;
+        gap: 0.4rem;
+
+        position: absolute;
+        top: 78px;
+        right: 0px;
+
+        background-color: #FFFFFF;
+        box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.25);
+
+    }
+
+    #nav-links.active {
+        display: flex;
+    }
+
+    footer .sub_footer {
+        flex-flow: column nowrap;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .sub_footer .footer-branding {
+        align-items: center;
+    }
+}
+
+@media (max-width: 460px) {
+    .header-actions {
+        display: none;
+    }
+
+    #nav-links :nth-child(5), #nav-links :nth-child(6), #nav-links :nth-child(7) {
+        display: flex;
+    }
+}

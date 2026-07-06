@@ -1,0 +1,98 @@
+/* Miscellaneous */
+body {
+    background: #FFFFFF;
+}
+
+#nav-links li:nth-child(1) {
+    background-color: #DBDFD0;
+}
+
+/* Call to Action */
+#cta {
+    width: auto;
+    height: 440px;
+    padding: 0rem 2rem;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+
+    text-align: center;
+
+    background: 
+        radial-gradient(ellipse, rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.1)), 
+        url("../images/home/cta1.svg") no-repeat center center / cover;
+}
+
+#cta h2 {
+    width: auto;
+    max-width: 500px;
+    margin: 0;
+
+    font-family: "Playfair Display";
+    font-size: 4rem;
+    font-weight: 400;
+}
+
+#cta p {
+    max-width: 360px;
+    margin: 0;
+}
+
+#cta a {
+    margin: 0.5rem;
+    padding: 1em 1.2em;
+    border-radius: 25px;
+
+    font-size: 12px;
+    text-decoration: none;
+    color: #FFFFFF;
+
+    background-color: #AD343E;
+}
+
+/* Local Highlights */
+#local-highlights {
+    margin: 2rem;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+}
+
+#local-highlights h3 {
+    text-align: center;
+    font-family: "Playfair Display";
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+#highlight-cards {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.card {
+    max-width: 274px;
+    height: auto;
+
+    padding: 2em;
+    border: solid #DBDFD0 2px;
+    border-radius: 10px;
+
+    text-align: center;
+}
+
+.card p {
+    color: #474747;
+}
+
+@media (max-width: 460px) {
+    #cta h2 {
+        font-size: 3rem;
+    }
+}
