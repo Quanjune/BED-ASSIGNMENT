@@ -1,15 +1,16 @@
-// app.homepage-test.js
-// Homepage-only test server. No database, no API routes.
+// app.homepage-test.js — homepage-only test server
 const express = require("express");
 const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve everything in the frontend/ folder
+// serve the frontend folder (html, css, js)
 app.use(express.static(path.join(__dirname, "..", "frontend")));
 
-// Load the homepage at the root URL "/"
+// ALSO serve the media folder at /media  <-- this is the fix
+app.use("/media", express.static(path.join(__dirname, "..", "media")));
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "frontend", "home.html"));
 });

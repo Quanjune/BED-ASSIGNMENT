@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());                 // parse JSON bodies (Lecture 6)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
+app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
 
 // Serve the homepage at the root URL "/"
 app.get("/", (req, res) => {
