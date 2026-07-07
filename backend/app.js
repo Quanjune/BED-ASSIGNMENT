@@ -22,7 +22,8 @@ app.get("/", (req, res) => {
 
 // --- Routes (mounted under /api) ---
 app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
-app.use("/api/products", require("./routes/productRoutes")); // Product page
+app.use("/api/products", require("./routes/productRoutes")); // Vendor Management (Kishore)
+app.use("/api/products", require("./routes/vendorRoutes")); // Product page
 app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
 app.use("/api/orders", require("./routes/orderRoutes"));     // History
 
