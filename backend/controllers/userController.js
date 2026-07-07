@@ -43,7 +43,6 @@ async function login(req, res) {
 
     const user = await userModel.findUserByEmail(email);
     // Same message whether the email is missing OR the password is wrong —
-    // never tell an attacker which part they got right.
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
