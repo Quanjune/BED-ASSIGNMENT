@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/vendor.css">
+    <title>Vendor · Menu</title>
+</head>
+<body class="page-menu">
+    <!-- Header (same structure as home.html) -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./vendor.html">Menu</a></li>
+                <li><a href="./vendor_agreements.html">Rental Agreements</a></li>
+                <li><a href="./vendor_performance.html">Performance</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./user.html">Account</a></li>
+                <li><a href="./home.html">Exit to site</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./home.html" id="exit-site">Exit to site</a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./vendor.html">Vendor</a></li>
+                <li><a href="./vendor.html">Menu</a></li>
+            </ul>
+        </nav>
+
+        <!-- Vendor menu management -->
+        <section class="vendor-menu">
+            <div class="vm-head">
+                <p class="vm-eyebrow">Stall Owner</p>
+                <h2 class="vm-title">Manage Menu Items</h2>
+                <p class="vm-subtitle">Add, edit, and remove the dishes customers see on your stall.</p>
+            </div>
+
+            <!-- Load a stall's menu -->
+            <div class="vm-toolbar">
+                <label class="vm-field">
+                    <span>Stall ID</span>
+                    <input id="filter-stall" type="number" min="1" placeholder="e.g. 1">
+                </label>
+                <button id="btn-load" class="vm-btn vm-btn-ghost">Load this stall</button>
+                <button id="btn-load-all" class="vm-btn vm-btn-ghost">Show all items</button>
+            </div>
+
+            <!-- status line -->
+            <p id="status" class="vm-status" hidden></p>
+
+            <div class="vm-layout">
+                <!-- Add / edit form -->
+                <div class="vm-card vm-form">
+                    <h3 id="form-title" class="vm-card-title">Add a dish</h3>
+
+                    <input id="edit-id" type="hidden" value="">
+
+                    <label class="vm-field">
+                        <span>Dish name <em>*</em></span>
+                        <input id="in-name" type="text" placeholder="Chicken Rice">
+                    </label>
+                    <label class="vm-field">
+                        <span>Stall ID <em>*</em></span>
+                        <input id="in-stall" type="number" min="1" placeholder="1">
+                    </label>
+                    <label class="vm-field">
+                        <span>Base price (S$) <em>*</em></span>
+                        <input id="in-price" type="number" min="0" step="0.01" placeholder="4.50">
+                    </label>
+
+                    <div class="vm-form-actions">
+                        <button id="btn-save" class="vm-btn vm-btn-primary">Save dish</button>
+                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Menu list -->
+                <div class="vm-card vm-list">
+                    <h3 class="vm-card-title">Current menu</h3>
+                    <div id="menu-list" class="vm-menu-list">
+                        <p class="vm-empty">Nothing loaded yet. Use the buttons above to load a menu.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (same as home.html) -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Order</h3>
+                    <ul>
+                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
+                        <li><a href="./stalls.html">Stalls</a></li>
+                        <li><a href="./cart.html">Cart</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Template Script (hamburger toggle) -->
+    <script src="./Template/template.js"></script>
+    <!-- Vendor menu logic -->
+    <script src="./scripts/vendor.js"></script>
+</body>
+</html>
