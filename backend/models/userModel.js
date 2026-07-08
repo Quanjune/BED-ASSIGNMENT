@@ -34,4 +34,18 @@ async function createUser({ name, email, passwordHash, role }) {
   }
 }
 
-module.exports = { findUserByEmail, createUser };
+// Find one user by their id (returns undefined if none)
+async function findUserById(userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input('userId', sql.Int, userId)
+      .query('SELECT userId, name, email, role, createdAt FROM Users WHERE userId = @userId');
+    return result.recordset[0];
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+module.exports = { findUserByEmail, createUser, findUserById };

@@ -67,4 +67,18 @@ async function login(req, res) {
   }
 }
 
-module.exports = { signup, login };
+// Returns the profile of whoever is logged in (identified by their token)
+async function getProfile(req, res) {
+  try {
+    const user = await userModel.findUserById(req.user.userId); // req.user came from verifyToken
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    return res.status(200).json({ user });
+  } catch (err) {
+    console.error('Get profile error:', err);
+    return res.status(500).json({ message: 'Something went wrong.' });
+  }
+}
+
+module.exports = { signup, login, getProfile };
