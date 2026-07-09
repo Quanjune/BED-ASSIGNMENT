@@ -1,6 +1,6 @@
 // app.js
 // Main entry point (assignment requires back-end code named app.js).
-require("dotenv").config();
+require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
 const express = require("express");
 const path = require("path");
 const sql = require("mssql");
@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- Middleware ---
-app.use(express.json());                 // parse JSON bodies (Lecture 6)
+app.use(express.json());                 // parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
@@ -21,19 +21,22 @@ app.get("/", (req, res) => {
 });
 
 // --- Routes (mounted under /api) ---
-app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
-app.use("/api/products", require("./routes/productRoutes")); // Product page
-app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
-app.use("/api/orders", require("./routes/orderRoutes"));     // History
+// Product page flow (centres -> stalls -> products -> detail) + product CRUD.
+// This one router handles /api/centers, /api/stalls, and /api/products.
+app.use("/api", require("./routes/productRoutes"));
 
-// --- Start server, connect to DB (Week 4 pattern) ---
+// NOTE: cart and order routes will be added here when those features are built:
+// app.use("/api/cart", require("./routes/cartRoutes"));
+// app.use("/api/orders", require("./routes/orderRoutes"));
+
+// --- Start server, connect to DB ---
 app.listen(PORT, async () => {
   try {
     await sql.connect(dbConfig);
     console.log("Database connected.");
   } catch (err) {
     console.error("DB connection error:", err);
-    process.exit(1); // exit on fatal error
+    process.exit(1);
   }
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}/`);
 });
