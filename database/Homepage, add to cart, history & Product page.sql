@@ -133,3 +133,34 @@ GO
 
 PRINT 'HawkersDB setup complete.';
 GO
+
+-- 4) CREATE TABLE (INSPECTION) --------------------------------------------
+
+
+CREATE TABLE Inspections (
+    inspectionId    INT IDENTITY(1,1) PRIMARY KEY,
+    stallId         INT NOT NULL,
+    officerName     NVARCHAR(100) NOT NULL,
+    inspectionDate  DATE NOT NULL,
+    score           INT NOT NULL,              -- 0-100 cleanliness/food-handling score
+    remarks         NVARCHAR(500) NULL,
+    createdAt       DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Inspections_Stall
+        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId),
+    CONSTRAINT CK_Inspections_Score
+        CHECK (score BETWEEN 0 AND 100)
+);
+GO
+-- 4) SAMPLE DATA (INSPECTION)--------------------------------------------
+INSERT INTO Inspections (stallId, officerName, inspectionDate, score, remarks) VALUES
+(1, 'Officer Tan Wei Ming', '2026-05-12', 88, 'Good hygiene practices, minor grease buildup near stove.'),
+(2, 'Officer Nurul Huda',   '2026-05-14', 95, 'Excellent cleanliness, no issues found.'),
+(3, 'Officer Tan Wei Ming', '2026-06-02', 72, 'Food storage temperature slightly above guideline. Follow-up required.');
+GO
+ 
+INSERT INTO HygieneGrades (stallId, inspectionId, grade, validFrom, validTo) VALUES
+(1, 1, 'A', '2026-05-12', '2027-05-11'),
+(2, 2, 'A', '2026-05-14', '2027-05-13'),
+(3, 3, 'B', '2026-06-02', '2027-06-01');
+GO
+ 
