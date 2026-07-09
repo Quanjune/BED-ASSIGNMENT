@@ -9,6 +9,15 @@
     <link rel="stylesheet" href="./Template/template.css">
     <link rel="stylesheet" href="./styles/vendor.css">
     <title>Vendor · Rental Agreements</title>
+    <!-- small extras just for this page (status badges + expiry warning) -->
+    <style>
+        .vm-badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; }
+        .vm-badge.active     { background:#DBDFD0; color:#474747; }
+        .vm-badge.expired    { background:#f3d6d6; color:#8a2b2b; }
+        .vm-badge.terminated { background:#e2e2e2; color:#555; }
+        .vm-expiry      { font-size:12px; color:#777; }
+        .vm-expiry.warn { color:#8a2b2b; font-weight:600; }
+    </style>
 </head>
 <body class="page-agreements">
     <header>
@@ -54,10 +63,71 @@
             <div class="vm-head">
                 <p class="vm-eyebrow">Stall Owner</p>
                 <h2 class="vm-title">Rental Agreements</h2>
-                <p class="vm-subtitle">Coming in Sprint 2 — register agreements, manage details, track payments &amp; expiry.</p>
+                <p class="vm-subtitle">Register a tenancy, keep the details up to date, and see when it's due to expire.</p>
             </div>
-            <div class="vm-card">
-                <p class="vm-empty">This page is a placeholder for now. The backend endpoints and UI land in Sprint 2.</p>
+
+            <!-- Load a stall's agreements -->
+            <div class="vm-toolbar">
+                <label class="vm-field">
+                    <span>Stall ID</span>
+                    <input id="filter-stall" type="number" min="1" placeholder="e.g. 1">
+                </label>
+                <button id="btn-load" class="vm-btn vm-btn-ghost">Load this stall</button>
+                <button id="btn-load-all" class="vm-btn vm-btn-ghost">Show all agreements</button>
+            </div>
+
+            <!-- status line -->
+            <p id="status" class="vm-status" hidden></p>
+
+            <div class="vm-layout">
+                <!-- Register / edit form -->
+                <div class="vm-card vm-form">
+                    <h3 id="form-title" class="vm-card-title">Register an agreement</h3>
+
+                    <input id="edit-id" type="hidden" value="">
+
+                    <label class="vm-field">
+                        <span>Stall ID <em>*</em></span>
+                        <input id="in-stall" type="number" min="1" placeholder="1">
+                    </label>
+                    <label class="vm-field">
+                        <span>Start date <em>*</em></span>
+                        <input id="in-start" type="date">
+                    </label>
+                    <label class="vm-field">
+                        <span>End date <em>*</em></span>
+                        <input id="in-end" type="date">
+                    </label>
+                    <label class="vm-field">
+                        <span>Monthly rent (S$) <em>*</em></span>
+                        <input id="in-rent" type="number" min="0" step="0.01" placeholder="1200.00">
+                    </label>
+                    <label class="vm-field">
+                        <span>Deposit (S$)</span>
+                        <input id="in-deposit" type="number" min="0" step="0.01" placeholder="2400.00">
+                    </label>
+                    <label class="vm-field">
+                        <span>Status</span>
+                        <select id="in-status">
+                            <option value="active">active</option>
+                            <option value="expired">expired</option>
+                            <option value="terminated">terminated</option>
+                        </select>
+                    </label>
+
+                    <div class="vm-form-actions">
+                        <button id="btn-save" class="vm-btn vm-btn-primary">Register agreement</button>
+                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Agreements list -->
+                <div class="vm-card vm-list">
+                    <h3 class="vm-card-title">Current agreements</h3>
+                    <div id="agreement-list" class="vm-menu-list">
+                        <p class="vm-empty">Nothing loaded yet. Use the buttons above to load agreements.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -108,5 +178,6 @@
     </footer>
 
     <script src="./Template/template.js"></script>
+    <script src="./scripts/vendor_agreements.js"></script>
 </body>
 </html>

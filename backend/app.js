@@ -24,6 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
 app.use("/api/products", require("./routes/productRoutes")); // Product page (QJ)
 app.use("/api/vendors/menu", require("./routes/vendorRoutes")); // Vendor Management (Kishore)
+app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); // Venor agreement (kishore)
 app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
 app.use("/api/orders", require("./routes/orderRoutes"));     // History
 
