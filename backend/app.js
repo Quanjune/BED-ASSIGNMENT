@@ -25,6 +25,8 @@ app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
 app.use("/api/products", require("./routes/productRoutes")); // Product page
 app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
 app.use("/api/orders", require("./routes/orderRoutes"));     // History
+app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer   feedback
+app.use("/api/complaints", require("./routes/complaintRoutes")); // Customer complaints
 
 // --- Start server, connect to DB (Week 4 pattern) ---
 app.listen(PORT, async () => {
