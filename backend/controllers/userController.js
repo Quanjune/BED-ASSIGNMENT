@@ -52,7 +52,7 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // What we want future requests to know about this user:
+    // What future requests know about this user:
     const payload = { userId: user.userId, role: user.role };
     const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
 
@@ -81,4 +81,43 @@ async function getProfile(req, res) {
   }
 }
 
-module.exports = { signup, login, getProfile };
+async function updateProfile(req, res) {
+  try {
+    const { name, email } = req.body;
+    if (!name || !email) return res.status(400).json({ message: 'Name and email are required.' });
+    // block taking an email that already belongs to someone else
+    const existing = await userModel.findUserByEmail(email);
+    if (existing && existing.userId !== req.user.userId) {
+      return res.status(409).json({ message: 'That email is already in use.' });
+    }
+    const rowsChanged = await userModel.updateUser(req.user.userId, { name, email });
+    if (rowsChanged === 0) return res.status(404).json({ message: 'User not found.' });
+    return res.status(200).json({ message: 'Profile updated.', user: { userId: req.user.userId, name, email } });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ message: 'Something went wrong updating the profile.' });
+  }
+}
+
+async function deleteAccount(req, res) {
+  try {
+    const rowsDeleted = await userModel.deleteUser(req.user.userId);
+    if (rowsDeleted === 0) return res.status(404).json({ message: 'User not found.' });
+    return res.status(200).json({ message: 'Account deleted.' });
+  } catch (err) {
+    console.error('Delete account error:', err);
+    return res.status(500).json({ message: 'Something went wrong deleting the account.' });
+  }
+}
+
+async function getAllUsers(req, res) {
+  try {
+    const users = await userModel.getAllUsers();
+    return res.status(200).json({ count: users.length, users });
+  } catch (err) {
+    console.error('Get all users error:', err);
+    return res.status(500).json({ message: 'Something went wrong.' });
+  }
+}
+
+module.exports = { signup, login, getProfile, updateProfile, deleteAccount, getAllUsers };

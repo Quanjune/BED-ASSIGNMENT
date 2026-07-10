@@ -48,4 +48,38 @@ async function findUserById(userId) {
   }
 }
 
-module.exports = { findUserByEmail, createUser, findUserById };
+async function updateUser(userId, { name, email }) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input('userId', sql.Int, userId)
+      .input('name', sql.NVarChar, name)
+      .input('email', sql.NVarChar, email)
+      .query('UPDATE Users SET name = @name, email = @email WHERE userId = @userId');
+    return result.rowsAffected[0]; // how many rows changed
+  } finally { if (connection) await connection.close(); }
+}
+
+async function deleteUser(userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input('userId', sql.Int, userId)
+      .query('DELETE FROM Users WHERE userId = @userId');
+    return result.rowsAffected[0]; // how many rows deleted
+  } finally { if (connection) await connection.close(); }
+}
+
+async function getAllUsers() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .query('SELECT userId, name, email, role, createdAt FROM Users ORDER BY userId');
+    return result.recordset; // never returns passwordHash
+  } finally { if (connection) await connection.close(); }
+}
+
+module.exports = { findUserByEmail, createUser, findUserById, updateUser, deleteUser, getAllUsers };
