@@ -343,3 +343,10 @@ footer p, footer h3 {
         display: flex;
     }
 }
+
+/* Append to the END of frontend/Template/template.css */
+
+#nav-links a.active-link {
+  color: #a11;
+  font-weight: 600;
+}
