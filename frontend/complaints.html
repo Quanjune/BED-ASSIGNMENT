@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/complaints.css">
+    <title>Complaints</title>
+</head>
+<body>
+    <!-- Header (copied from Template — do not modify per-page) -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./hawker_centers.html">Order</a></li>
+                <li><a href="./history.html">History</a></li>
+                <li><a href="./promotions.html">Promotions</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./cart.html">Cart</a></li>
+                <li><a href="./user.html">User</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./cart.html" id="cart">
+                Cart <img src="../media/icons/shopping_cart.svg" alt="Shopping Cart Icon">
+            </a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li>Complaints</li>
+            </ul>
+        </nav>
+
+        <!-- Page Title -->
+        <section id="page-title">
+            <h2>Submit a Complaint</h2>
+            <p>Report hygiene, service or food quality issues so we can follow up with the stall</p>
+        </section>
+
+        <!-- CREATE: complaint form -->
+        <section class="card" id="form-card">
+            <h3>New Complaint</h3>
+            <form id="complaint-form">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="stallId">Stall ID</label>
+                        <input type="number" id="stallId" min="1" required placeholder="e.g. 2">
+                    </div>
+                    <div class="form-field">
+                        <label for="userId">Your User ID</label>
+                        <input type="text" id="userId" required placeholder="e.g. user123">
+                    </div>
+                    <div class="form-field">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">-- choose --</option>
+                            <option value="Hygiene">Hygiene</option>
+                            <option value="Service">Service</option>
+                            <option value="Food Quality">Food Quality</option>
+                            <option value="Overcharging">Overcharging</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="4" required placeholder="Describe the issue..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit">Submit Complaint</button>
+                </div>
+            </form>
+            <p id="form-message" aria-live="polite"></p>
+        </section>
+
+        <!-- READ: list of complaint records -->
+        <section id="complaint-section">
+            <h3>Complaint Records</h3>
+            <div id="complaint-list">
+                <p class="loading">Loading complaints...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (copied from Template, plus Support column for Customer pages) -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Order</h3>
+                    <ul>
+                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
+                        <li><a href="./stalls.html">Stalls</a></li>
+                        <li><a href="./cart.html">Cart</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="./feedback.html">Feedback</a></li>
+                        <li><a href="./complaints.html">Complaints</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Template Script -->
+    <script src="./Template/template.js"></script>
+    <!-- Page Script -->
+    <script src="./scripts/complaints.js"></script>
+</body>
+</html>
