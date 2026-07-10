@@ -1,11 +1,16 @@
-require("dotenv").config();
+// app.js
+// Main entry point (assignment requires back-end code named app.js).
+
+// IMPORTANT: .env lives at the repo root, but this file runs from /backend.
+// The explicit path makes dotenv find it no matter which folder `node` is run from.
+// (Plain `require("dotenv").config()` only checks the current working directory
+//  and silently loads 0 variables, which breaks the DB connection.)
+require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
+
 const express = require("express");
 const path = require("path");
 const sql = require("mssql");
 const dbConfig = require("./config/dbConfig");
-
-// route files
-const userRoutes = require("./routes/userRoutes"); // Aswin — auth (login/signup)
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,14 +27,18 @@ app.get("/", (req, res) => {
 });
 
 // --- Routes (mounted under /api) ---
-app.use("/api/auth", userRoutes);   // Aswin — login/signup
 
-// NOTE (temporary)
-// Leave commented until QJ pushes them, or the server crashes on startup.
-// app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
-// app.use("/api/products", require("./routes/productRoutes")); // Product page
-// app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
-// app.use("/api/orders", require("./routes/orderRoutes"));     // History
+// Aswin - authentication (signup / login / JWT)
+app.use("/api/auth", require("./routes/userRoutes"));
+
+// Quan Jun - product page flow (centres -> stalls -> products -> detail) + product CRUD.
+// This one router handles /api/centers, /api/stalls and /api/products.
+app.use("/api", require("./routes/productRoutes"));
+
+// NOTE: only uncomment a line once the route file actually exists,
+// otherwise the server crashes on startup with "Cannot find module".
+// app.use("/api/cart", require("./routes/cartRoutes"));     // Quan Jun - add to order
+// app.use("/api/orders", require("./routes/orderRoutes"));  // Quan Jun - order history
 
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
@@ -40,5 +49,5 @@ app.listen(PORT, async () => {
     console.error("DB connection error:", err);
     process.exit(1);
   }
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}/`);
 });
