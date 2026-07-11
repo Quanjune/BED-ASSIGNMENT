@@ -34,10 +34,11 @@ app.use("/api/auth", require("./routes/userRoutes"));
 // Kishore - Vendor Management
 app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 // menu CRUD
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); // rental agreements
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));   // my stall profile
 
 // Quan Jun - product page flow (centres -> stalls -> products -> detail) + product CRUD.
 // This one router handles /api/centers, /api/stalls and /api/products.
-app.use("/api", require("./routes/productRoutes"));
+//app.use("/api", require("./routes/productRoutes"));
 
 // NOTE: only uncomment a line once the route file actually exists,
 // otherwise the server crashes on startup with "Cannot find module".

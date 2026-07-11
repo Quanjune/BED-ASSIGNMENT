@@ -1,6 +1,11 @@
-// vendorAgreementsModel.js  (Kishore - Vendor Management, Sprint 2)
-// Reads/writes the RentalAgreements table. Links to the shared
-// FoodStalls table by stallId - the same stalls your menu items belong to.
+// vendorAgreementsModel.js  (Kishore - Vendor Management, Sprint 2 rework)
+// Reads/writes the StallAgreements table: every legal document a stall
+// holds (rental agreement, store licence, food safety, fire safety...).
+// Same ownership rule as the menu: stallId always comes from the token.
+//
+// 'displayStatus' and 'daysToExpiry' are COMPUTED by SQL at query time
+// from expiryDate, so a licence flips to 'Expired' automatically the day
+// it lapses - nothing stored can go stale.
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
@@ -10,71 +15,86 @@ function getPool() {
   return poolPromise;
 }
 
-async function getAll() {
-  const pool = await getPool();
-  const r = await pool.request()
-    .query("SELECT * FROM RentalAgreements ORDER BY agreementId DESC");
-  return r.recordset;
-}
+// Shared SELECT so every read returns the same computed columns.
+const SELECT_WITH_STATUS = `
+  SELECT agreementId, stallId, name, agreementType, startDate, expiryDate,
+         monthlyRent, status,
+         DATEDIFF(day, CAST(GETDATE() AS date), expiryDate) AS daysToExpiry,
+         CASE
+           WHEN status = 'Terminated' THEN 'Terminated'
+           WHEN expiryDate < CAST(GETDATE() AS date) THEN 'Expired'
+           WHEN DATEDIFF(day, CAST(GETDATE() AS date), expiryDate) <= 30 THEN 'Expiring Soon'
+           ELSE 'Active'
+         END AS displayStatus
+  FROM StallAgreements`;
 
+// All documents for one stall, soonest expiry first (problems float to the top).
 async function getByStall(stallId) {
   const pool = await getPool();
   const r = await pool.request()
     .input("stallId", sql.Int, stallId)
-    .query("SELECT * FROM RentalAgreements WHERE stallId = @stallId ORDER BY agreementId DESC");
+    .query(`${SELECT_WITH_STATUS} WHERE stallId = @stallId ORDER BY expiryDate ASC`);
   return r.recordset;
 }
 
-async function getById(agreementId) {
+// One document - only if it belongs to this stall.
+async function getByIdForStall(agreementId, stallId) {
   const pool = await getPool();
   const r = await pool.request()
     .input("agreementId", sql.Int, agreementId)
-    .query("SELECT * FROM RentalAgreements WHERE agreementId = @agreementId");
+    .input("stallId", sql.Int, stallId)
+    .query(`${SELECT_WITH_STATUS} WHERE agreementId = @agreementId AND stallId = @stallId`);
   return r.recordset[0];
 }
 
-// Reuse the shared FoodStalls table - do NOT make a new Stalls table.
-async function stallExists(stallId) {
+// Insert, then re-read so the response includes the computed columns.
+async function create(stallId, a) {
   const pool = await getPool();
   const r = await pool.request()
     .input("stallId", sql.Int, stallId)
-    .query("SELECT stallId FROM FoodStalls WHERE stallId = @stallId");
-  return r.recordset.length > 0;
-}
-
-async function create(a) {
-  const pool = await getPool();
-  const r = await pool.request()
-    .input("stallId", sql.Int, a.stallId)
-    .input("vendorId", sql.NVarChar, a.vendorId || null)   // from session later (SBA-42)
+    .input("name", sql.NVarChar, a.name)
+    .input("agreementType", sql.NVarChar, a.agreementType)
     .input("startDate", sql.Date, a.startDate)
-    .input("endDate", sql.Date, a.endDate)
-    .input("monthlyRent", sql.Decimal(10, 2), a.monthlyRent)
-    .input("deposit", sql.Decimal(10, 2), a.deposit || 0)
-    .input("status", sql.NVarChar, a.status || "active")
-    .query(`INSERT INTO RentalAgreements
-              (stallId, vendorId, startDate, endDate, monthlyRent, deposit, status)
-            OUTPUT INSERTED.*
-            VALUES (@stallId, @vendorId, @startDate, @endDate, @monthlyRent, @deposit, @status)`);
-  return r.recordset[0];
+    .input("expiryDate", sql.Date, a.expiryDate)
+    .input("monthlyRent", sql.Decimal(10, 2), a.monthlyRent ?? null)
+    .input("status", sql.NVarChar, a.status || "Active")
+    .query(`INSERT INTO StallAgreements
+              (stallId, name, agreementType, startDate, expiryDate, monthlyRent, status)
+            OUTPUT INSERTED.agreementId
+            VALUES (@stallId, @name, @agreementType, @startDate, @expiryDate, @monthlyRent, @status)`);
+  return getByIdForStall(r.recordset[0].agreementId, stallId);
 }
 
-async function update(agreementId, a) {
+// Update - ownership enforced in the WHERE. Returns undefined if not yours.
+async function update(agreementId, stallId, a) {
   const pool = await getPool();
   const r = await pool.request()
     .input("agreementId", sql.Int, agreementId)
-    .input("stallId", sql.Int, a.stallId)
+    .input("stallId", sql.Int, stallId)
+    .input("name", sql.NVarChar, a.name)
+    .input("agreementType", sql.NVarChar, a.agreementType)
     .input("startDate", sql.Date, a.startDate)
-    .input("endDate", sql.Date, a.endDate)
-    .input("monthlyRent", sql.Decimal(10, 2), a.monthlyRent)
-    .input("deposit", sql.Decimal(10, 2), a.deposit || 0)
-    .input("status", sql.NVarChar, a.status || "active")
-    .query(`UPDATE RentalAgreements
-            SET stallId=@stallId, startDate=@startDate, endDate=@endDate,
-                monthlyRent=@monthlyRent, deposit=@deposit, status=@status
-            OUTPUT INSERTED.*
-            WHERE agreementId=@agreementId`);
+    .input("expiryDate", sql.Date, a.expiryDate)
+    .input("monthlyRent", sql.Decimal(10, 2), a.monthlyRent ?? null)
+    .input("status", sql.NVarChar, a.status || "Active")
+    .query(`UPDATE StallAgreements
+            SET name=@name, agreementType=@agreementType, startDate=@startDate,
+                expiryDate=@expiryDate, monthlyRent=@monthlyRent, status=@status
+            WHERE agreementId=@agreementId AND stallId=@stallId`);
+  if (r.rowsAffected[0] === 0) return undefined;
+  return getByIdForStall(agreementId, stallId);
+}
+
+// Delete - same ownership rule.
+async function remove(agreementId, stallId) {
+  const pool = await getPool();
+  const r = await pool.request()
+    .input("agreementId", sql.Int, agreementId)
+    .input("stallId", sql.Int, stallId)
+    .query(`DELETE FROM StallAgreements
+            OUTPUT DELETED.agreementId
+            WHERE agreementId=@agreementId AND stallId=@stallId`);
   return r.recordset[0];
 }
 
-module.exports = { getAll, getByStall, getById, stallExists, create, update };
+module.exports = { getByStall, getByIdForStall, create, update, remove };

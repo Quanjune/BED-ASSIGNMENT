@@ -201,3 +201,85 @@ body.page-performance #nav-links li:nth-child(3) {
     font-variant-numeric: tabular-nums;
 }
 .vm-item .vm-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+/* ===================================================================
+   Additions — login-scoped rework (sign-in card, thumbs, badges)
+   =================================================================== */
+
+/* Dashboard header row: stall name on the left, Sign out on the right */
+.vm-head-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* Sign-in card stays narrow instead of stretching across the page */
+.vm-login {
+    max-width: 420px;
+}
+.vm-login .vm-field { margin-bottom: 0.9rem; }
+
+/* Selects + textareas styled to match .vm-field input */
+.vm-field select,
+.vm-field textarea {
+    font: inherit;
+    color: #474747;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #E4E4DE;
+    border-radius: 10px;
+    background: #FFFFFF;
+    min-width: 150px;
+    resize: vertical;
+}
+.vm-field select:focus,
+.vm-field textarea:focus {
+    outline: none;
+    border-color: #C7CDB6;
+    box-shadow: 0 0 0 3px rgba(219, 223, 208, 0.7);
+}
+.vm-field input:disabled,
+.vm-field select:disabled {
+    background: #F6F5EF;
+    color: rgba(71, 71, 71, 0.45);
+    cursor: not-allowed;
+}
+
+/* Dish thumbnail in the menu list */
+.vm-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #E4E4DE;
+    background: #FFFFFF;
+}
+/* Placeholder icon version (no image set / image failed to load) */
+.vm-thumb-ph {
+    object-fit: contain;
+    padding: 12px;
+    background: #F6F5EF;
+}
+
+/* Status badges on agreements & licences */
+.vm-badge {
+    flex-shrink: 0;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #EFEFEA;
+    color: #474747;
+}
+.vm-badge.ok     { background: #EBF2E9; color: #4F7A4A; }
+.vm-badge.warn   { background: #F7F0DF; color: #8A6D2B; }
+.vm-badge.danger { background: #F7E9E7; color: #B4483C; }
+.vm-badge.muted  { background: #EFEFEA; color: rgba(71, 71, 71, 0.55); }
+
+/* Date range line under a document's name */
+.vm-expiry {
+    font-size: 0.8rem;
+    color: rgba(71, 71, 71, 0.6);
+    margin-top: 0.15rem;
+}

@@ -25,7 +25,7 @@
         <nav class="header-nav">
             <ul id="nav-links">
                 <li><a href="./vendor.html">Menu</a></li>
-                <li><a href="./vendor_agreements.html">Rental Agreements</a></li>
+                <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
                 <li><a href="./vendor_performance.html">Performance</a></li>
                 <li><div class="divider"></div></li>
                 <li><a href="./user.html">Account</a></li>
@@ -52,22 +52,39 @@
             </ul>
         </nav>
 
-        <!-- Vendor menu management -->
-        <section class="vendor-menu">
+        <!-- ============ 1) VENDOR SIGN-IN (shown until logged in) ============ -->
+        <section id="login-section" class="vendor-menu" hidden>
             <div class="vm-head">
                 <p class="vm-eyebrow">Stall Owner</p>
-                <h2 class="vm-title">Manage Menu Items</h2>
-                <p class="vm-subtitle">Add, edit, and remove the dishes customers see on your stall.</p>
+                <h2 class="vm-title">Vendor sign in</h2>
+                <p class="vm-subtitle">Sign in with your stall owner account to manage your menu.</p>
             </div>
 
-            <!-- Load a stall's menu -->
-            <div class="vm-toolbar">
+            <div class="vm-card vm-login">
+                <p id="login-status" class="vm-status err" hidden></p>
                 <label class="vm-field">
-                    <span>Stall ID</span>
-                    <input id="filter-stall" type="number" min="1" placeholder="e.g. 1">
+                    <span>Email <em>*</em></span>
+                    <input id="login-email" type="email" placeholder="chickenrice@test.com" autocomplete="username">
                 </label>
-                <button id="btn-load" class="vm-btn vm-btn-ghost">Load this stall</button>
-                <button id="btn-load-all" class="vm-btn vm-btn-ghost">Show all items</button>
+                <label class="vm-field">
+                    <span>Password <em>*</em></span>
+                    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+                </label>
+                <div class="vm-form-actions">
+                    <button id="btn-login" class="vm-btn vm-btn-primary">Sign in</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 2) MENU DASHBOARD (your stall only) ============ -->
+        <section id="dash-section" class="vendor-menu" hidden>
+            <div class="vm-head vm-head-row">
+                <div>
+                    <p class="vm-eyebrow">Stall Owner</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
+                    <p class="vm-subtitle" id="stall-center"></p>
+                </div>
+                <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
             </div>
 
             <!-- status line -->
@@ -85,8 +102,12 @@
                         <input id="in-name" type="text" placeholder="Chicken Rice">
                     </label>
                     <label class="vm-field">
-                        <span>Stall ID <em>*</em></span>
-                        <input id="in-stall" type="number" min="1" placeholder="1">
+                        <span>Description</span>
+                        <textarea id="in-desc" rows="2" placeholder="Tender poached chicken with fragrant rice."></textarea>
+                    </label>
+                    <label class="vm-field">
+                        <span>Image URL</span>
+                        <input id="in-image" type="text" placeholder="https://… or /media/products/dish.jpg">
                     </label>
                     <label class="vm-field">
                         <span>Base price (S$) <em>*</em></span>
@@ -101,9 +122,9 @@
 
                 <!-- Menu list -->
                 <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Current menu</h3>
+                    <h3 class="vm-card-title">Your menu</h3>
                     <div id="menu-list" class="vm-menu-list">
-                        <p class="vm-empty">Nothing loaded yet. Use the buttons above to load a menu.</p>
+                        <p class="vm-empty">Loading your menu…</p>
                     </div>
                 </div>
             </div>
@@ -158,6 +179,8 @@
 
     <!-- Template Script (hamburger toggle) -->
     <script src="./Template/template.js"></script>
+    <!-- Shared vendor login gate + authFetch -->
+    <script src="./scripts/vendor_auth.js"></script>
     <!-- Vendor menu logic -->
     <script src="./scripts/vendor.js"></script>
 </body>

@@ -1,19 +1,29 @@
-// vendorAgreementsValidator.js  (Kishore - Vendor Management, Sprint 2)
+// vendorAgreementsValidator.js  (Kishore - Vendor Management, Sprint 2 rework)
 const Joi = require("joi");
 
-// endDate must be strictly after startDate -> gives a 400 (AC2).
+const AGREEMENT_TYPES = ["Rental", "Store Licence", "Food Safety", "Fire Safety", "Other"];
+
+// No stallId - it comes from the login token, same as the menu.
+// Rule 1: expiryDate must be after startDate            -> 400
+// Rule 2: monthlyRent is required ONLY for Rental rows  -> 400
 const base = {
-  stallId: Joi.number().integer().positive().required(),
-  vendorId: Joi.string().allow("", null).max(100),
+  name: Joi.string().trim().min(1).max(150).required(),
+  agreementType: Joi.string().valid(...AGREEMENT_TYPES).required(),
   startDate: Joi.date().required(),
-  endDate: Joi.date().greater(Joi.ref("startDate")).required()
-    .messages({ "date.greater": "endDate must be after startDate" }),
-  monthlyRent: Joi.number().positive().precision(2).required(),
-  deposit: Joi.number().min(0).precision(2).default(0),
-  status: Joi.string().valid("active", "expired", "terminated").default("active"),
+  expiryDate: Joi.date().greater(Joi.ref("startDate")).required()
+    .messages({ "date.greater": "expiryDate must be after startDate" }),
+  monthlyRent: Joi.when("agreementType", {
+    is: "Rental",
+    then: Joi.number().positive().precision(2).required()
+      .messages({ "any.required": "monthlyRent is required for Rental agreements" }),
+    otherwise: Joi.number().min(0).precision(2).allow(null)
+  }),
+  // Only user-set statuses live here. 'Expired' / 'Expiring Soon' are
+  // computed by the backend from expiryDate, so nobody can fake them.
+  status: Joi.string().valid("Active", "Terminated").default("Active")
 };
 
 const createAgreement = Joi.object(base);
 const updateAgreement = Joi.object(base);
 
-module.exports = { createAgreement, updateAgreement };
+module.exports = { createAgreement, updateAgreement, AGREEMENT_TYPES };

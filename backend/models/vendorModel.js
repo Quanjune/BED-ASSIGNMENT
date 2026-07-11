@@ -1,6 +1,8 @@
 // vendorModel.js  (Kishore - Vendor Management)
-// Reads/writes the shared Products table. A "menu item" = a Product
-// belonging to a FoodStall. Same table QJ uses - one source of truth.
+// Reads/writes the shared Products table (same one QJ's customer pages
+// read - one source of truth). Every function takes the stallId that the
+// vendorAuth middleware resolved from the login token, so a stall owner
+// can only see and change THEIR OWN menu.
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
@@ -10,40 +12,30 @@ function getPool() {
   return poolPromise;
 }
 
-async function getAll() {
-  const pool = await getPool();
-  const r = await pool.request().query("SELECT * FROM Products");
-  return r.recordset;
-}
-
+// All menu items for one stall.
 async function getByStall(stallId) {
   const pool = await getPool();
   const r = await pool.request()
     .input("stallId", sql.Int, stallId)
-    .query("SELECT * FROM Products WHERE stallId = @stallId");
+    .query("SELECT * FROM Products WHERE stallId = @stallId ORDER BY productId DESC");
   return r.recordset;
 }
 
-async function getById(productId) {
+// One item - only if it belongs to this stall (ownership check).
+async function getByIdForStall(productId, stallId) {
   const pool = await getPool();
   const r = await pool.request()
     .input("productId", sql.Int, productId)
-    .query("SELECT * FROM Products WHERE productId = @productId");
+    .input("stallId", sql.Int, stallId)
+    .query("SELECT * FROM Products WHERE productId = @productId AND stallId = @stallId");
   return r.recordset[0];
 }
 
-async function stallExists(stallId) {
+// Insert - stallId comes from the verified token, NOT from the request body.
+async function create(stallId, p) {
   const pool = await getPool();
   const r = await pool.request()
     .input("stallId", sql.Int, stallId)
-    .query("SELECT stallId FROM FoodStalls WHERE stallId = @stallId");
-  return r.recordset.length > 0;
-}
-
-async function create(p) {
-  const pool = await getPool();
-  const r = await pool.request()
-    .input("stallId", sql.Int, p.stallId)
     .input("name", sql.NVarChar, p.name)
     .input("description", sql.NVarChar, p.description || null)
     .input("imagePath", sql.NVarChar, p.imagePath || null)
@@ -54,10 +46,13 @@ async function create(p) {
   return r.recordset[0];
 }
 
-async function update(productId, p) {
+// Update - WHERE clause includes stallId, so editing someone else's item
+// simply matches 0 rows (controller turns that into a 404).
+async function update(productId, stallId, p) {
   const pool = await getPool();
   const r = await pool.request()
     .input("productId", sql.Int, productId)
+    .input("stallId", sql.Int, stallId)
     .input("name", sql.NVarChar, p.name)
     .input("description", sql.NVarChar, p.description || null)
     .input("imagePath", sql.NVarChar, p.imagePath || null)
@@ -65,16 +60,20 @@ async function update(productId, p) {
     .query(`UPDATE Products
             SET name=@name, description=@description, imagePath=@imagePath, basePrice=@basePrice
             OUTPUT INSERTED.*
-            WHERE productId=@productId`);
+            WHERE productId=@productId AND stallId=@stallId`);
   return r.recordset[0];
 }
 
-async function remove(productId) {
+// Delete - same ownership rule as update.
+async function remove(productId, stallId) {
   const pool = await getPool();
   const r = await pool.request()
     .input("productId", sql.Int, productId)
-    .query("DELETE FROM Products OUTPUT DELETED.productId WHERE productId=@productId");
+    .input("stallId", sql.Int, stallId)
+    .query(`DELETE FROM Products
+            OUTPUT DELETED.productId
+            WHERE productId=@productId AND stallId=@stallId`);
   return r.recordset[0];
 }
 
-module.exports = { getAll, getByStall, getById, stallExists, create, update, remove };
+module.exports = { getByStall, getByIdForStall, create, update, remove };

@@ -8,18 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./Template/template.css">
     <link rel="stylesheet" href="./styles/vendor.css">
-    <title>Vendor · Rental Agreements</title>
-    <!-- small extras just for this page (status badges + expiry warning) -->
-    <style>
-        .vm-badge { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; }
-        .vm-badge.active     { background:#DBDFD0; color:#474747; }
-        .vm-badge.expired    { background:#f3d6d6; color:#8a2b2b; }
-        .vm-badge.terminated { background:#e2e2e2; color:#555; }
-        .vm-expiry      { font-size:12px; color:#777; }
-        .vm-expiry.warn { color:#8a2b2b; font-weight:600; }
-    </style>
+    <title>Vendor · Agreements &amp; Licences</title>
 </head>
 <body class="page-agreements">
+    <!-- Header (same structure as home.html) -->
     <header>
         <div class="header-brand">
             <button id="hamburger">
@@ -33,7 +25,7 @@
         <nav class="header-nav">
             <ul id="nav-links">
                 <li><a href="./vendor.html">Menu</a></li>
-                <li><a href="./vendor_agreements.html">Rental Agreements</a></li>
+                <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
                 <li><a href="./vendor_performance.html">Performance</a></li>
                 <li><div class="divider"></div></li>
                 <li><a href="./user.html">Account</a></li>
@@ -51,87 +43,112 @@
     </header>
 
     <main>
+        <!-- Breadcrumbs -->
         <nav id="breadcrumbs">
             <ul>
                 <li><a href="./home.html">Home</a></li>
                 <li><a href="./vendor.html">Vendor</a></li>
-                <li><a href="./vendor_agreements.html">Rental Agreements</a></li>
+                <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
             </ul>
         </nav>
 
-        <section class="vendor-menu">
+        <!-- ============ 1) VENDOR SIGN-IN (shown until logged in) ============ -->
+        <section id="login-section" class="vendor-menu" hidden>
             <div class="vm-head">
                 <p class="vm-eyebrow">Stall Owner</p>
-                <h2 class="vm-title">Rental Agreements</h2>
-                <p class="vm-subtitle">Register a tenancy, keep the details up to date, and see when it's due to expire.</p>
+                <h2 class="vm-title">Vendor sign in</h2>
+                <p class="vm-subtitle">Sign in with your stall owner account to manage your agreements and licences.</p>
             </div>
 
-            <!-- Load a stall's agreements -->
-            <div class="vm-toolbar">
+            <div class="vm-card vm-login">
+                <p id="login-status" class="vm-status err" hidden></p>
                 <label class="vm-field">
-                    <span>Stall ID</span>
-                    <input id="filter-stall" type="number" min="1" placeholder="e.g. 1">
+                    <span>Email <em>*</em></span>
+                    <input id="login-email" type="email" placeholder="chickenrice@test.com" autocomplete="username">
                 </label>
-                <button id="btn-load" class="vm-btn vm-btn-ghost">Load this stall</button>
-                <button id="btn-load-all" class="vm-btn vm-btn-ghost">Show all agreements</button>
+                <label class="vm-field">
+                    <span>Password <em>*</em></span>
+                    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+                </label>
+                <div class="vm-form-actions">
+                    <button id="btn-login" class="vm-btn vm-btn-primary">Sign in</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 2) AGREEMENTS DASHBOARD (your stall only) ============ -->
+        <section id="dash-section" class="vendor-menu" hidden>
+            <div class="vm-head vm-head-row">
+                <div>
+                    <p class="vm-eyebrow">Agreements &amp; Licences</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
+                    <p class="vm-subtitle" id="stall-center"></p>
+                </div>
+                <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
             </div>
 
             <!-- status line -->
             <p id="status" class="vm-status" hidden></p>
 
             <div class="vm-layout">
-                <!-- Register / edit form -->
+                <!-- Add / edit form -->
                 <div class="vm-card vm-form">
-                    <h3 id="form-title" class="vm-card-title">Register an agreement</h3>
+                    <h3 id="form-title" class="vm-card-title">Add a document</h3>
 
                     <input id="edit-id" type="hidden" value="">
 
                     <label class="vm-field">
-                        <span>Stall ID <em>*</em></span>
-                        <input id="in-stall" type="number" min="1" placeholder="1">
+                        <span>Document name <em>*</em></span>
+                        <input id="in-name" type="text" placeholder="SFA Food Shop Licence">
+                    </label>
+                    <label class="vm-field">
+                        <span>Type <em>*</em></span>
+                        <select id="in-type">
+                            <option value="Rental">Rental</option>
+                            <option value="Store Licence">Store Licence</option>
+                            <option value="Food Safety">Food Safety</option>
+                            <option value="Fire Safety">Fire Safety</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </label>
                     <label class="vm-field">
                         <span>Start date <em>*</em></span>
                         <input id="in-start" type="date">
                     </label>
                     <label class="vm-field">
-                        <span>End date <em>*</em></span>
+                        <span>Expiry date <em>*</em></span>
                         <input id="in-end" type="date">
                     </label>
                     <label class="vm-field">
-                        <span>Monthly rent (S$) <em>*</em></span>
-                        <input id="in-rent" type="number" min="0" step="0.01" placeholder="1200.00">
-                    </label>
-                    <label class="vm-field">
-                        <span>Deposit (S$)</span>
-                        <input id="in-deposit" type="number" min="0" step="0.01" placeholder="2400.00">
+                        <span>Monthly rent (S$) <em id="rent-req">*</em></span>
+                        <input id="in-rent" type="number" min="0" step="0.01" placeholder="1800.00">
                     </label>
                     <label class="vm-field">
                         <span>Status</span>
                         <select id="in-status">
-                            <option value="active">active</option>
-                            <option value="expired">expired</option>
-                            <option value="terminated">terminated</option>
+                            <option value="Active">Active</option>
+                            <option value="Terminated">Terminated</option>
                         </select>
                     </label>
 
                     <div class="vm-form-actions">
-                        <button id="btn-save" class="vm-btn vm-btn-primary">Register agreement</button>
+                        <button id="btn-save" class="vm-btn vm-btn-primary">Save document</button>
                         <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
                     </div>
                 </div>
 
-                <!-- Agreements list -->
+                <!-- Documents list -->
                 <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Current agreements</h3>
+                    <h3 class="vm-card-title">Your agreements &amp; licences</h3>
                     <div id="agreement-list" class="vm-menu-list">
-                        <p class="vm-empty">Nothing loaded yet. Use the buttons above to load agreements.</p>
+                        <p class="vm-empty">Loading your documents…</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
+    <!-- Footer (same as home.html) -->
     <footer>
         <div class="sub_footer">
             <div class="footer-branding">
@@ -177,7 +194,11 @@
         <p>&copy; 2026 Hawkers. All rights reserved.</p>
     </footer>
 
+    <!-- Template Script (hamburger toggle) -->
     <script src="./Template/template.js"></script>
+    <!-- Shared vendor login gate + authFetch -->
+    <script src="./scripts/vendor_auth.js"></script>
+    <!-- Agreements & licences logic -->
     <script src="./scripts/vendor_agreements.js"></script>
 </body>
 </html>

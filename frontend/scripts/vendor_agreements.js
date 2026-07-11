@@ -1,40 +1,39 @@
 /* ===================================================================
-   Vendor Rental Agreements — talks to your backend at
-   /api/vendors/agreements  (relative URL, so it works when the page
-   is served by the backend at http://localhost:3000/vendor_agreements.html
-   — same origin, no CORS).
+   Vendor Agreements & Licences  (Kishore - Vendor Management)
+   Talks to /api/vendors/agreements THROUGH the login token.
 
-   Endpoints (same shape as your menu module):
-     GET  /api/vendors/agreements                 -> all agreements
-     GET  /api/vendors/agreements/stall/:stallId  -> agreements for one stall
-     POST /api/vendors/agreements                 -> register (stallId, startDate,
-                                                     endDate, monthlyRent, deposit, status)
-     PUT  /api/vendors/agreements/:id             -> update
+   Same idea as vendor.js: no Stall ID anywhere. You sign in, the
+   backend knows which stall you own, and every document below is
+   yours only. One record = one document (rental agreement, SFA food
+   licence, fire safety cert, etc).
 
-   NOTE: these backend routes still need to be built (vendorAgreements
-   model/controller/routes). Until then the page loads but shows the
-   "couldn't reach the server" message — that's expected.
+   Endpoints (all require Authorization: Bearer <token>):
+     GET    /api/vendors/agreements       -> my stall's documents
+     POST   /api/vendors/agreements       -> add
+     PUT    /api/vendors/agreements/:id   -> edit
+     DELETE /api/vendors/agreements/:id   -> delete
+
+   The backend already computes displayStatus + daysToExpiry in SQL
+   (Active / Expiring Soon / Expired / Terminated), so the badge just
+   trusts what it gets back. There's a tiny fallback compute in case
+   an older backend build doesn't send those fields.
    =================================================================== */
 
 const API = "/api/vendors/agreements";
 
-const filterStall = document.getElementById("filter-stall");
-const btnLoad     = document.getElementById("btn-load");
-const btnLoadAll  = document.getElementById("btn-load-all");
-const statusEl    = document.getElementById("status");
-
-const editId     = document.getElementById("edit-id");
-const inStall    = document.getElementById("in-stall");
-const inStart    = document.getElementById("in-start");
-const inEnd      = document.getElementById("in-end");
-const inRent     = document.getElementById("in-rent");
-const inDeposit  = document.getElementById("in-deposit");
-const inStatus   = document.getElementById("in-status");
-const formTitle  = document.getElementById("form-title");
-const btnSave    = document.getElementById("btn-save");
-const btnCancel  = document.getElementById("btn-cancel");
-
-const listEl = document.getElementById("agreement-list");
+const statusEl  = document.getElementById("status");
+const editId    = document.getElementById("edit-id");
+const inName    = document.getElementById("in-name");
+const inType    = document.getElementById("in-type");
+const inStart   = document.getElementById("in-start");
+const inEnd     = document.getElementById("in-end");
+const inRent    = document.getElementById("in-rent");
+const rentReq   = document.getElementById("rent-req");
+const inStatus  = document.getElementById("in-status");
+const formTitle = document.getElementById("form-title");
+const btnSave   = document.getElementById("btn-save");
+const btnCancel = document.getElementById("btn-cancel");
+const listEl    = document.getElementById("agreement-list");
 
 // ---- helpers ------------------------------------------------------
 function showStatus(msg, type) {
@@ -44,59 +43,91 @@ function showStatus(msg, type) {
 }
 function clearStatus() { statusEl.hidden = true; }
 
-// SQL/model field casing can vary — read whatever exists.
 function normalise(a) {
     return {
-        id:      a.agreementId ?? a.AgreementID ?? a.agreementID ?? a.AgreementId ?? a.id,
-        stall:   a.stallId ?? a.StallID ?? a.stallID ?? a.StallId,
-        start:   a.startDate ?? a.StartDate ?? a.start,
-        end:     a.endDate ?? a.EndDate ?? a.end,
-        rent:    a.monthlyRent ?? a.MonthlyRent ?? a.rent,
-        deposit: a.deposit ?? a.Deposit,
-        status:  a.status ?? a.Status ?? "active",
+        id:     a.agreementId ?? a.id,
+        name:   a.name,
+        type:   a.agreementType ?? a.type,
+        start:  a.startDate ?? a.start,
+        end:    a.expiryDate ?? a.end,
+        rent:   a.monthlyRent ?? null,
+        status: a.status ?? "Active",
+        displayStatus: a.displayStatus,
+        days:   a.daysToExpiry,
     };
 }
+
 function money(v) {
     const n = Number(v);
     return isNaN(n) ? "\u2014" : "S$" + n.toFixed(2);
 }
+
+// "2026-09-30T00:00:00.000Z" -> "30 Sep 2026" (and yyyy-mm-dd for inputs)
 function fmtDate(v) {
     if (!v) return "\u2014";
     const d = new Date(v);
-    return isNaN(d) ? String(v) : d.toISOString().slice(0, 10);
+    if (isNaN(d)) return "\u2014";
+    return d.toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
 }
-// days until the end date (negative = already expired)
-function daysToExpiry(end) {
-    if (!end) return null;
-    const d = new Date(end);
-    if (isNaN(d)) return null;
-    const today = new Date();
-    return Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+function toInputDate(v) {
+    if (!v) return "";
+    const d = new Date(v);
+    if (isNaN(d)) return "";
+    return d.toISOString().slice(0, 10);
 }
-function expiryLabel(end) {
-    const days = daysToExpiry(end);
-    if (days === null) return { text: "", warn: false };
-    if (days < 0)   return { text: `Expired ${Math.abs(days)} day(s) ago`, warn: true };
-    if (days === 0) return { text: "Expires today", warn: true };
-    if (days <= 30) return { text: `Expires in ${days} day(s)`, warn: true };
-    return { text: `Expires in ${days} day(s)`, warn: false };
+
+// Fallback only — normally the backend sends displayStatus/daysToExpiry.
+function computeDisplay(it) {
+    if (it.displayStatus) return it;
+    if (it.status === "Terminated") { it.displayStatus = "Terminated"; return it; }
+    const end = new Date(it.end);
+    const days = Math.ceil((end - new Date()) / 86400000);
+    it.days = days;
+    it.displayStatus = days < 0 ? "Expired" : days <= 30 ? "Expiring Soon" : "Active";
+    return it;
+}
+
+function badgeClass(displayStatus) {
+    switch (displayStatus) {
+        case "Active":        return "vm-badge ok";
+        case "Expiring Soon": return "vm-badge warn";
+        case "Expired":       return "vm-badge danger";
+        case "Terminated":    return "vm-badge muted";
+        default:              return "vm-badge";
+    }
+}
+
+function handleAuthFail(res, data) {
+    if (res.status === 401 || res.status === 403) {
+        VendorAuth.showLogin(data.message || data.error || "Your session expired. Sign in again.");
+        return true;
+    }
+    return false;
+}
+
+// Monthly rent only makes sense for Rental documents — the Joi validator
+// on the backend enforces the same rule, this just mirrors it in the UI.
+function syncRentField() {
+    const isRental = inType.value === "Rental";
+    inRent.disabled = !isRental;
+    rentReq.hidden = !isRental;
+    if (!isRental) inRent.value = "";
 }
 
 // ---- load & render ------------------------------------------------
-async function loadAgreements(stallId) {
+async function loadAgreements() {
     clearStatus();
     listEl.innerHTML = '<p class="vm-empty">Loading\u2026</p>';
-    const url = stallId ? `${API}/stall/${stallId}` : API;
     try {
-        const res = await fetch(url);
+        const res = await VendorAuth.authFetch(API);
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            showStatus(err.error || `Couldn't load agreements (${res.status}).`, "err");
+            if (handleAuthFail(res, data)) return;
+            showStatus(data.error || `Couldn't load your documents (${res.status}).`, "err");
             listEl.innerHTML = '<p class="vm-empty">Nothing to show.</p>';
             return;
         }
-        const data = await res.json();
-        render(Array.isArray(data) ? data : (data.items || []));
+        render(Array.isArray(data) ? data : []);
     } catch (e) {
         showStatus("Couldn't reach the server. Is the backend running?", "err");
         listEl.innerHTML = '<p class="vm-empty">Nothing to show.</p>';
@@ -105,75 +136,94 @@ async function loadAgreements(stallId) {
 
 function render(items) {
     if (!items.length) {
-        listEl.innerHTML = '<p class="vm-empty">No agreements here yet. Register one on the left.</p>';
+        listEl.innerHTML = '<p class="vm-empty">No agreements or licences recorded yet. Add your first one on the left.</p>';
         return;
     }
     listEl.innerHTML = "";
-    items.map(normalise).forEach((it) => {
-        const exp = expiryLabel(it.end);
+    items.map(normalise).map(computeDisplay).forEach((it) => {
         const row = document.createElement("div");
         row.className = "vm-item";
         row.innerHTML = `
             <div class="vm-info">
-                <div class="vm-name">Stall ${it.stall ?? "?"} \u00b7 ${money(it.rent)}/mo</div>
-                <div class="vm-meta">${fmtDate(it.start)} \u2192 ${fmtDate(it.end)} \u00b7 ID ${it.id ?? "?"}</div>
-                <div class="vm-expiry ${exp.warn ? "warn" : ""}">${exp.text}</div>
+                <div class="vm-name"></div>
+                <div class="vm-meta"></div>
+                <div class="vm-expiry"></div>
             </div>
-            <div class="vm-price"><span class="vm-badge ${it.status}">${it.status}</span></div>
+            <span class="${badgeClass(it.displayStatus)}"></span>
             <div class="vm-actions">
                 <button class="vm-btn vm-btn-mini">Edit</button>
+                <button class="vm-btn vm-btn-danger">Delete</button>
             </div>`;
+
+        // set text via properties so odd characters are safe
+        row.querySelector(".vm-name").textContent = it.name ?? "(unnamed)";
+
+        const metaBits = [it.type];
+        if (it.type === "Rental" && it.rent != null) metaBits.push(money(it.rent) + "/mo");
+        row.querySelector(".vm-meta").textContent = metaBits.join(" \u00B7 ");
+
+        let expiryText = `${fmtDate(it.start)} \u2192 ${fmtDate(it.end)}`;
+        if (it.displayStatus === "Expiring Soon" && it.days != null) {
+            expiryText += ` \u00B7 ${it.days} day${it.days === 1 ? "" : "s"} left`;
+        }
+        row.querySelector(".vm-expiry").textContent = expiryText;
+
+        row.querySelector(".vm-badge").textContent = it.displayStatus;
         row.querySelector(".vm-btn-mini").addEventListener("click", () => startEdit(it));
+        row.querySelector(".vm-btn-danger").addEventListener("click", () => remove(it));
         listEl.appendChild(row);
     });
 }
 
-// ---- register / edit ----------------------------------------------
+// ---- add / edit ---------------------------------------------------
 function startEdit(it) {
-    editId.value    = it.id ?? "";
-    inStall.value   = it.stall ?? "";
-    inStart.value   = fmtDate(it.start) === "\u2014" ? "" : fmtDate(it.start);
-    inEnd.value     = fmtDate(it.end) === "\u2014" ? "" : fmtDate(it.end);
-    inRent.value    = it.rent ?? "";
-    inDeposit.value = it.deposit ?? "";
-    inStatus.value  = it.status ?? "active";
-    formTitle.textContent = "Edit agreement";
-    btnSave.textContent = "Update agreement";
+    editId.value   = it.id ?? "";
+    inName.value   = it.name ?? "";
+    inType.value   = it.type ?? "Rental";
+    inStart.value  = toInputDate(it.start);
+    inEnd.value    = toInputDate(it.end);
+    inStatus.value = it.status ?? "Active";
+    syncRentField();
+    inRent.value   = it.type === "Rental" && it.rent != null ? it.rent : "";
+    formTitle.textContent = "Edit document";
+    btnSave.textContent = "Update document";
     btnCancel.hidden = false;
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function resetForm() {
     editId.value = "";
-    inStall.value = inStart.value = inEnd.value = inRent.value = inDeposit.value = "";
-    inStatus.value = "active";
-    formTitle.textContent = "Register an agreement";
-    btnSave.textContent = "Register agreement";
+    inName.value = inStart.value = inEnd.value = inRent.value = "";
+    inType.value = "Rental";
+    inStatus.value = "Active";
+    syncRentField();
+    formTitle.textContent = "Add a document";
+    btnSave.textContent = "Save document";
     btnCancel.hidden = true;
 }
 
 async function save() {
     clearStatus();
-    const stall = inStall.value.trim();
+    const name  = inName.value.trim();
     const start = inStart.value;
     const end   = inEnd.value;
-    const rent  = inRent.value.trim();
 
-    if (!stall || !start || !end || rent === "") {
-        showStatus("Stall ID, start date, end date and monthly rent are all required.", "err");
+    if (!name || !start || !end) {
+        showStatus("Document name, Start date and Expiry date are all required.", "err");
         return;
     }
-    if (end < start) {
-        showStatus("End date can't be before the start date.", "err");
+    if (inType.value === "Rental" && inRent.value.trim() === "") {
+        showStatus("Monthly rent is required for Rental documents.", "err");
         return;
     }
 
+    // NOTE: no stallId in the payload - the backend takes it from the token.
     const payload = {
-        stallId: Number(stall),
+        name,
+        agreementType: inType.value,
         startDate: start,
-        endDate: end,
-        monthlyRent: Number(rent),
-        deposit: inDeposit.value.trim() === "" ? 0 : Number(inDeposit.value),
+        expiryDate: end,
+        monthlyRent: inType.value === "Rental" ? Number(inRent.value) : null,
         status: inStatus.value,
     };
 
@@ -181,33 +231,49 @@ async function save() {
     const editing = id !== "";
 
     try {
-        const res = await fetch(editing ? `${API}/${id}` : API, {
+        const res = await VendorAuth.authFetch(editing ? `${API}/${id}` : API, {
             method: editing ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-            showStatus(data.error || `Save failed (${res.status}).`, "err");
+            if (handleAuthFail(res, data)) return;
+            const detail = data.details ? " " + data.details.join(" ") : "";
+            showStatus((data.error || `Save failed (${res.status}).`) + detail, "err");
             return;
         }
-        showStatus(editing ? "Agreement updated." : "Agreement registered.", "ok");
+        showStatus(editing ? "Document updated." : "Document added.", "ok");
         resetForm();
-        const f = filterStall.value.trim();
-        loadAgreements(f || undefined);
+        loadAgreements();
+    } catch (e) {
+        showStatus("Couldn't reach the server. Is the backend running?", "err");
+    }
+}
+
+async function remove(it) {
+    if (!confirm(`Delete "${it.name}"? This can't be undone.`)) return;
+    clearStatus();
+    try {
+        const res = await VendorAuth.authFetch(`${API}/${it.id}`, { method: "DELETE" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            if (handleAuthFail(res, data)) return;
+            showStatus(data.error || `Delete failed (${res.status}).`, "err");
+            return;
+        }
+        showStatus("Document deleted.", "ok");
+        loadAgreements();
     } catch (e) {
         showStatus("Couldn't reach the server. Is the backend running?", "err");
     }
 }
 
 // ---- wire up ------------------------------------------------------
-btnLoad.addEventListener("click", () => {
-    const f = filterStall.value.trim();
-    if (!f) { showStatus("Type a Stall ID first, or hit \u201cShow all agreements\u201d.", "err"); return; }
-    loadAgreements(f);
-});
-btnLoadAll.addEventListener("click", () => { filterStall.value = ""; loadAgreements(); });
 btnSave.addEventListener("click", save);
 btnCancel.addEventListener("click", resetForm);
+inType.addEventListener("change", syncRentField);
 
-loadAgreements();  // load everything on first open
+// The gate (vendor_auth.js) shows the login card first; once the login and
+// stall lookup succeed it calls onReady, and only then do we load the list.
+VendorAuth.initVendorGate({ onReady: () => { resetForm(); loadAgreements(); } });
