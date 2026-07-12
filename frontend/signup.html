@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hawkers | Sign Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <div class="auth-shell">
+      <section class="card">
+        <div class="brand-row">
+          <div class="brand-mark">
+            <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M14 34c2 10 10 18 18 18s16-8 18-18H14z" fill="#e8e8e8" stroke="#1a1a1a" stroke-width="2"/>
+              <path d="M12 34h40" stroke="#1a1a1a" stroke-width="2" />
+              <path d="M22 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M34 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M46 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h1 class="brand-name">Hawkers</h1>
+        </div>
+
+        <h2 class="form-title">Join Us!</h2>
+        <p class="brand-subtitle">Create an account to explore stalls and deals.</p>
+
+        <form class="form" id="signupForm">
+          <label for="name">Name</label>
+          <input id="name" class="input" type="text" placeholder="Enter your name" autocomplete="name" required>
+
+          <label for="email">Email Address</label>
+          <input id="email" class="input" type="email" placeholder="Enter your email address" autocomplete="email" required>
+
+          <label for="password">Password</label>
+          <input id="password" class="input" type="password" placeholder="Create a password (min 6 characters)" autocomplete="new-password" required>
+
+          <label for="role">I am a</label>
+          <select id="role" class="input">
+            <option value="customer">Customer</option>
+            <option value="vendor">Vendor (stall owner)</option>
+          </select>
+
+          <p id="errorBox" style="color:#b23a43; font-size:12px; margin:4px 0 0; min-height:14px;"></p>
+
+          <button id="btnSignup" class="btn" type="submit">Sign Up</button>
+
+          <div class="links">
+            <div>Have an account? <a href="login.html">Sign In</a></div>
+          </div>
+        </form>
+      </section>
+
+      <section class="photo-grid" aria-label="Photo collage">
+        <div class="photo tall"><img src="/media/images/city.jpg" alt="Street scene"></div>
+        <div class="photo-stack">
+          <div class="photo"><img src="/media/images/hawker.jpg" alt="Hawker stall interior"></div>
+          <div class="photo wide"><img src="/media/images/sg.jpg" alt="Singapore skyline"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="scripts/auth.js"></script>
+</body>
+</html>
