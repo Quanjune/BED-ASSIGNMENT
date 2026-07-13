@@ -19,10 +19,10 @@ app.get("/", (req, res) => {
 });
  
 // --- Routes  ---
-app.use("/api/centers", require("./routes/centerRoutes"));   
-app.use("/api/products", require("./routes/productRoutes")); 
-app.use("/api/cart", require("./routes/cartRoutes"));       
-app.use("/api/orders", require("./routes/orderRoutes"));     
+//app.use("/api/centers", require("./routes/centerRoutes"));   
+//app.use("/api/products", require("./routes/productRoutes")); 
+//app.use("/api/cart", require("./routes/cartRoutes"));       
+//app.use("/api/orders", require("./routes/orderRoutes"));     
 app.use("/api/inspections", require("./routes/inspectionRoutes"));       
 app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));  
  
