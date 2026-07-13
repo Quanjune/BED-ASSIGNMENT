@@ -1,12 +1,9 @@
--- ============================================================
 -- users_auth.sql
 -- Users table for login/signup (customers, vendors, admin)
 -- Aswin's individual feature. Run in SSMS against HawkersDB.
--- ============================================================
 USE HawkersDB;
 GO
 
--- Drop first so the script can be re-run cleanly during development
 IF OBJECT_ID('dbo.Users', 'U') IS NOT NULL DROP TABLE dbo.Users;
 GO
 
