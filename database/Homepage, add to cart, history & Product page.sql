@@ -18,6 +18,8 @@ IF OBJECT_ID('dbo.CartItems', 'U') IS NOT NULL DROP TABLE dbo.CartItems;
 IF OBJECT_ID('dbo.OrderItems', 'U') IS NOT NULL DROP TABLE dbo.OrderItems;
 IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL DROP TABLE dbo.Orders;
 IF OBJECT_ID('dbo.Products', 'U') IS NOT NULL DROP TABLE dbo.Products;
+IF OBJECT_ID('dbo.Complaints', 'U') IS NOT NULL DROP TABLE dbo.Complaints;
+IF OBJECT_ID('dbo.Feedback', 'U') IS NOT NULL DROP TABLE dbo.Feedback;
 IF OBJECT_ID('dbo.FoodStalls', 'U') IS NOT NULL DROP TABLE dbo.FoodStalls;
 IF OBJECT_ID('dbo.HawkerCenters', 'U') IS NOT NULL DROP TABLE dbo.HawkerCenters;
 GO
@@ -96,6 +98,31 @@ CREATE TABLE OrderItems (
 );
 GO
 
+CREATE TABLE Feedback (
+    feedbackId   INT IDENTITY(1,1) PRIMARY KEY,
+    stallId      INT NOT NULL,
+    userId       NVARCHAR(100) NOT NULL,
+    rating       INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment      NVARCHAR(1000) NULL,
+    createdAt    DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Feedback_Stall
+        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
+);
+GO
+
+CREATE TABLE Complaints (
+    complaintId  INT IDENTITY(1,1) PRIMARY KEY,
+    stallId      INT NOT NULL,
+    userId       NVARCHAR(100) NOT NULL,
+    category     NVARCHAR(50) NULL,          -- e.g. Hygiene, Service
+    description  NVARCHAR(1000) NOT NULL,
+    status       NVARCHAR(20) NOT NULL DEFAULT 'Open',   -- Open / Resolved
+    createdAt    DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Complaints_Stall
+        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
+);
+GO
+
 -- 4) SAMPLE DATA --------------------------------------------
 INSERT INTO HawkerCenters (name, description, location, imagePath) VALUES
 ('Maxwell Food Centre', 'Iconic hawker centre in Chinatown.', 'Kadayanallur St', '/assets/images/maxwell.jpg'),
@@ -131,55 +158,16 @@ INSERT INTO OrderItems (orderId, productName, quantity, itemTotal) VALUES
 (1, 'Oyster Cake', 1, 3.00);
 GO
 
+INSERT INTO Feedback (stallId, userId, rating, comment) VALUES
+(1, 'user123', 5, 'Tender chicken and fragrant rice. Best in Maxwell!'),
+(1, 'user456', 4, 'Very good but the queue was long.'),
+(3, 'user123', 2, 'Hokkien mee was lukewarm when served.');
+GO
+
+INSERT INTO Complaints (stallId, userId, category, description, status) VALUES
+(3, 'user456', 'Hygiene', 'Table was not cleaned and utensils looked dirty.', 'Open'),
+(2, 'user123', 'Service', 'Waited very long and received the wrong order.', 'Resolved');
+GO
+
 PRINT 'HawkersDB setup complete.';
 GO
-
--- 4) CREATE TABLE (INSPECTION) --------------------------------------------
-
-
-CREATE TABLE Inspections (
-    inspectionId    INT IDENTITY(1,1) PRIMARY KEY,
-    stallId         INT NOT NULL,
-    officerName     NVARCHAR(100) NOT NULL,
-    inspectionDate  DATE NOT NULL,
-    score           INT NOT NULL,              -- 0-100 cleanliness/food-handling score
-    remarks         NVARCHAR(500) NULL,
-    createdAt       DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_Inspections_Stall
-        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId),
-    CONSTRAINT CK_Inspections_Score
-        CHECK (score BETWEEN 0 AND 100)
-);
-GO
--- 4) SAMPLE DATA (INSPECTION)--------------------------------------------
-INSERT INTO Inspections (stallId, officerName, scheduledDate, status, completedDate, score, remarks) VALUES
-(1, 'Officer Tan Wei Ming', '2026-05-12', 'Completed', '2026-05-12', 88, 'Good hygiene practices, minor grease buildup near stove.'),
-(2, 'Officer Nurul Huda',   '2026-05-14', 'Completed', '2026-05-14', 95, 'Excellent cleanliness, no issues found.'),
-(3, 'Officer Tan Wei Ming', '2026-06-02', 'Completed', '2026-06-02', 72, 'Food storage temperature slightly above guideline. Follow-up required.'),
-(1, 'Officer Nurul Huda',   '2026-08-10', 'Scheduled', NULL, NULL, NULL);
-GO
- 
-CREATE TABLE HygieneGrades (
-    gradeId       INT IDENTITY(1,1) PRIMARY KEY,
-    stallId       INT NOT NULL,
-    inspectionId  INT NULL,
-    grade         CHAR(1) NOT NULL,
-    validFrom     DATE NOT NULL,
-    validTo       DATE NOT NULL,
-    createdAt     DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_HygieneGrades_Stall
-        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId),
-    CONSTRAINT FK_HygieneGrades_Inspection
-        FOREIGN KEY (inspectionId) REFERENCES Inspections(inspectionId)
-        ON DELETE SET NULL,
-    CONSTRAINT CK_HygieneGrades_Grade
-        CHECK (grade IN ('A', 'B', 'C', 'D'))
-);
-GO
-
-INSERT INTO HygieneGrades (stallId, inspectionId, grade, validFrom, validTo) VALUES
-(1, 1, 'A', '2026-05-12', '2027-05-11'),
-(2, 2, 'A', '2026-05-14', '2027-05-13'),
-(3, 3, 'B', '2026-06-02', '2027-06-01');
-GO
- 

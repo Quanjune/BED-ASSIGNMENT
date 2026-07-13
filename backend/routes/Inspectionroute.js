@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const inspectionController = require("../controllers/inspectionController");
+const inspectionController = require("../controllers/InspectionController");
  
 router.get("/", inspectionController.getAllInspections);            // GET    
 router.get("/:id", inspectionController.getInspectionById);         // GET   

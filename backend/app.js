@@ -23,8 +23,8 @@ app.get("/", (req, res) => {
 //app.use("/api/products", require("./routes/productRoutes")); 
 //app.use("/api/cart", require("./routes/cartRoutes"));       
 //app.use("/api/orders", require("./routes/orderRoutes"));     
-app.use("/api/inspections", require("./routes/inspectionRoutes"));       
-app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));  
+app.use("/api/inspections", require("./routes/Inspectionroute"));      
+app.use("/api/hygiene-grades", require("./routes/HygieneGraderoute"));
  
 // --- Start server, connect to DB (Week 4 pattern) ---
 app.listen(PORT, async () => {

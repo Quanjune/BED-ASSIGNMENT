@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const hygieneGradeController = require("../controllers/hygieneGradeController");
+const hygieneGradeController = require("../controllers/HygieneGradeController");
  
 router.get("/", hygieneGradeController.getAllGrades);        // GET    
 router.get("/:id", hygieneGradeController.getGradeById);     // GET   
