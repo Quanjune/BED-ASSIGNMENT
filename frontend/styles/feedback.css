@@ -1,0 +1,255 @@
+/* CSS Order: Layout / Box Model / Typography / Visuals / Miscellaneous */
+/* em for spacing in local context, rem for global consistency */
+/* Palette: #AD343E (accent red), #474747 (text grey), #DBDFD0 (sage) */
+
+/* Miscellaneous */
+body {
+    background: #FFFFFF;
+}
+
+/* Breadcrumb separator (template shows crumbs inline with no divider) */
+#breadcrumbs li + li::before {
+    content: "/";
+    margin: 0 0.5rem;
+
+    color: rgba(71, 71, 71, 0.5);
+}
+
+/* Page Title */
+#page-title {
+    margin: 1rem 2rem;
+
+    text-align: center;
+}
+
+#page-title h2 {
+    margin: 0;
+
+    font-family: "Playfair Display";
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+#page-title p {
+    max-width: 420px;
+    margin: 0.5rem auto 0;
+
+    color: #474747;
+}
+
+/* Cards (same visual language as home.html highlight cards) */
+.card {
+    max-width: 700px;
+    margin: 1rem auto;
+    padding: 1.5em 2em;
+    border: solid #DBDFD0 2px;
+    border-radius: 10px;
+
+    background-color: #FFFFFF;
+}
+
+.card h3 {
+    margin: 0 0 1rem 0;
+
+    font-family: "Playfair Display";
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+/* Form */
+#feedback-form {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1rem;
+}
+
+.form-field {
+    flex: 1 1 160px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0.3rem;
+}
+
+.form-field label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #474747;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 0.6em 0.8em;
+    border: 1px solid rgba(71, 71, 71, 0.35);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 1rem;
+    color: #474747;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: 2px solid #AD343E;
+}
+
+/* Buttons (pill shape to match #cta / #cart in Template) */
+button {
+    padding: 0.8em 1.4em;
+    border: 0;
+    border-radius: 25px;
+
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #FFFFFF;
+
+    background-color: #AD343E;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button.secondary {
+    border: 0.1rem solid #474747;
+
+    color: #474747;
+
+    background-color: #FFFFFF;
+}
+
+.form-actions {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.5rem;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Form feedback messages */
+#form-message {
+    margin: 0.8rem 0 0;
+
+    font-weight: 600;
+}
+
+#form-message.success {
+    color: #2E7D32;
+}
+
+#form-message.error {
+    color: #AD343E;
+}
+
+/* Review List */
+#review-section {
+    margin: 2rem;
+
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#review-section h3 {
+    text-align: center;
+    font-family: "Playfair Display";
+    font-size: 1.8rem;
+    font-weight: 400;
+}
+
+#feedback-list {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+}
+
+#feedback-list .card {
+    max-width: none;
+    margin: 0;
+    padding: 1.2em 1.5em;
+}
+
+#feedback-list .loading,
+#feedback-list .empty {
+    text-align: center;
+    color: rgba(71, 71, 71, 0.6);
+}
+
+.review-head {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.review-head strong {
+    font-size: 1.05rem;
+    color: #474747;
+}
+
+.stars {
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #AD343E;
+}
+
+.card .comment {
+    margin: 0.6rem 0;
+
+    color: #474747;
+}
+
+.card .meta {
+    margin: 0;
+
+    font-size: 0.85rem;
+    color: rgba(71, 71, 71, 0.6);
+}
+
+.card-actions {
+    margin-top: 0.8rem;
+
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.5rem;
+}
+
+.card-actions button {
+    padding: 0.5em 1.1em;
+
+    font-size: 0.8rem;
+}
+
+/* Errors when list cannot load */
+.error-box {
+    text-align: center;
+    color: #AD343E;
+}
+
+/* @media */
+@media (max-width: 460px) {
+    #page-title h2 {
+        font-size: 2rem;
+    }
+
+    .card {
+        margin: 1rem;
+    }
+}

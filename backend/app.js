@@ -27,6 +27,13 @@ app.get("/", (req, res) => {
 });
 
 // --- Routes (mounted under /api) ---
+app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
+app.use("/api/products", require("./routes/productRoutes")); // Product page
+app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
+app.use("/api/orders", require("./routes/orderRoutes"));     // History
+app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer feedback
+app.use("/api/complaints", require("./routes/complaintRoutes")); // Customer complaints
+app.use("/api/auth", userRoutes);   // Aswin — login/signup
 
 // Aswin - authentication (signup / login / JWT)
 app.use("/api/auth", require("./routes/userRoutes"));
