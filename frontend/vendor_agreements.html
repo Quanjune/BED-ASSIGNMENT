@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/vendor.css">
+    <title>Vendor · Agreements &amp; Licences</title>
+</head>
+<body class="page-agreements">
+    <!-- Header (same structure as home.html) -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./vendor.html">Menu</a></li>
+                <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
+                <li><a href="./vendor_performance.html">Performance</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./user.html">Account</a></li>
+                <li><a href="./home.html">Exit to site</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./home.html" id="exit-site">Exit to site</a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./vendor.html">Vendor</a></li>
+                <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
+            </ul>
+        </nav>
+
+        <!-- ============ 1) VENDOR SIGN-IN (shown until logged in) ============ -->
+        <section id="login-section" class="vendor-menu" hidden>
+            <div class="vm-head">
+                <p class="vm-eyebrow">Stall Owner</p>
+                <h2 class="vm-title">Vendor sign in</h2>
+                <p class="vm-subtitle">Sign in with your stall owner account to manage your agreements and licences.</p>
+            </div>
+
+            <div class="vm-card vm-login">
+                <p id="login-status" class="vm-status err" hidden></p>
+                <label class="vm-field">
+                    <span>Email <em>*</em></span>
+                    <input id="login-email" type="email" placeholder="chickenrice@test.com" autocomplete="username">
+                </label>
+                <label class="vm-field">
+                    <span>Password <em>*</em></span>
+                    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+                </label>
+                <div class="vm-form-actions">
+                    <button id="btn-login" class="vm-btn vm-btn-primary">Sign in</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 2) AGREEMENTS DASHBOARD (your stall only) ============ -->
+        <section id="dash-section" class="vendor-menu" hidden>
+            <div class="vm-head vm-head-row">
+                <div>
+                    <p class="vm-eyebrow">Agreements &amp; Licences</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
+                    <p class="vm-subtitle" id="stall-center"></p>
+                </div>
+                <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
+            </div>
+
+            <!-- status line -->
+            <p id="status" class="vm-status" hidden></p>
+
+            <div class="vm-layout">
+                <!-- Add / edit form -->
+                <div class="vm-card vm-form">
+                    <h3 id="form-title" class="vm-card-title">Add a document</h3>
+
+                    <input id="edit-id" type="hidden" value="">
+
+                    <label class="vm-field">
+                        <span>Document name <em>*</em></span>
+                        <input id="in-name" type="text" placeholder="SFA Food Shop Licence">
+                    </label>
+                    <label class="vm-field">
+                        <span>Type <em>*</em></span>
+                        <select id="in-type">
+                            <option value="Rental">Rental</option>
+                            <option value="Store Licence">Store Licence</option>
+                            <option value="Food Safety">Food Safety</option>
+                            <option value="Fire Safety">Fire Safety</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                    <label class="vm-field">
+                        <span>Start date <em>*</em></span>
+                        <input id="in-start" type="date">
+                    </label>
+                    <label class="vm-field">
+                        <span>Expiry date <em>*</em></span>
+                        <input id="in-end" type="date">
+                    </label>
+                    <label class="vm-field">
+                        <span>Monthly rent (S$) <em id="rent-req">*</em></span>
+                        <input id="in-rent" type="number" min="0" step="0.01" placeholder="1800.00">
+                    </label>
+                    <label class="vm-field">
+                        <span>Status</span>
+                        <select id="in-status">
+                            <option value="Active">Active</option>
+                            <option value="Terminated">Terminated</option>
+                        </select>
+                    </label>
+
+                    <div class="vm-form-actions">
+                        <button id="btn-save" class="vm-btn vm-btn-primary">Save document</button>
+                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Documents list -->
+                <div class="vm-card vm-list">
+                    <h3 class="vm-card-title">Your agreements &amp; licences</h3>
+                    <div id="agreement-list" class="vm-menu-list">
+                        <p class="vm-empty">Loading your documents…</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (same as home.html) -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Order</h3>
+                    <ul>
+                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
+                        <li><a href="./stalls.html">Stalls</a></li>
+                        <li><a href="./cart.html">Cart</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Template Script (hamburger toggle) -->
+    <script src="./Template/template.js"></script>
+    <!-- Shared vendor login gate + authFetch -->
+    <script src="./scripts/vendor_auth.js"></script>
+    <!-- Agreements & licences logic -->
+    <script src="./scripts/vendor_agreements.js"></script>
+</body>
+</html>

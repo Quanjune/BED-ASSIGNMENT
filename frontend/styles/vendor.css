@@ -1,0 +1,285 @@
+/* ===================================================================
+   Vendor pages — page-specific styles ONLY.
+   The header, footer, breadcrumbs, background and responsive/hamburger
+   behaviour all come from Template/template.css (loaded before this).
+   Everything here is just for the vendor screens + the active nav link.
+   Team tokens reused: ink #474747, sage #DBDFD0.
+   =================================================================== */
+
+/* ---- Active nav link (highlight the current page) ----
+   Each vendor page sets a body class; that picks which link lights up. */
+body.page-menu        #nav-links li:nth-child(1),
+body.page-agreements  #nav-links li:nth-child(2),
+body.page-performance #nav-links li:nth-child(3) {
+    background-color: #DBDFD0;
+}
+
+/* ---- Nav item count ----
+   The template hides children 5/6/7 on desktop (that fit home's 4 links
+   + divider + cart + user). The vendor nav has 3 links, so the mobile-only
+   items are children 4/5/6 — override to hide those on desktop instead. */
+#nav-links :nth-child(4),
+#nav-links :nth-child(5),
+#nav-links :nth-child(6) {
+    display: none;
+}
+@media (max-width: 460px) {
+    #nav-links :nth-child(4),
+    #nav-links :nth-child(5),
+    #nav-links :nth-child(6) {
+        display: flex;
+    }
+}
+
+/* ---- "Exit to site" pill in the header (mirrors the #cart pill) ---- */
+#exit-site {
+    height: 100%;
+    padding: 0.6rem 1.2rem;
+    border: 0.10rem solid #474747;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: bold;
+    color: #474747;
+    white-space: nowrap;
+}
+
+/* ===================================================================
+   Vendor menu screen
+   =================================================================== */
+.vendor-menu {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0.5rem 2rem 4rem;
+}
+
+.vm-head { margin-bottom: 1.5rem; }
+.vm-eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(71, 71, 71, 0.6);
+}
+.vm-title {
+    margin: 0 0 0.25rem;
+    font-family: "Playfair Display", serif;
+    font-weight: 600;
+    font-size: 2rem;
+    color: #474747;
+}
+.vm-subtitle { margin: 0; color: rgba(71, 71, 71, 0.7); }
+
+/* ---- Toolbar ---- */
+.vm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+/* ---- Fields ---- */
+.vm-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.vm-field > span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #474747;
+}
+.vm-field em { color: #B4483C; font-style: normal; }
+.vm-field input {
+    font: inherit;
+    color: #474747;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #E4E4DE;
+    border-radius: 10px;
+    background: #FFFFFF;
+    min-width: 150px;
+}
+.vm-field input:focus {
+    outline: none;
+    border-color: #C7CDB6;
+    box-shadow: 0 0 0 3px rgba(219, 223, 208, 0.7);
+}
+
+/* ---- Buttons ---- */
+.vm-btn {
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+.vm-btn:active { transform: translateY(1px); }
+.vm-btn-primary { background: #474747; color: #fff; }
+.vm-btn-primary:hover { background: #333; }
+.vm-btn-ghost {
+    background: #FFFFFF;
+    color: #474747;
+    border-color: #E4E4DE;
+}
+.vm-btn-ghost:hover { background: #F6F5EF; }
+.vm-btn-mini {
+    background: #DBDFD0;
+    color: #474747;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+.vm-btn-mini:hover { background: #C7CDB6; }
+.vm-btn-danger {
+    background: transparent;
+    color: #B4483C;
+    border-color: rgba(180, 72, 60, 0.35);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+.vm-btn-danger:hover { background: rgba(180, 72, 60, 0.08); }
+
+/* ---- Status line ---- */
+.vm-status {
+    margin: 0 0 1.1rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+.vm-status.ok  { background: #EBF2E9; color: #4F7A4A; }
+.vm-status.err { background: #F7E9E7; color: #B4483C; }
+
+/* ---- Layout: form + list ---- */
+.vm-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+@media (max-width: 760px) {
+    .vm-layout { grid-template-columns: 1fr; }
+}
+
+.vm-card {
+    background: #FFFFFF;
+    border: 1px solid #E4E4DE;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(71, 71, 71, 0.08);
+    padding: 1.4rem;
+}
+.vm-card-title {
+    margin: 0 0 1rem;
+    font-family: "Playfair Display", serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #474747;
+}
+.vm-form .vm-field { margin-bottom: 0.9rem; }
+.vm-form-actions { display: flex; gap: 0.6rem; margin-top: 0.25rem; }
+
+/* ---- Menu list ---- */
+.vm-menu-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.vm-empty { color: rgba(71, 71, 71, 0.6); margin: 0; }
+
+.vm-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #E4E4DE;
+    border-radius: 12px;
+    background: #F6F5EF;
+}
+.vm-item .vm-info { min-width: 0; }
+.vm-item .vm-name { font-weight: 700; color: #474747; }
+.vm-item .vm-meta { font-size: 0.8rem; color: rgba(71, 71, 71, 0.6); }
+.vm-item .vm-price {
+    font-weight: 700;
+    color: #474747;
+    font-variant-numeric: tabular-nums;
+}
+.vm-item .vm-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+/* ===================================================================
+   Additions — login-scoped rework (sign-in card, thumbs, badges)
+   =================================================================== */
+
+/* Dashboard header row: stall name on the left, Sign out on the right */
+.vm-head-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* Sign-in card stays narrow instead of stretching across the page */
+.vm-login {
+    max-width: 420px;
+}
+.vm-login .vm-field { margin-bottom: 0.9rem; }
+
+/* Selects + textareas styled to match .vm-field input */
+.vm-field select,
+.vm-field textarea {
+    font: inherit;
+    color: #474747;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #E4E4DE;
+    border-radius: 10px;
+    background: #FFFFFF;
+    min-width: 150px;
+    resize: vertical;
+}
+.vm-field select:focus,
+.vm-field textarea:focus {
+    outline: none;
+    border-color: #C7CDB6;
+    box-shadow: 0 0 0 3px rgba(219, 223, 208, 0.7);
+}
+.vm-field input:disabled,
+.vm-field select:disabled {
+    background: #F6F5EF;
+    color: rgba(71, 71, 71, 0.45);
+    cursor: not-allowed;
+}
+
+/* Dish thumbnail in the menu list */
+.vm-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #E4E4DE;
+    background: #FFFFFF;
+}
+/* Placeholder icon version (no image set / image failed to load) */
+.vm-thumb-ph {
+    object-fit: contain;
+    padding: 12px;
+    background: #F6F5EF;
+}
+
+/* Status badges on agreements & licences */
+.vm-badge {
+    flex-shrink: 0;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: #EFEFEA;
+    color: #474747;
+}
+.vm-badge.ok     { background: #EBF2E9; color: #4F7A4A; }
+.vm-badge.warn   { background: #F7F0DF; color: #8A6D2B; }
+.vm-badge.danger { background: #F7E9E7; color: #B4483C; }
+.vm-badge.muted  { background: #EFEFEA; color: rgba(71, 71, 71, 0.55); }
+
+/* Date range line under a document's name */
+.vm-expiry {
+    font-size: 0.8rem;
+    color: rgba(71, 71, 71, 0.6);
+    margin-top: 0.15rem;
+}
