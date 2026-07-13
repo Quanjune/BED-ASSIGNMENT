@@ -152,12 +152,31 @@ CREATE TABLE Inspections (
 );
 GO
 -- 4) SAMPLE DATA (INSPECTION)--------------------------------------------
-INSERT INTO Inspections (stallId, officerName, inspectionDate, score, remarks) VALUES
-(1, 'Officer Tan Wei Ming', '2026-05-12', 88, 'Good hygiene practices, minor grease buildup near stove.'),
-(2, 'Officer Nurul Huda',   '2026-05-14', 95, 'Excellent cleanliness, no issues found.'),
-(3, 'Officer Tan Wei Ming', '2026-06-02', 72, 'Food storage temperature slightly above guideline. Follow-up required.');
+INSERT INTO Inspections (stallId, officerName, scheduledDate, status, completedDate, score, remarks) VALUES
+(1, 'Officer Tan Wei Ming', '2026-05-12', 'Completed', '2026-05-12', 88, 'Good hygiene practices, minor grease buildup near stove.'),
+(2, 'Officer Nurul Huda',   '2026-05-14', 'Completed', '2026-05-14', 95, 'Excellent cleanliness, no issues found.'),
+(3, 'Officer Tan Wei Ming', '2026-06-02', 'Completed', '2026-06-02', 72, 'Food storage temperature slightly above guideline. Follow-up required.'),
+(1, 'Officer Nurul Huda',   '2026-08-10', 'Scheduled', NULL, NULL, NULL);
 GO
  
+CREATE TABLE HygieneGrades (
+    gradeId       INT IDENTITY(1,1) PRIMARY KEY,
+    stallId       INT NOT NULL,
+    inspectionId  INT NULL,
+    grade         CHAR(1) NOT NULL,
+    validFrom     DATE NOT NULL,
+    validTo       DATE NOT NULL,
+    createdAt     DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_HygieneGrades_Stall
+        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId),
+    CONSTRAINT FK_HygieneGrades_Inspection
+        FOREIGN KEY (inspectionId) REFERENCES Inspections(inspectionId)
+        ON DELETE SET NULL,
+    CONSTRAINT CK_HygieneGrades_Grade
+        CHECK (grade IN ('A', 'B', 'C', 'D'))
+);
+GO
+
 INSERT INTO HygieneGrades (stallId, inspectionId, grade, validFrom, validTo) VALUES
 (1, 1, 'A', '2026-05-12', '2027-05-11'),
 (2, 2, 'A', '2026-05-14', '2027-05-13'),

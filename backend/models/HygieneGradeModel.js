@@ -49,7 +49,7 @@ async function getGradeById(gradeId) {
   return result.recordset[0];
 }
  
-//CREATE
+// CREATE 
 async function createGrade(data) {
   const result = await sql.request()
     .input("stallId", sql.Int, data.stallId)
@@ -84,7 +84,7 @@ async function updateGrade(gradeId, data) {
       OUTPUT INSERTED.*
       WHERE gradeId = @gradeId
     `);
-  return result.recordset[0];
+  return result.recordset[0]; 
 }
  
 // DELETE
@@ -104,3 +104,4 @@ module.exports = {
   updateGrade,
   deleteGrade,
 };
+ 

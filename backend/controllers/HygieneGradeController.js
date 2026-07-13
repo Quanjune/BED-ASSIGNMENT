@@ -57,7 +57,7 @@ async function getGradeById(req, res) {
   }
 }
  
-// POST 
+// POST — manual/corrective grade entry
 async function createGrade(req, res) {
   try {
     const validationError = validateGradeInput(req.body);
@@ -147,3 +147,4 @@ module.exports = {
   updateGrade,
   deleteGrade,
 };
+ 
