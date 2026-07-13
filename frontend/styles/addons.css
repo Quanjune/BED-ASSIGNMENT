@@ -31,3 +31,38 @@
   font-size: 0.82rem;
   color: #777;
 }
+
+/* ============================================================
+   LAYOUT CENTERING FIX
+   .detail was max-width:520px pinned left inside the 1100px main.
+   Auto margins centre it. Applies to both product-detail and cart.
+   ============================================================ */
+.detail {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Product page: centre the heading, image, price and button nicely. */
+#product-detail {
+  text-align: center;
+}
+#product-detail .addon-group {
+  text-align: left;        /* keep option labels left-aligned for readability */
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#product-detail .detail-img { margin-left: auto; margin-right: auto; }
+
+/* Cart page: add class "cart-page" to <body> in cart.html.
+   The cart lives in a .detail wrapper (capped 520px); widen + centre it. */
+.cart-page .detail { max-width: 720px; }
+#cart-items { margin-left: auto; margin-right: auto; }
+#cart-summary {
+  margin-left: auto;
+  margin-right: auto;      /* centre the summary instead of floating right */
+  max-width: 340px;
+}
+
+/* Breadcrumb: give it a little breathing room so it isn't cramped at top. */
+#breadcrumbs { margin-top: 0.5rem; margin-bottom: 0.5rem; }

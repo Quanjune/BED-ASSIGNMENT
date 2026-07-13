@@ -96,3 +96,18 @@ body {
         font-size: 3rem;
     }
 }
+/* ============================================================
+   BREADCRUMB ALIGNMENT
+   Home only links template.css, whose <main> is full-width with no
+   side padding, so the breadcrumb hugged the far-left edge. Indent it
+   so it lines up with the rest of the page like the other pages do.
+   ============================================================ */
+#breadcrumbs {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    margin-top: 0.5rem;
+}
+#breadcrumbs ul {
+    padding-left: 0;
+    margin-left: 0;
+}
