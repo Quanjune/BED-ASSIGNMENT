@@ -11,7 +11,7 @@ const productId = params.get("productId");
 // The cart is per-user, so adding needs the login token (stored by the
 // login page in localStorage as "accessToken"). Same approach as cart.js.
 function getToken() {
-  return localStorage.getItem("accessToken");
+  return localStorage.getItem("token");
 }
 
 async function loadProduct() {

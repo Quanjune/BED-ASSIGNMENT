@@ -33,13 +33,4 @@ router.put(
 router.delete("/:cartItemId", verifyToken, controller.removeCartItem); // remove one line
 router.delete("/", verifyToken, controller.clearCart); // empty the whole cart
 
-// TEMP FOR TESTING — bypass login
-router.use((req, res, next) => { req.user = { userId: "test123" }; next(); });
-
-router.get("/", /* verifyToken, */ controller.getMyCart);
-router.post("/", /* verifyToken, */ validateAddToCart, controller.addToCart);
-router.put("/:cartItemId", /* verifyToken, */ validateUpdateQuantity, controller.updateQuantity);
-router.delete("/:cartItemId", /* verifyToken, */ controller.removeCartItem);
-router.delete("/", /* verifyToken, */ controller.clearCart);
-
 module.exports = router;

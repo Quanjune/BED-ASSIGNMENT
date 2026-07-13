@@ -14,7 +14,7 @@ const PLACEHOLDER = "../media/icons/hawker_icon.svg";
 // here and send it as an Authorization header.
 // ---------------------------------------------------------------
 function getToken() {
-  return localStorage.getItem("accessToken");
+  return localStorage.getItem("token");
 }
 
 function authHeaders() {
