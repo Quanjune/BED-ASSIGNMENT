@@ -37,7 +37,7 @@ app.use("/api", require("./routes/productRoutes"));
 
 // NOTE: only uncomment a line once the route file actually exists,
 // otherwise the server crashes on startup with "Cannot find module".
-// app.use("/api/cart", require("./routes/cartRoutes"));     // Quan Jun - add to order
+app.use("/api/cart", require("./routes/cartRoutes"));     // Quan Jun - add to order
 // app.use("/api/orders", require("./routes/orderRoutes"));  // Quan Jun - order history
 
 // --- Start server, connect to DB ---
