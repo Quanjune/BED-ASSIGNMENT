@@ -1,0 +1,33 @@
+/* styles/addons.css — product customisation options + cart addon display.
+   Link this in product-detail.html and cart.html (after products.css). */
+
+/* ---- option groups on the product page ---- */
+.addon-group {
+  margin: 1rem 0;
+  padding: 0.75rem 0;
+  border-top: 1px solid #eee;
+}
+.addon-group h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.addon-group .req { color: #a11; margin-left: 0.25rem; }
+
+.addon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.addon-item input { cursor: pointer; }
+
+#live-price { font-weight: 700; color: #a11; }
+
+/* ---- chosen addons shown under each cart line ---- */
+.cart-addons {
+  margin: 0.1rem 0 0.2rem;
+  font-size: 0.82rem;
+  color: #777;
+}

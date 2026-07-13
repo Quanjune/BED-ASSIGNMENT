@@ -21,10 +21,17 @@ async function addToCart(req, res) {
   try {
     const productId = parseInt(req.body.productId);
     const quantity = req.body.quantity ? parseInt(req.body.quantity) : 1;
+    // optionIds: array of chosen addon optionIds, e.g. [3, 7]. Optional.
+    const optionIds = Array.isArray(req.body.optionIds)
+      ? req.body.optionIds.map(Number).filter(n => !isNaN(n))
+      : [];
 
-    const result = await cartModel.addToCart(req.user.userId, productId, quantity);
+    const result = await cartModel.addToCart(req.user.userId, productId, quantity, optionIds);
     if (result && result.notFound) {
       return res.status(404).json({ message: "Product not found." });
+    }
+    if (result && result.invalidOption) {
+      return res.status(400).json({ message: "One or more selected options are invalid for this product." });
     }
     res.status(201).json(result);
   } catch (err) {

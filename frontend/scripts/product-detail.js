@@ -1,73 +1,99 @@
-// scripts/product-detail.js — shows one product and adds it to the cart
+// controllers/cartController.js
+// CONTROLLER layer (Week 4 MVC): handles requests, calls the model, returns JSON.
+// try...catch on every action; logs server-side, sends a clean error (Week 4).
+// The user is identified by req.user.userId, set by verifyToken (Aswin's auth).
+const cartModel = require("../models/cartModel");
 
-function imgSrc(path) {
-  return path ? encodeURI(path) : "";
-}
-const PLACEHOLDER = "../media/icons/hawker_icon.svg";
-
-const params = new URLSearchParams(window.location.search);
-const productId = params.get("productId");
-
-// The cart is per-user, so adding needs the login token (stored by the
-// login page in localStorage as "accessToken"). Same approach as cart.js.
-function getToken() {
-  return localStorage.getItem("token");
-}
-
-async function loadProduct() {
-  const box = document.getElementById("product-detail");
+// GET /api/cart  -> the logged-in user's cart, with a computed total.
+async function getMyCart(req, res) {
   try {
-    const res = await fetch(`/api/products/${productId}`);
-    if (!res.ok) throw new Error("Product not found");
-    const p = await res.json();
-
-    box.innerHTML = `
-      <h2>${p.name}</h2>
-      <img class="detail-img" src="${imgSrc(p.imagePath)}" alt="${p.name}"
-           onerror="this.onerror=null;this.src='${PLACEHOLDER}';">
-      <p class="desc">${p.description || ""}</p>
-      <p class="price">$${Number(p.basePrice).toFixed(2)}</p>
-      <button id="add-btn">Add to Order</button>
-      <span id="add-msg"></span>
-    `;
-
-    document.getElementById("add-btn").addEventListener("click", addToCart);
+    const items = await cartModel.getCartByUser(req.user.userId);
+    const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
+    res.status(200).json({ items, total });
   } catch (err) {
-    console.error(err);
-    box.innerHTML = "<p>Could not load product.</p>";
+    console.error("getMyCart:", err);
+    res.status(500).json({ message: "Error retrieving cart." });
   }
 }
 
-async function addToCart() {
-  const msg = document.getElementById("add-msg");
-
-  // Must be logged in to have a cart.
-  if (!getToken()) {
-    msg.textContent = "Please log in to add items.";
-    return;
-  }
-
+// POST /api/cart  -> add a product (or bump quantity if already in cart).
+async function addToCart(req, res) {
   try {
-    const res = await fetch("/api/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${getToken()}`
-      },
-      body: JSON.stringify({ productId: Number(productId), quantity: 1 })
-    });
+    const productId = parseInt(req.body.productId);
+    const quantity = req.body.quantity ? parseInt(req.body.quantity) : 1;
+    // optionIds: array of chosen addon optionIds, e.g. [3, 7]. Optional.
+    const optionIds = Array.isArray(req.body.optionIds)
+      ? req.body.optionIds.map(Number).filter(n => !isNaN(n))
+      : [];
 
-    if (res.status === 401 || res.status === 403) {
-      msg.textContent = "Please log in to add items.";
-      return;
+    const result = await cartModel.addToCart(req.user.userId, productId, quantity, optionIds);
+    if (result && result.notFound) {
+      return res.status(404).json({ message: "Product not found." });
     }
-    if (!res.ok) throw new Error("Add to cart failed");
-
-    msg.textContent = "Added to cart \u2713";
+    if (result && result.invalidOption) {
+      return res.status(400).json({ message: "One or more selected options are invalid for this product." });
+    }
+    res.status(201).json(result);
   } catch (err) {
-    console.error(err);
-    msg.textContent = "Could not add to cart.";
+    console.error("addToCart:", err);
+    res.status(500).json({ message: "Error adding to cart." });
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadProduct);
+// PUT /api/cart/:cartItemId  -> change a line's quantity (must own the line).
+async function updateQuantity(req, res) {
+  try {
+    const cartItemId = parseInt(req.params.cartItemId);
+    const quantity = parseInt(req.body.quantity);
+
+    const existing = await cartModel.getCartItemById(cartItemId);
+    if (!existing) return res.status(404).json({ message: "Cart item not found." });
+    // Ownership check: a user may only edit their own cart lines.
+    if (String(existing.userId) !== String(req.user.userId)) {
+      return res.status(403).json({ message: "You cannot modify another user's cart." });
+    }
+
+    res.status(200).json(await cartModel.updateQuantity(cartItemId, quantity));
+  } catch (err) {
+    console.error("updateQuantity:", err);
+    res.status(500).json({ message: "Error updating cart item." });
+  }
+}
+
+// DELETE /api/cart/:cartItemId  -> remove one line (must own the line).
+async function removeCartItem(req, res) {
+  try {
+    const cartItemId = parseInt(req.params.cartItemId);
+
+    const existing = await cartModel.getCartItemById(cartItemId);
+    if (!existing) return res.status(404).json({ message: "Cart item not found." });
+    if (String(existing.userId) !== String(req.user.userId)) {
+      return res.status(403).json({ message: "You cannot modify another user's cart." });
+    }
+
+    await cartModel.removeCartItem(cartItemId);
+    res.status(200).json({ message: "Item removed from cart." });
+  } catch (err) {
+    console.error("removeCartItem:", err);
+    res.status(500).json({ message: "Error removing cart item." });
+  }
+}
+
+// DELETE /api/cart  -> empty the whole cart for the logged-in user.
+async function clearCart(req, res) {
+  try {
+    const rows = await cartModel.clearCart(req.user.userId);
+    res.status(200).json({ message: "Cart cleared.", itemsRemoved: rows });
+  } catch (err) {
+    console.error("clearCart:", err);
+    res.status(500).json({ message: "Error clearing cart." });
+  }
+}
+
+module.exports = {
+  getMyCart,
+  addToCart,
+  updateQuantity,
+  removeCartItem,
+  clearCart
+};
