@@ -21,9 +21,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
 
-// Serve the homepage at the root URL "/"
+// Serve the LOGIN page at the root URL "/" (login is the landing page).
+// After a successful login, auth.js redirects the user on to home.html.
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "home.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
 });
 
 // --- Routes (mounted under /api) ---

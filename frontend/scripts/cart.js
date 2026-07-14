@@ -101,8 +101,11 @@ function wireEvents() {
       const newQty = btn.dataset.action === "inc" ? current + 1 : current - 1;
 
       if (newQty < 1) {
-        // dropping below 1 = remove the line
-        await removeItem(id);
+        // Pressing - at quantity 1 would remove the item: confirm first.
+        if (confirm("Remove this item from your cart?")) {
+          await removeItem(id);
+        }
+        // If they cancel, do nothing - quantity stays at 1.
       } else {
         await updateQty(id, newQty);
       }
@@ -136,10 +139,19 @@ async function updateQty(cartItemId, quantity) {
       headers: { "Content-Type": "application/json", ...authHeaders() },
       body: JSON.stringify({ quantity })
     });
-    if (!res.ok) throw new Error("Update failed");
+    if (res.status === 401 || res.status === 403) {
+      alert("Your session expired. Please log in again.");
+      return;
+    }
+    if (!res.ok) {
+      const msg = await res.json().catch(() => ({}));
+      alert("Could not update quantity: " + (msg.message || res.status));
+      return;
+    }
     loadCart(); // refresh totals
   } catch (err) {
     console.error(err);
+    alert("Something went wrong updating the cart.");
   }
 }
 
