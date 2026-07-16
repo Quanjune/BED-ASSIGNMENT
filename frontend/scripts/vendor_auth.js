@@ -2,37 +2,46 @@
    vendor_auth.js  (Kishore - Vendor Management)
    Shared by vendor.html and vendor_agreements.html.
 
-   What it does:
-   1. Shows a small "Vendor sign in" card until you log in.
-   2. Calls Aswin's  POST /api/auth/login  and keeps the JWT in
-      sessionStorage (cleared when the tab closes).
-   3. After login it asks the backend "whose stall am I?"
-      (GET /api/vendors/stall) and fills the "Your stall" header.
-   4. Exposes authFetch() - fetch that automatically sends the token
-      as  Authorization: Bearer <token>  - used by every page script.
+   CHANGED: this now uses Aswin's login page (login.html) as the ONE
+   and only sign-in. It no longer shows its own login card.
 
-   The page never picks a stall. The BACKEND decides which stall you
-   own from your token, so each of the 16 vendor logins only ever sees
-   and edits their own stall.
+   How it fits together:
+   1. You sign in on Aswin's login.html with your email + password.
+      Aswin's auth.js saves the JWT in  localStorage["token"]  and the
+      user in  localStorage["user"].
+   2. When a vendor page loads, this file reads THAT SAME token.
+        - no token             -> bounce to login.html
+        - token but not vendor -> bounce to home.html (wrong account)
+        - vendor token         -> ask the backend "whose stall am I?"
+                                  (GET /api/vendors/stall) and open the
+                                  dashboard.
+   3. authFetch() sends the token as  Authorization: Bearer <token>  on
+      every vendor request, so the backend resolves your stallId from
+      the token. The page never picks a stall -> each of the 16 vendor
+      logins only ever sees and edits their own stall.
+
+   NOTE: the keys below ("token" / "user") and localStorage MUST match
+   what Aswin's auth.js writes. That is the whole point of the fix - the
+   old version read sessionStorage["hawkerToken"], which Aswin never set,
+   so the two login systems could never see each other.
    =================================================================== */
 
 (function () {
-  const TOKEN_KEY = "hawkerToken";
-  const USER_KEY = "hawkerUser";
+  // MUST match Aswin's auth.js  (localStorage.setItem("token", ...) / "user")
+  const TOKEN_KEY = "token";
+  const USER_KEY = "user";
+  const LOGIN_PAGE = "login.html";
+  const HOME_PAGE = "home.html";
 
-  // ---- session storage helpers ----
-  function getToken() { return sessionStorage.getItem(TOKEN_KEY); }
+  // ---- session helpers (localStorage = stays signed in like the rest of the site) ----
+  function getToken() { return localStorage.getItem(TOKEN_KEY); }
   function getUser() {
-    try { return JSON.parse(sessionStorage.getItem(USER_KEY) || "null"); }
+    try { return JSON.parse(localStorage.getItem(USER_KEY) || "null"); }
     catch { return null; }
   }
-  function saveSession(token, user) {
-    sessionStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
-  }
   function clearSession() {
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   }
 
   // fetch() that attaches the JWT. Everything vendor-side goes through this.
@@ -43,22 +52,21 @@
     return fetch(url, Object.assign({}, options, { headers }));
   }
 
-  // ---- gate wiring (login card <-> dashboard) ----
+  // ---- page elements (dashboard header only - no inline login card anymore) ----
   let els = {};
   let onReadyCb = null;
 
-  function showLogin(msg) {
-    if (els.login) els.login.hidden = false;
-    if (els.dash) els.dash.hidden = true;
-    if (msg && els.loginStatus) {
-      els.loginStatus.textContent = msg;
-      els.loginStatus.className = "vm-status err";
-      els.loginStatus.hidden = false;
-    }
-  }
   function showDash() {
-    if (els.login) els.login.hidden = true;
+    if (els.login) els.login.hidden = true;   // hide the leftover login card if the page still has one
     if (els.dash) els.dash.hidden = false;
+  }
+
+  // Called by page scripts when a request comes back 401/403 (token missing/expired).
+  // We can't recover here, so send them back to Aswin's login page.
+  function showLogin(msg) {
+    clearSession();
+    if (msg) sessionStorage.setItem("vendorLoginMsg", msg); // optional: login.html could read this
+    window.location.href = LOGIN_PAGE;
   }
 
   // Ask the backend which stall belongs to this token, then open the dashboard.
@@ -66,9 +74,8 @@
     try {
       const res = await authFetch("/api/vendors/stall");
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        clearSession();
-        showLogin(err.error || err.message || "Please sign in with a vendor account.");
+        // 401/403 = bad/expired token -> back to login
+        showLogin("Please sign in with a vendor account.");
         return;
       }
       const stall = await res.json();
@@ -78,69 +85,53 @@
       showDash();
       if (onReadyCb) onReadyCb(stall);
     } catch (e) {
-      showLogin("Couldn't reach the server. Is the backend running?");
-    }
-  }
-
-  async function doLogin() {
-    const email = els.email.value.trim();
-    const password = els.password.value;
-    if (!email || !password) { showLogin("Email and password are both required."); return; }
-
-    els.btnLogin.disabled = true;
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { showLogin(data.message || "Login failed."); return; }
-
-      if (!data.user || data.user.role !== "vendor") {
-        showLogin("That account isn't a vendor account. Sign in with a stall owner login.");
-        return;
+      // backend unreachable - show it on the dash status line if we have one
+      if (els.dash) els.dash.hidden = false;
+      if (els.status) {
+        els.status.textContent = "Couldn't reach the server. Is the backend running?";
+        els.status.className = "vm-status err";
+        els.status.hidden = false;
       }
-      saveSession(data.accessToken, data.user);
-      els.password.value = "";
-      if (els.loginStatus) els.loginStatus.hidden = true;
-      await loadStall();
-    } catch (e) {
-      showLogin("Couldn't reach the server. Is the backend running?");
-    } finally {
-      els.btnLogin.disabled = false;
     }
   }
 
   function doLogout() {
     clearSession();
-    showLogin();
+    window.location.href = LOGIN_PAGE;
   }
 
-  // Call this once per page. onReady(stall) runs after a successful gate.
+  // Call this once per page. onReady(stall) runs after the gate passes.
   function initVendorGate(opts) {
     onReadyCb = opts && opts.onReady;
     els = {
-      login: document.getElementById("login-section"),
+      login: document.getElementById("login-section"),   // leftover card - just hidden
       dash: document.getElementById("dash-section"),
-      email: document.getElementById("login-email"),
-      password: document.getElementById("login-password"),
-      btnLogin: document.getElementById("btn-login"),
-      loginStatus: document.getElementById("login-status"),
+      status: document.getElementById("status"),
       btnLogout: document.getElementById("btn-logout"),
       stallName: document.getElementById("stall-name"),
       stallCenter: document.getElementById("stall-center"),
     };
-    if (els.btnLogin) els.btnLogin.addEventListener("click", doLogin);
-    if (els.password) els.password.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") doLogin();
-    });
     if (els.btnLogout) els.btnLogout.addEventListener("click", doLogout);
 
-    if (getToken()) loadStall();   // already signed in this tab? skip the form
-    else showLogin();
+    // ---- the gate ----
+    const token = getToken();
+    const user = getUser();
+
+    if (!token) {
+      // not signed in at all -> Aswin's login page
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+    if (!user || user.role !== "vendor") {
+      // signed in, but as a customer/admin -> this area isn't for them
+      alert("This area is for stall owner (vendor) accounts. Please sign in with a vendor login.");
+      window.location.href = HOME_PAGE;
+      return;
+    }
+    // vendor token present -> confirm the stall and open the dashboard
+    loadStall();
   }
 
-  // shared entry points for the page scripts
+  // shared entry points for the page scripts (unchanged interface)
   window.VendorAuth = { authFetch, initVendorGate, showLogin, getUser };
 })();

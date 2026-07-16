@@ -3,8 +3,6 @@
 
 // IMPORTANT: .env lives at the repo root, but this file runs from /backend.
 // The explicit path makes dotenv find it no matter which folder `node` is run from.
-// (Plain `require("dotenv").config()` only checks the current working directory
-//  and silently loads 0 variables, which breaks the DB connection.)
 require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
 
 const express = require("express");
@@ -26,31 +24,27 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "frontend", "home.html"));
 });
 
-// --- Routes (mounted under /api) ---
-app.use("/api/centers", require("./routes/centerRoutes"));   // Homepage
-app.use("/api/products", require("./routes/productRoutes")); // Product page
-app.use("/api/cart", require("./routes/cartRoutes"));        // Add to order
-app.use("/api/orders", require("./routes/orderRoutes"));     // History
-app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer feedback
-app.use("/api/complaints", require("./routes/complaintRoutes")); // Customer complaints
-app.use("/api/auth", userRoutes);   // Aswin — login/signup
-
-// Aswin - authentication (signup / login / JWT)
-app.use("/api/auth", require("./routes/userRoutes"));
-
-// Kishore - Vendor Management
+// ============================================================
+// KISHORE — Vendor Management (LIVE on this branch)
+// ============================================================
 app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 // menu CRUD
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); // rental agreements
-app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));   // my stall profile
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));           // my stall profile
 
-// Quan Jun - product page flow (centres -> stalls -> products -> detail) + product CRUD.
-// This one router handles /api/centers, /api/stalls and /api/products.
-//app.use("/api", require("./routes/productRoutes"));
+// ============================================================
+// TEAMMATE ROUTES — commented out locally because the files
+// don't exist on the vendor branch yet. UNCOMMENT BEFORE PUSH.
+// (Uncommenting a line whose file is missing crashes startup
+//  with "Cannot find module".)
+// ============================================================
+// app.use("/api/centers", require("./routes/centerRoutes"));        // Homepage
+// app.use("/api/products", require("./routes/productRoutes"));      // Product page
+// app.use("/api/cart", require("./routes/cartRoutes"));             // Add to order
+// app.use("/api/orders", require("./routes/orderRoutes"));          // Order history
+// app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer feedback
+// app.use("/api/complaints", require("./routes/complaintRoutes"));  // Customer complaints
+app.use("/api/auth", require("./routes/userRoutes"));             // Aswin — login/signup
 
-// NOTE: only uncomment a line once the route file actually exists,
-// otherwise the server crashes on startup with "Cannot find module".
-// app.use("/api/cart", require("./routes/cartRoutes"));     // Quan Jun - add to order
-// app.use("/api/orders", require("./routes/orderRoutes"));  // Quan Jun - order history
 
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
