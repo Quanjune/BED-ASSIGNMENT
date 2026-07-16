@@ -42,10 +42,19 @@ main {
 
 
 /* Breadcrumbs */
+/* SHARED breadcrumb alignment (one source of truth for the whole team).
+   The breadcrumb sits inside a 1100px centred container with 1.5rem side
+   padding, so it lines up with page content the SAME way on every page.
+   No 100vw/full-bleed trick, so it never shifts with the scrollbar. */
+#breadcrumbs {
+    max-width: 1100px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
 #breadcrumbs ul {
     margin: 0;
-    padding: 1rem 2rem;
-
+    padding: 0.75rem 1.5rem;  /* 1.5rem inset matches main's 1.5rem, so the
+                                 breadcrumb lines up with the page title/content */
     font-size: 1rem;
     list-style: none;
 }
