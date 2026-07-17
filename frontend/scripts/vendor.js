@@ -49,11 +49,12 @@ function money(v) {
     return isNaN(n) ? "\u2014" : "S$" + n.toFixed(2);
 }
 
-// If a request comes back 401/403 the token is missing/expired ->
-// send the user back to the sign-in card.
+// 401/403 = token missing or expired. Nothing to fix on this page,
+// so hand off to the gate, which clears the session and bounces to
+// login.html. Returns true so the caller stops handling the response.
 function handleAuthFail(res, data) {
     if (res.status === 401 || res.status === 403) {
-        VendorAuth.showLogin(data.message || data.error || "Your session expired. Sign in again.");
+        VendorAuth.showLogin((data && data.error) || "Your session has expired. Please sign in again.");
         return true;
     }
     return false;
@@ -199,6 +200,6 @@ async function remove(it) {
 btnSave.addEventListener("click", save);
 btnCancel.addEventListener("click", resetForm);
 
-// The gate (vendor_auth.js) shows the login card first; once the login and
-// stall lookup succeed it calls onReady, and only then do we load the menu.
+// The gate (vendor_auth.js) checks the token and resolves the stall first;
+// once that succeeds it calls onReady, and only then do we load the menu.
 VendorAuth.initVendorGate({ onReady: () => { resetForm(); loadMenu(); } });

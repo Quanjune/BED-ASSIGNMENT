@@ -202,7 +202,7 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vm-item .vm-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
 /* ===================================================================
-   Additions — login-scoped rework (sign-in card, thumbs, badges)
+   Additions — dashboard header, thumbs, badges
    =================================================================== */
 
 /* Dashboard header row: stall name on the left, Sign out on the right */
@@ -213,11 +213,7 @@ body.page-performance #nav-links li:nth-child(3) {
     gap: 1rem;
 }
 
-/* Sign-in card stays narrow instead of stretching across the page */
-.vm-login {
-    max-width: 420px;
-}
-.vm-login .vm-field { margin-bottom: 0.9rem; }
+
 
 /* Selects + textareas styled to match .vm-field input */
 .vm-field select,
