@@ -66,8 +66,16 @@
             <form id="feedback-form">
                 <div class="form-row">
                     <div class="form-field">
-                        <label for="stallId">Stall ID</label>
-                        <input type="number" id="stallId" min="1" required placeholder="e.g. 1">
+                        <label for="centerId">Hawker Centre</label>
+                        <select id="centerId" required>
+                            <option value="">-- loading centres --</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="stallId">Stall</label>
+                        <select id="stallId" required disabled>
+                            <option value="">-- choose a centre first --</option>
+                        </select>
                     </div>
                     <div class="form-field">
                         <label for="userId">Your Name</label>
