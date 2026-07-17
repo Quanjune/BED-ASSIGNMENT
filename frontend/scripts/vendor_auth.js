@@ -2,18 +2,19 @@
    vendor_auth.js  (Kishore - Vendor Management)
    Shared by vendor.html and vendor_agreements.html.
 
+   NOTE: login is handled centrally by Aswin's login.html + auth.js.
+
    What it does:
-   1. Shows a small "Vendor sign in" card until you log in.
-   2. Calls Aswin's  POST /api/auth/login  and keeps the JWT in
-      sessionStorage (cleared when the tab closes).
-   3. After login it asks the backend "whose stall am I?"
-      (GET /api/vendors/stall) and fills the "Your stall" header.
-   4. Exposes authFetch() - fetch that automatically sends the token
-      as  Authorization: Bearer <token>  - used by every page script.
+   1. Reads the JWT that login.html saved in sessionStorage. If there is
+      no token, it redirects to login.html instead of showing a form.
+   2. Asks the backend "whose stall am I?" (GET /api/vendors/stall) and
+      fills the "Your stall" header. A bad/expired token -> back to login.
+   3. Exposes authFetch() - fetch that automatically sends the token as
+      Authorization: Bearer <token> - used by every vendor page script.
 
    The page never picks a stall. The BACKEND decides which stall you
-   own from your token, so each of the 16 vendor logins only ever sees
-   and edits their own stall.
+   own from your token, so each vendor only ever sees and edits their
+   own stall.
    =================================================================== */
 
 (function () {
@@ -66,9 +67,9 @@
     try {
       const res = await authFetch("/api/vendors/stall");
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        // The no-stall case is now caught by login.html before a vendor ever reaches this page, so this just sends bad/expired sessions back to the central login.
         clearSession();
-        showLogin(err.error || err.message || "Please sign in with a vendor account.");
+        window.location.href = "login.html";
         return;
       }
       const stall = await res.json();
@@ -78,7 +79,7 @@
       showDash();
       if (onReadyCb) onReadyCb(stall);
     } catch (e) {
-      showLogin("Couldn't reach the server. Is the backend running?");
+      alert("Couldn't reach the server. Is the backend running?");
     }
   }
 
@@ -137,8 +138,8 @@
     });
     if (els.btnLogout) els.btnLogout.addEventListener("click", doLogout);
 
-    if (getToken()) loadStall();   // already signed in this tab? skip the form
-    else showLogin();
+    if (getToken()) loadStall();                 // signed in via login.html -> load dashboard
+    else window.location.href = "login.html";    // not logged in -> central login page 
   }
 
   // shared entry points for the page scripts
