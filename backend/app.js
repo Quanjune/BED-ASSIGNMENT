@@ -27,30 +27,42 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
 });
 
-// --- Routes (mounted under /api) ---
-// NOTE: only add a line once the route file actually exists, otherwise the
-// server crashes on startup with "Cannot find module".
+// ============================================================
+// Routes (mounted under /api)
+// NOTE: only mount a route once its file actually exists in
+// backend/routes, otherwise the server crashes on startup with
+// "Cannot find module".
+// ============================================================
 
-// Aswin - authentication (signup / login / JWT)
+// --- Aswin: authentication (signup / login / JWT) ---
 app.use("/api/auth", require("./routes/userRoutes"));
 
-// Quan Jun - product page flow (centres -> stalls -> products -> detail) + product CRUD.
+// --- Quan Jun: product page flow + product CRUD ---
 // This one router handles /api/centers, /api/stalls and /api/products.
 app.use("/api", require("./routes/productRoutes"));
 
-// Quan Jun - add to cart
+// --- Quan Jun: add to cart ---
 app.use("/api/cart", require("./routes/cartRoutes"));
-app.use("/api/products", require("./routes/addonRoutes")); // Quan Jun - product customisation options
 
-// Team - feedback & complaints
+// --- Quan Jun: product customisation options (addons) ---
+app.use("/api/products", require("./routes/addonRoutes"));
+
+// --- Quan Jun: checkout + order history ---
+app.use("/api/orders", require("./routes/orderRoutes"));
+
+// --- Timely: feedback, complaints & promo codes ---
 app.use("/api/feedback", require("./routes/feedbackRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
+app.use("/api/promos", require("./routes/promoRoutes"));
 
-// Not wired yet - the route files below do NOT exist on this branch.
-// Uncomment each line only after the matching file is added, or the
-// server will crash on startup with "Cannot find module".
-// app.use("/api/centers", require("./routes/centerRoutes")); // Homepage centres (currently handled by productRoutes)
-app.use("/api/orders", require("./routes/orderRoutes"));   // Quan Jun - checkout + order history
+// --- Kishore: vendor management ---
+app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 // menu CRUD
+app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); // rental agreements
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));           // my stall profile
+
+// Homepage centres are already served by productRoutes above (/api/centers),
+// so a separate centerRoutes file is not needed on this branch.
+// app.use("/api/centers", require("./routes/centerRoutes"));
 
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
@@ -63,4 +75,3 @@ app.listen(PORT, async () => {
   }
   console.log(`Server running on http://localhost:${PORT}/`);
 });
-
