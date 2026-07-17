@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./Template/template.css">
+  <link rel="stylesheet" href="./styles/products.css">
+  <link rel="stylesheet" href="./styles/payment.css">
+  <title>Payment Unsuccessful</title>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main>
+    <nav id="breadcrumbs"><ul><li><a href="./cart.html">Cart</a></li><li>Payment</li></ul></nav>
+
+    <div class="result-card failed">
+      <div class="result-icon">&#10007;</div>
+      <h2>Payment unsuccessful</h2>
+      <p id="fail-reason">Something went wrong and your order was not placed.</p>
+      <p class="reassure">You have not been charged. Your cart is still saved.</p>
+      <div class="result-actions">
+        <a class="btn-primary" href="./cart.html">Back to Cart</a>
+        <a class="btn-secondary" href="./home.html">Return to Homepage</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="./Template/template.js"></script>
+  <script>
+    // cart.js passes a ?reason= so we can explain what happened.
+    const reason = new URLSearchParams(location.search).get("reason");
+    const el = document.getElementById("fail-reason");
+    const messages = {
+      session: "Your session expired. Please log in again and retry.",
+      network: "We could not reach the server. Check your connection and try again."
+    };
+    if (reason) el.textContent = messages[reason] || decodeURIComponent(reason);
+  </script>
+</body>
+</html>

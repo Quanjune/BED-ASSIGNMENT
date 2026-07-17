@@ -8,22 +8,39 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./Template/template.css">
   <link rel="stylesheet" href="./styles/products.css">
+  <link rel="stylesheet" href="./styles/cart.css">
   <link rel="stylesheet" href="./styles/addons.css">
-  <title>Product</title>
+  <title>My Cart</title>
 </head>
-<body>
+<body class="cart-page">
   <!-- Navbar injected by Template/template.js -->
   <div id="site-header"></div>
 
   <main>
-    <nav id="breadcrumbs"><ul><li><a href="./centers.html">Hawker Centres</a></li><li>Product</li></ul></nav>
-    <section id="product-detail" class="detail"></section>
+    <nav id="breadcrumbs"><ul><li><a href="./centers.html">Hawker Centres</a></li><li>My Cart</li></ul></nav>
+    <section class="detail">
+      <h2>My Cart</h2>
+      <!-- cart.js fills these two areas -->
+      <div id="cart-items"></div>
+      <div id="cart-summary"></div>
+    </section>
   </main>
 
   <!-- Footer injected by Template/template.js -->
   <div id="site-footer"></div>
 
+  <!-- PayNow QR modal (shown when PayNow is the chosen method) -->
+  <div id="qr-modal" class="qr-modal" style="display:none;">
+    <div class="qr-box">
+      <h3>Scan to Pay</h3>
+      <img src="../media/images/Payment/Qr.png" alt="PayNow QR code"
+           onerror="this.onerror=null;this.style.display='none';">
+      <p class="qr-hint">Scan with your banking app, then tap Done.</p>
+      <button id="qr-done" type="button">Done</button>
+    </div>
+  </div>
+
   <script src="./Template/template.js"></script>
-  <script src="./scripts/product-detail.js"></script>
+  <script src="./scripts/cart.js"></script>
 </body>
 </html>

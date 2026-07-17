@@ -1,0 +1,228 @@
+/* styles/cart.css — styling for the cart page.
+   Follows the same palette as products.css (#a11 accent, Playfair headings). */
+
+#cart-items {
+  margin-top: 1rem;
+}
+
+/* One cart line laid out as a row: image | info | qty | line total | remove */
+.cart-row {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-name {
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.cart-info .price {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* quantity stepper */
+.cart-qty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* .detail button (products.css) styles ALL buttons in the cart as big red
+   pills. Scope these under .detail and add !important-free higher specificity
+   so the qty + remove buttons keep their own look. */
+.detail .qty-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;                 /* cancel the .detail button padding that inflates it */
+  margin-top: 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail .qty-btn:hover { background: #f0f0f0; }
+
+.qty-value {
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.cart-line-total {
+  font-weight: 600;
+  margin: 0;
+  min-width: 4rem;
+  text-align: right;
+}
+
+.detail .remove-btn {
+  border: none;
+  background: none;         /* cancel red pill from .detail button */
+  color: #a11;
+  padding: 0;
+  margin-top: 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  border-radius: 0;
+}
+.detail .remove-btn:hover { background: none; color: #801; }
+
+/* ---- summary ---- */
+#cart-summary {
+  margin-top: 1.5rem;
+  max-width: 320px;
+  margin-left: auto;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  padding: 0.75rem 0;
+  border-top: 2px solid #333;
+}
+
+.summary-total {
+  font-weight: 700;
+}
+
+#clear-cart {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.6rem;
+  border: 1px solid #a11;
+  background: #fff;
+  color: #a11;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+#clear-cart:hover { background: #a11; color: #fff; }
+
+/* small screens: let rows wrap a bit more gracefully */
+@media (max-width: 600px) {
+  .cart-row {
+    grid-template-columns: 56px 1fr auto;
+    grid-template-areas:
+      "img info remove"
+      "img qty  total";
+    row-gap: 0.4rem;
+  }
+  .cart-img { grid-area: img; width: 56px; height: 56px; }
+  .cart-info { grid-area: info; }
+  .cart-qty { grid-area: qty; }
+  .cart-line-total { grid-area: total; }
+  .remove-btn { grid-area: remove; justify-self: end; }
+}
+
+/* ============================================================
+   CHECKOUT: fulfillment, fees, payment methods, QR modal
+   ============================================================ */
+
+.fulfillment { margin: 1rem 0 0.5rem; }
+.fulfillment h4 { margin: 0 0 0.4rem; }
+.fulfillment label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.summary-line.fee-row {
+  border-top: none;
+  font-size: 0.95rem;
+  color: #555;
+  padding: 0.3rem 0;
+}
+.summary-line.fee-row small { color: #888; }
+
+.summary-line.summary-grand { border-top: 2px solid #333; }
+
+/* payment method buttons */
+.payments {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+.detail .payments button {
+  padding: 0.6rem;
+  margin-top: 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.detail .payments button:hover { background: #f5f5f5; }
+.detail .payments button.active {
+  border-color: #a11;
+  background: #a11;
+  color: #fff;
+}
+
+.detail .pay-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  background: #a11;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.detail .pay-btn:hover { background: #801; }
+
+/* PayNow QR modal */
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.qr-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 14px;
+  text-align: center;
+  max-width: 320px;
+}
+.qr-box img { width: 220px; height: 220px; object-fit: contain; }
+.qr-box h3 { margin: 0 0 0.75rem; font-family: "Playfair Display", serif; }
+.qr-box .qr-hint { font-size: 0.85rem; color: #666; margin: 0.75rem 0; }
+.qr-box button {
+  width: 100%;
+  padding: 0.7rem;
+  background: #a11;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
