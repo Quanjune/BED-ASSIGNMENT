@@ -29,6 +29,17 @@
   <!-- Footer injected by Template/template.js -->
   <div id="site-footer"></div>
 
+  <!-- PayNow QR modal (shown when PayNow is the chosen method) -->
+  <div id="qr-modal" class="qr-modal" style="display:none;">
+    <div class="qr-box">
+      <h3>Scan to Pay</h3>
+      <img src="../media/images/Payment/Qr.png" alt="PayNow QR code"
+           onerror="this.onerror=null;this.style.display='none';">
+      <p class="qr-hint">Scan with your banking app, then tap Done.</p>
+      <button id="qr-done" type="button">Done</button>
+    </div>
+  </div>
+
   <script src="./Template/template.js"></script>
   <script src="./scripts/cart.js"></script>
 </body>

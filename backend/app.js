@@ -50,7 +50,7 @@ app.use("/api/complaints", require("./routes/complaintRoutes"));
 // Uncomment each line only after the matching file is added, or the
 // server will crash on startup with "Cannot find module".
 // app.use("/api/centers", require("./routes/centerRoutes")); // Homepage centres (currently handled by productRoutes)
-// app.use("/api/orders", require("./routes/orderRoutes"));   // Quan Jun - order history
+app.use("/api/orders", require("./routes/orderRoutes"));   // Quan Jun - checkout + order history
 
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
@@ -63,3 +63,4 @@ app.listen(PORT, async () => {
   }
   console.log(`Server running on http://localhost:${PORT}/`);
 });
+

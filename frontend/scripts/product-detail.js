@@ -15,6 +15,7 @@ function getToken() {
 }
 
 let basePrice = 0;      // product base price
+let quantity = 1;       // how many of this item to add
 let addonGroups = [];   // [{groupId,title,groupType,isRequired,options:[...]}]
 
 async function loadProduct() {
@@ -36,6 +37,16 @@ async function loadProduct() {
            onerror="this.onerror=null;this.src='${PLACEHOLDER}';">
       <p class="desc">${p.description || ""}</p>
       <div id="addon-groups">${renderGroups()}</div>
+
+      <div class="qty-picker">
+        <label>Quantity</label>
+        <div class="qty-controls">
+          <button type="button" id="qty-minus" class="qty-btn">-</button>
+          <span id="qty-value">1</span>
+          <button type="button" id="qty-plus" class="qty-btn">+</button>
+        </div>
+      </div>
+
       <p class="price">Total: <span id="live-price">$${basePrice.toFixed(2)}</span></p>
       <button id="add-btn">Add to Order</button>
       <span id="add-msg"></span>
@@ -45,6 +56,21 @@ async function loadProduct() {
     box.querySelectorAll(".addon-input").forEach(inp => {
       inp.addEventListener("change", recalcPrice);
     });
+
+    // Quantity stepper: never below 1.
+    document.getElementById("qty-plus").addEventListener("click", () => {
+      quantity++;
+      document.getElementById("qty-value").textContent = quantity;
+      recalcPrice();
+    });
+    document.getElementById("qty-minus").addEventListener("click", () => {
+      if (quantity > 1) {
+        quantity--;
+        document.getElementById("qty-value").textContent = quantity;
+        recalcPrice();
+      }
+    });
+
     document.getElementById("add-btn").addEventListener("click", addToCart);
     recalcPrice();
   } catch (err) {
@@ -76,12 +102,12 @@ function renderGroups() {
 
 // Sum base + all checked options, times nothing (qty handled at cart).
 function recalcPrice() {
-  let total = basePrice;
+  let unit = basePrice;
   document.querySelectorAll(".addon-input:checked").forEach(inp => {
-    total += Number(inp.dataset.price || 0);
+    unit += Number(inp.dataset.price || 0);
   });
   const el = document.getElementById("live-price");
-  if (el) el.textContent = `$${total.toFixed(2)}`;
+  if (el) el.textContent = `$${(unit * quantity).toFixed(2)}`;  // unit price x quantity
 }
 
 // Which optionIds are currently selected?
@@ -106,7 +132,7 @@ async function addToCart() {
       },
       body: JSON.stringify({
         productId: Number(productId),
-        quantity: 1,
+        quantity: quantity,
         optionIds: selectedOptionIds()
       })
     });
