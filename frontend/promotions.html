@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/promotions.css">
+    <title>Promotions</title>
+</head>
+<body>
+    <!-- Header (copied from Template — do not modify per-page) -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./hawker_centers.html">Order</a></li>
+                <li><a href="./history.html">History</a></li>
+                <li><a href="./promotions.html">Promotions</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./cart.html">Cart</a></li>
+                <li><a href="./user.html">User</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./cart.html" id="cart">
+                Cart <img src="../media/icons/shopping_cart.svg" alt="Shopping Cart Icon">
+            </a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li>Promotions</li>
+            </ul>
+        </nav>
+
+        <!-- Page Title -->
+        <section id="page-title">
+            <h2>Promo Codes</h2>
+            <p>Create and manage discount codes. Customers enter a code at checkout to receive the discount.</p>
+        </section>
+
+        <!-- CREATE / UPDATE: promo form -->
+        <section class="card" id="form-card">
+            <h3 id="form-title">Create Code</h3>
+            <form id="promo-form">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="code">Code</label>
+                        <input type="text" id="code" required placeholder="e.g. SAVE5" maxlength="50">
+                    </div>
+                    <div class="form-field">
+                        <label for="discountType">Discount Type</label>
+                        <select id="discountType" required>
+                            <option value="fixed">Fixed amount ($)</option>
+                            <option value="percent">Percentage (%)</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="discountValue">Value</label>
+                        <input type="number" id="discountValue" min="0.01" step="0.01" required placeholder="e.g. 5">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="expiryDate">Expiry Date</label>
+                        <input type="date" id="expiryDate" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="usageLimit">Usage Limit</label>
+                        <input type="number" id="usageLimit" min="1" step="1" required placeholder="e.g. 100">
+                    </div>
+                    <div class="form-field checkbox-field">
+                        <label for="isActive">Active</label>
+                        <div class="checkbox-line">
+                            <input type="checkbox" id="isActive" checked>
+                            <span>Code can be used right now</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="submit-btn">Create Code</button>
+                    <button type="button" id="cancel-edit" class="secondary hidden">Cancel Edit</button>
+                </div>
+            </form>
+            <p id="form-message" aria-live="polite"></p>
+        </section>
+
+        <!-- VALIDATE: the read-only check the cart will call. Demoable with no cart. -->
+        <section class="card" id="validate-card">
+            <h3>Test a Code</h3>
+            <p class="hint">This runs the same check the ordering page uses: is the code valid, and what discount does it give? It only reads &mdash; it never changes a code or an order.</p>
+            <div class="validate-row">
+                <input type="text" id="validate-code" placeholder="Enter a code, e.g. SAVE5">
+                <button type="button" id="validate-btn">Check code</button>
+            </div>
+            <div id="validate-result" class="validate-result hidden"></div>
+        </section>
+
+        <!-- READ: list of all promo codes -->
+        <section id="list-section">
+            <h3>All Codes</h3>
+            <div id="promo-list">
+                <p class="loading">Loading codes...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer (copied from Template, plus Support column for Customer pages) -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Order</h3>
+                    <ul>
+                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
+                        <li><a href="./stalls.html">Stalls</a></li>
+                        <li><a href="./cart.html">Cart</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="./feedback.html">Feedback</a></li>
+                        <li><a href="./complaints.html">Complaints</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Template Script -->
+    <script src="./Template/template.js"></script>
+    <!-- Page Script -->
+    <script src="./scripts/promotions.js"></script>
+</body>
+</html>

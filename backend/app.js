@@ -34,6 +34,7 @@ app.use("/api/orders", require("./routes/orderRoutes"));     // History
 app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer feedback
 app.use("/api/complaints", require("./routes/complaintRoutes")); // Customer complaints
 app.use("/api/auth", userRoutes);   // Aswin — login/signup
+app.use("/api/promos", require("./routes/promoRoutes")); // Promo codes
 
 // Aswin - authentication (signup / login / JWT)
 app.use("/api/auth", require("./routes/userRoutes"));
