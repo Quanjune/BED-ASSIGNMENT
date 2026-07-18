@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>Inspections</title>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./hawker_centers.html">Order</a></li>
+                <li><a href="./history.html">History</a></li>
+                <li><a href="./promotions.html">Promotions</a></li>
+                <li><a href="./inspections.html">Inspections</a></li>
+                <li><a href="./hygiene-grades.html">Hygiene Grades</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./cart.html">Cart</a></li>
+                <li><a href="./user.html">User</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./cart.html" id="cart">
+                Cart <img src="../media/icons/shopping_cart.svg" alt="Shopping Cart Icon">
+            </a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li>Inspections</li>
+            </ul>
+        </nav>
+
+        <section id="page-intro">
+            <h2>NEA Inspections</h2>
+            <p>Schedule inspections for hawker stalls, record outcomes, and hygiene grades are issued automatically.</p>
+        </section>
+
+        <!-- Schedule a new inspection -->
+        <section class="panel panel-card">
+            <h3>Schedule a New Inspection</h3>
+            <form id="schedule-form" class="form-grid">
+                <label>Stall ID
+                    <input type="number" id="schedule-stallId" min="1" required placeholder="e.g. 1">
+                </label>
+                <label>Officer Name
+                    <input type="text" id="schedule-officerName" required placeholder="e.g. Officer Tan Wei Ming">
+                </label>
+                <label>Scheduled Date
+                    <input type="date" id="schedule-date" required>
+                </label>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Schedule Inspection</button>
+                </div>
+            </form>
+            <p id="schedule-feedback" class="feedback" hidden></p>
+        </section>
+
+        <!-- Inspections list -->
+        <section class="panel panel-card">
+            <div class="panel-header">
+                <h3>All Inspections</h3>
+                <div class="filters">
+                    <label>Stall ID
+                        <input type="number" id="filter-stallId" min="1" placeholder="All stalls">
+                    </label>
+                    <label>Status
+                        <select id="filter-status">
+                            <option value="">All</option>
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </label>
+                    <button type="button" id="apply-filters" class="btn btn-small">Apply Filters</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Stall</th>
+                            <th>Officer</th>
+                            <th>Scheduled</th>
+                            <th>Status</th>
+                            <th>Completed</th>
+                            <th>Score</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inspections-body"></tbody>
+                </table>
+            </div>
+            <p id="inspections-empty" class="empty-state" hidden>No inspections match these filters yet.</p>
+        </section>
+    </main>
+
+    <!-- Complete Inspection Modal -->
+    <div id="complete-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>Complete Inspection #<span id="complete-id"></span></h3>
+            <form id="complete-form" class="form-grid">
+                <label>Score (0-100)
+                    <input type="number" id="complete-score" min="0" max="100" required>
+                </label>
+                <label>Remarks
+                    <textarea id="complete-remarks" placeholder="Cleanliness, food handling, follow-up notes..."></textarea>
+                </label>
+                <label>Completed Date
+                    <input type="date" id="complete-date">
+                </label>
+                <div class="modal-actions">
+                    <button type="button" id="complete-cancel" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Record Result &amp; Issue Grade</button>
+                </div>
+            </form>
+            <div id="complete-result" class="result-banner" hidden></div>
+        </div>
+    </div>
+
+    <!-- Edit Inspection Modal -->
+    <div id="edit-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>Edit Inspection #<span id="edit-id"></span></h3>
+            <form id="edit-form" class="form-grid">
+                <label>Stall ID
+                    <input type="number" id="edit-stallId" min="1" required>
+                </label>
+                <label>Officer Name
+                    <input type="text" id="edit-officerName" required>
+                </label>
+                <label>Scheduled Date
+                    <input type="date" id="edit-scheduledDate" required>
+                </label>
+                <label>Status
+                    <select id="edit-status">
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </label>
+                <div class="modal-actions">
+                    <button type="button" id="edit-cancel" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Compliance</h3>
+                    <ul>
+                        <li><a href="./inspections.html">Inspections</a></li>
+                        <li><a href="./hygiene-grades.html">Hygiene Grades</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./Template/template.js"></script>
+    <script src="./scripts/inspections.js"></script>
+</body>
+</html>
