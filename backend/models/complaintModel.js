@@ -1,72 +1,90 @@
-// models/complaintModel.js
+// models/feedbackModel.js
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
-async function getAllComplaints() {
+// GET all — newest first. JOINs FoodStalls + HawkerCenters so the front-end
+// can show "Lor Mee 178 · Tiong Bahru Market" instead of a bare stallId.
+async function getAllFeedback() {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
-      .query("SELECT * FROM Complaints ORDER BY createdAt DESC");
-    return result.recordset;
+      .query(`SELECT f.feedbackId, f.stallId, f.userId, f.rating, f.comment, f.createdAt,
+                     s.name AS stallName, s.centerId, c.name AS centerName
+              FROM Feedback f
+              INNER JOIN FoodStalls s ON f.stallId = s.stallId
+              INNER JOIN HawkerCenters c ON s.centerId = c.centerId
+              ORDER BY f.createdAt DESC`);
+    return result.recordset;            // recordset = the array of rows
+  } finally {
+    if (connection) await connection.close();   // always close, even on error
+  }
+}
+
+// GET one — by its id (same JOIN so edit mode can pre-select centre + stall).
+async function getFeedbackById(id) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input("id", sql.Int, id)         // parameterised input (safe from injection)
+      .query(`SELECT f.feedbackId, f.stallId, f.userId, f.rating, f.comment, f.createdAt,
+                     s.name AS stallName, s.centerId, c.name AS centerName
+              FROM Feedback f
+              INNER JOIN FoodStalls s ON f.stallId = s.stallId
+              INNER JOIN HawkerCenters c ON s.centerId = c.centerId
+              WHERE f.feedbackId = @id`);
+    return result.recordset[0];         // first row, or undefined
   } finally {
     if (connection) await connection.close();
   }
 }
 
-async function getComplaintById(id) {
-  let connection;
-  try {
-    connection = await sql.connect(dbConfig);
-    const result = await connection.request()
-      .input("id", sql.Int, id)
-      .query("SELECT * FROM Complaints WHERE complaintId = @id");
-    return result.recordset[0];
-  } finally {
-    if (connection) await connection.close();
-  }
-}
-
-async function createComplaint(data) {
+// POST — insert a new row, return the new id
+async function createFeedback(data) {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
       .input("stallId", sql.Int, data.stallId)
       .input("userId", sql.NVarChar, data.userId)
-      .input("category", sql.NVarChar, data.category)
-      .input("description", sql.NVarChar, data.description)
-      .query(`INSERT INTO Complaints (stallId, userId, category, description)
-              VALUES (@stallId, @userId, @category, @description);
-              SELECT SCOPE_IDENTITY() AS complaintId;`);
-    return result.recordset[0].complaintId;
+      .input("rating", sql.Int, data.rating)
+      .input("comment", sql.NVarChar, data.comment)
+      .query(`INSERT INTO Feedback (stallId, userId, rating, comment)
+              VALUES (@stallId, @userId, @rating, @comment);
+              SELECT SCOPE_IDENTITY() AS feedbackId;`); // grabs the auto id
+    return result.recordset[0].feedbackId;
   } finally {
     if (connection) await connection.close();
   }
 }
 
-// A nice real-world PUT: changing status from 'Open' to 'Resolved'
-async function updateComplaintStatus(id, status) {
+// PUT — update rating + comment. Returns rows changed (0 = id not found).
+async function updateFeedback(id, data) {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
       .input("id", sql.Int, id)
-      .input("status", sql.NVarChar, status)
-      .query("UPDATE Complaints SET status = @status WHERE complaintId = @id");
-    return result.rowsAffected[0];
+      .input("rating", sql.Int, data.rating)
+      .input("comment", sql.NVarChar, data.comment)
+      .query(`UPDATE Feedback
+              SET rating = @rating, comment = @comment
+              WHERE feedbackId = @id`);
+    return result.rowsAffected[0];      // how many rows the query touched
   } finally {
     if (connection) await connection.close();
   }
 }
 
-async function deleteComplaint(id) {
+// DELETE — remove a row. Returns rows deleted (0 = id not found).
+async function deleteFeedback(id) {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
       .input("id", sql.Int, id)
-      .query("DELETE FROM Complaints WHERE complaintId = @id");
+      .query("DELETE FROM Feedback WHERE feedbackId = @id");
     return result.rowsAffected[0];
   } finally {
     if (connection) await connection.close();
@@ -74,9 +92,9 @@ async function deleteComplaint(id) {
 }
 
 module.exports = {
-  getAllComplaints,
-  getComplaintById,
-  createComplaint,
-  updateComplaintStatus,
-  deleteComplaint,
+  getAllFeedback,
+  getFeedbackById,
+  createFeedback,
+  updateFeedback,
+  deleteFeedback,
 };

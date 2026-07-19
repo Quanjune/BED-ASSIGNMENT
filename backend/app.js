@@ -9,7 +9,7 @@ require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") }
 
 const express = require("express");
 const path = require("path");
-const sql = require("mssql");
+const sql = require("mssql"); 
 const dbConfig = require("./config/dbConfig");
 
 const app = express();
