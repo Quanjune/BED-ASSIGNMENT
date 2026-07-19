@@ -1,7 +1,3 @@
-// frontend/scripts/inspections.js
-// Talks to the Inspections REST API (backend/routes/inspectionRoutes.js) and
-// renders/updates the inspections table on inspections.html.
-
 const API_BASE = "/api";
 
 const inspectionsBody = document.getElementById("inspections-body");
@@ -247,7 +243,5 @@ async function deleteInspection(id) {
         alert(`Could not delete inspection: ${err.message}`);
     }
 }
-
-// ---------- Init ----------
 
 loadInspections();
