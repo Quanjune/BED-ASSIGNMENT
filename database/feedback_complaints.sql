@@ -14,6 +14,7 @@
 --   2) ProductOptions.sql
 --   3) promoCodes.sql
 --   4) feedback_complaints.sql   (this file)
+--   5) Inspectionpage.sql
 -- ============================================================
 USE HawkersDB;
 GO

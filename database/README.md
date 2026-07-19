@@ -10,9 +10,15 @@ Database engine: **Microsoft SQL Server**  ·  Database name: **HawkersDB**
 | 2 | `ProductOptions.sql` | Product customisation options (add-ons). |
 | 3 | `promoCodes.sql` | Promotions / promo codes. |
 | 4 | `feedback_complaints.sql` | Feedback and Complaints tables with sample data. |
+| 5 | `Inspectionpage.sql` | Inspections and HygieneGrades tables (NEA officer feature). |
 
-Scripts 2–4 are **additive** — they only add their own tables, so they are safe to run
-after the master and can be re-run at any time.
+Scripts 2–5 are **additive** — they only add their own tables, so they are safe to run
+after the master.
+
+> **Note on step 5:** `Inspectionpage.sql` has no `USE HawkersDB;` line, so make sure the
+> query window in SSMS is connected to **HawkersDB** before running it, or the tables will
+> be created in the wrong database. It also has no DROP statements, so re-running it will
+> error with "table already exists" — drop the two tables first if you need to re-run.
 
 ## 2. Do NOT run these after the master script
 
