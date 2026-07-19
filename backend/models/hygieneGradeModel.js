@@ -1,14 +1,14 @@
 const sql = require("mssql");
  
 async function stallExists(stallId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("stallId", sql.Int, stallId)
     .query("SELECT stallId FROM FoodStalls WHERE stallId = @stallId");
   return result.recordset.length > 0;
 }
  
 async function inspectionExists(inspectionId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("inspectionId", sql.Int, inspectionId)
     .query("SELECT inspectionId FROM Inspections WHERE inspectionId = @inspectionId");
   return result.recordset.length > 0;
@@ -16,7 +16,7 @@ async function inspectionExists(inspectionId) {
  
 // READ 
 async function getAllGrades(stallId) {
-  const request = sql.request();
+  const request = new sql.Request();
   let query = `
     SELECT g.gradeId, g.stallId, f.name AS stallName, g.inspectionId,
            g.grade, g.validFrom, g.validTo, g.createdAt
@@ -37,7 +37,7 @@ async function getAllGrades(stallId) {
  
 // READ 
 async function getGradeById(gradeId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("gradeId", sql.Int, gradeId)
     .query(`
       SELECT g.gradeId, g.stallId, f.name AS stallName, g.inspectionId,
@@ -51,7 +51,7 @@ async function getGradeById(gradeId) {
  
 // CREATE 
 async function createGrade(data) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("stallId", sql.Int, data.stallId)
     .input("inspectionId", sql.Int, data.inspectionId || null)
     .input("grade", sql.Char(1), data.grade)
@@ -67,7 +67,7 @@ async function createGrade(data) {
  
 // UPDATE
 async function updateGrade(gradeId, data) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("gradeId", sql.Int, gradeId)
     .input("stallId", sql.Int, data.stallId)
     .input("inspectionId", sql.Int, data.inspectionId || null)
@@ -89,7 +89,7 @@ async function updateGrade(gradeId, data) {
  
 // DELETE
 async function deleteGrade(gradeId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("gradeId", sql.Int, gradeId)
     .query("DELETE FROM HygieneGrades OUTPUT DELETED.* WHERE gradeId = @gradeId");
   return result.recordset[0];

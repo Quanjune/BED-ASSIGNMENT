@@ -2,7 +2,7 @@ const sql = require("mssql");
  
 // Helper: check a stallId actually exists before we insert/update against it.
 async function stallExists(stallId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("stallId", sql.Int, stallId)
     .query("SELECT stallId FROM FoodStalls WHERE stallId = @stallId");
   return result.recordset.length > 0;
@@ -10,7 +10,7 @@ async function stallExists(stallId) {
  
 // READ
 async function getAllInspections(filters = {}) {
-  const request = sql.request();
+  const request = new sql.Request();
   let query = `
     SELECT i.inspectionId, i.stallId, f.name AS stallName, i.officerName,
            i.scheduledDate, i.status, i.completedDate, i.score, i.remarks, i.createdAt
@@ -36,7 +36,7 @@ async function getAllInspections(filters = {}) {
  
 // READ 
 async function getInspectionById(inspectionId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("inspectionId", sql.Int, inspectionId)
     .query(`
       SELECT i.inspectionId, i.stallId, f.name AS stallName, i.officerName,
@@ -50,7 +50,7 @@ async function getInspectionById(inspectionId) {
  
 // CREATE 
 async function createInspection(data) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("stallId", sql.Int, data.stallId)
     .input("officerName", sql.NVarChar, data.officerName)
     .input("scheduledDate", sql.Date, data.scheduledDate)
@@ -64,7 +64,7 @@ async function createInspection(data) {
  
 // UPDATE
 async function updateInspection(inspectionId, data) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("inspectionId", sql.Int, inspectionId)
     .input("stallId", sql.Int, data.stallId)
     .input("officerName", sql.NVarChar, data.officerName)
@@ -84,7 +84,7 @@ async function updateInspection(inspectionId, data) {
  
 // COMPLETE 
 async function completeInspection(inspectionId, { completedDate, score, remarks }) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("inspectionId", sql.Int, inspectionId)
     .input("completedDate", sql.Date, completedDate)
     .input("score", sql.Int, score)
@@ -103,7 +103,7 @@ async function completeInspection(inspectionId, { completedDate, score, remarks 
  
 // DELETE
 async function deleteInspection(inspectionId) {
-  const result = await sql.request()
+  const result = await new sql.Request()
     .input("inspectionId", sql.Int, inspectionId)
     .query("DELETE FROM Inspections OUTPUT DELETED.* WHERE inspectionId = @inspectionId");
   return result.recordset[0]; // undefined if inspectionId didn't exist
