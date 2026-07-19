@@ -1,0 +1,51 @@
+/* styles/payment.css — payment result pages (success / failed) */
+
+.result-card {
+  max-width: 480px;
+  margin: 3rem auto;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  border: 2px solid #DBDFD0;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.result-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: #fff;
+}
+.result-card.success .result-icon { background: #2e7d32; }
+.result-card.failed  .result-icon { background: #a11; }
+
+.result-card h2 {
+  font-family: "Playfair Display", serif;
+  margin: 0.5rem 0;
+}
+.result-card p { color: #555; margin: 0.4rem 0; }
+.result-card .order-ref { font-weight: 600; color: #111; margin-top: 1rem; }
+.result-card .reassure { font-size: 0.9rem; color: #777; }
+
+.result-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.btn-primary, .btn-secondary {
+  padding: 0.7rem 1.3rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.btn-primary { background: #a11; color: #fff; }
+.btn-primary:hover { background: #801; }
+.btn-secondary { border: 1px solid #a11; color: #a11; }
+.btn-secondary:hover { background: #a11; color: #fff; }

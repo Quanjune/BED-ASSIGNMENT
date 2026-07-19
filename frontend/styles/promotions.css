@@ -1,0 +1,365 @@
+/* CSS Order: Layout / Box Model / Typography / Visuals / Miscellaneous */
+/* em for spacing in local context, rem for global consistency */
+/* Palette: #AD343E (accent red), #474747 (text grey), #DBDFD0 (sage) */
+/* Mirrors feedback.css so the promo page matches the rest of the site. */
+
+/* Miscellaneous */
+body {
+    background: #FFFFFF;
+}
+
+/* Breadcrumb separator (template shows crumbs inline with no divider) */
+#breadcrumbs li + li::before {
+    content: "/";
+    margin: 0 0.5rem;
+
+    color: rgba(71, 71, 71, 0.5);
+}
+
+/* Page Title */
+#page-title {
+    margin: 1rem 2rem;
+
+    text-align: center;
+}
+
+#page-title h2 {
+    margin: 0;
+
+    font-family: "Playfair Display";
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+#page-title p {
+    max-width: 460px;
+    margin: 0.5rem auto 0;
+
+    color: #474747;
+}
+
+/* Cards (same visual language as feedback.html cards) */
+.card {
+    max-width: 700px;
+    margin: 1rem auto;
+    padding: 1.5em 2em;
+    border: solid #DBDFD0 2px;
+    border-radius: 10px;
+
+    background-color: #FFFFFF;
+}
+
+.card h3 {
+    margin: 0 0 1rem 0;
+
+    font-family: "Playfair Display";
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.card .hint {
+    margin: -0.5rem 0 1rem;
+
+    font-size: 0.9rem;
+    color: rgba(71, 71, 71, 0.7);
+}
+
+/* Form */
+#promo-form {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1rem;
+}
+
+.form-field {
+    flex: 1 1 160px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 0.3rem;
+}
+
+.form-field label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #474747;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 0.6em 0.8em;
+    border: 1px solid rgba(71, 71, 71, 0.35);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 1rem;
+    color: #474747;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: 2px solid #AD343E;
+}
+
+/* Active checkbox reads as a labelled line, not a bare box */
+.checkbox-line {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6em 0;
+
+    font-size: 0.9rem;
+    color: rgba(71, 71, 71, 0.8);
+}
+
+.checkbox-line input {
+    width: auto;
+    transform: scale(1.2);
+    accent-color: #AD343E;
+}
+
+/* Buttons (pill shape to match #cta / #cart in Template) */
+button {
+    padding: 0.8em 1.4em;
+    border: 0;
+    border-radius: 25px;
+
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #FFFFFF;
+
+    background-color: #AD343E;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button.secondary {
+    border: 0.1rem solid #474747;
+
+    color: #474747;
+
+    background-color: #FFFFFF;
+}
+
+.form-actions {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.5rem;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Form feedback messages */
+#form-message {
+    margin: 0.8rem 0 0;
+
+    font-weight: 600;
+}
+
+#form-message.success {
+    color: #2E7D32;
+}
+
+#form-message.error {
+    color: #AD343E;
+}
+
+/* ---------- Validate ("Test a Code") ---------- */
+.validate-row {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.5rem;
+}
+
+.validate-row input {
+    flex: 1 1 220px;
+    padding: 0.6em 0.8em;
+    border: 1px solid rgba(71, 71, 71, 0.35);
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 1rem;
+    color: #474747;
+}
+
+.validate-row input:focus {
+    outline: 2px solid #AD343E;
+}
+
+.validate-result {
+    margin-top: 1rem;
+    padding: 1em 1.2em;
+    border-radius: 8px;
+
+    font-size: 0.95rem;
+}
+
+.validate-result.valid {
+    border: 1px solid #2E7D32;
+    background-color: rgba(46, 125, 50, 0.08);
+    color: #2E7D32;
+}
+
+.validate-result.invalid {
+    border: 1px solid #AD343E;
+    background-color: rgba(173, 52, 62, 0.06);
+    color: #AD343E;
+}
+
+.validate-result .result-message {
+    margin: 0 0 0.6rem;
+    font-weight: 600;
+}
+
+/* Raw JSON so the demo can show the exact contract the cart receives */
+.validate-result pre {
+    margin: 0;
+    padding: 0.8em;
+    border-radius: 6px;
+    overflow-x: auto;
+
+    font-family: "Poppins", monospace;
+    font-size: 0.8rem;
+    color: #474747;
+
+    background-color: #FFFFFF;
+    border: 1px solid rgba(71, 71, 71, 0.2);
+}
+
+/* ---------- Codes list ---------- */
+#list-section {
+    margin: 2rem;
+
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#list-section h3 {
+    text-align: center;
+    font-family: "Playfair Display";
+    font-size: 1.8rem;
+    font-weight: 400;
+}
+
+#promo-list {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 1rem;
+}
+
+#promo-list .card {
+    max-width: none;
+    margin: 0;
+    padding: 1.2em 1.5em;
+}
+
+#promo-list .loading,
+#promo-list .empty {
+    text-align: center;
+    color: rgba(71, 71, 71, 0.6);
+}
+
+.promo-head {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.promo-head strong {
+    font-family: "Poppins", monospace;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    color: #474747;
+}
+
+/* Status badge */
+.badge {
+    padding: 0.25em 0.7em;
+    border-radius: 999px;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.active {
+    color: #2E7D32;
+    background-color: rgba(46, 125, 50, 0.12);
+}
+
+.badge.inactive {
+    color: rgba(71, 71, 71, 0.7);
+    background-color: rgba(71, 71, 71, 0.12);
+}
+
+.badge.expired {
+    color: #AD343E;
+    background-color: rgba(173, 52, 62, 0.12);
+}
+
+.promo-discount {
+    margin: 0.6rem 0 0.2rem;
+
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #AD343E;
+}
+
+.promo-meta {
+    margin: 0.1rem 0;
+
+    font-size: 0.85rem;
+    color: rgba(71, 71, 71, 0.65);
+}
+
+.card-actions {
+    margin-top: 0.8rem;
+
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.5rem;
+}
+
+.card-actions button {
+    padding: 0.5em 1.1em;
+
+    font-size: 0.8rem;
+}
+
+/* Errors when list cannot load */
+.error-box {
+    text-align: center;
+    color: #AD343E;
+}
+
+/* @media */
+@media (max-width: 460px) {
+    #page-title h2 {
+        font-size: 2rem;
+    }
+
+    .card {
+        margin: 1rem;
+    }
+}
