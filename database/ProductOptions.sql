@@ -3,6 +3,12 @@
 -- Product customisation options (addons) for all 64 products.
 -- Run AFTER RealStallData.sql (needs Products + CartItems to exist).
 -- Safe to re-run: drops the addon tables first.
+
+-- RUN ORDER:
+--   1) DB with Vendor logins.sql   (master - builds everything else)
+--   2) ProductOptions.sql (this file)
+--   3) promoCodes.sql
+--   4) feedback_complaints.sql   
 -- ===============================================================
 USE HawkersDB;
 GO

@@ -2,6 +2,12 @@
 -- PromoCodes table for the promo code feature (individual feature).
 -- Run in SSMS against HawkersDB. Safe to re-run (drops + recreates).
 -- Standalone table: NO foreign keys to CartItems or any cart/order table.
+--
+-- RUN ORDER:
+--   1) DB with Vendor logins.sql   (master - builds everything else)
+--   2) ProductOptions.sql
+--   3) promoCodes.sql    (this file)
+--   4) feedback_complaints.sql   
 USE HawkersDB;
 GO
 
