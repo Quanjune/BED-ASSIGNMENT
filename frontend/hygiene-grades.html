@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>Hygiene Grades</title>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-brand">
+            <button id="hamburger">
+                <img src="../media/icons/hamburger_menu.svg" alt="Hamburger Menu">
+            </button>
+            <div class="logo">
+                <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                <h1>Hawkers</h1>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <ul id="nav-links">
+                <li><a href="./home.html">Home</a></li>
+                <li><a href="./hawker_centers.html">Order</a></li>
+                <li><a href="./history.html">History</a></li>
+                <li><a href="./promotions.html">Promotions</a></li>
+                <li><a href="./inspections.html">Inspections</a></li>
+                <li><a href="./hygiene-grades.html">Hygiene Grades</a></li>
+                <li><div class="divider"></div></li>
+                <li><a href="./cart.html">Cart</a></li>
+                <li><a href="./user.html">User</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="./cart.html" id="cart">
+                Cart <img src="../media/icons/shopping_cart.svg" alt="Shopping Cart Icon">
+            </a>
+            <div id="user">
+                <a href="./user.html">
+                    <img src="../media/icons/user.svg" alt="User Icon">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li><a href="./home.html">Home</a></li>
+                <li>Hygiene Grades</li>
+            </ul>
+        </nav>
+
+        <section id="page-intro">
+            <h2>Hygiene Grade History</h2>
+            <p>Track hygiene grades issued to stalls over time, for transparency to the public and NEA.</p>
+        </section>
+
+        <!-- Current grade summary -->
+        <section class="panel">
+            <h3>Latest Grade by Stall</h3>
+            <div id="current-grades-cards"></div>
+            <p id="current-grades-empty" class="empty-state" hidden>No grades issued yet. Complete an inspection to issue one.</p>
+        </section>
+
+        <!-- Manual / corrective entry -->
+        <section class="panel panel-card">
+            <h3>Add or Correct a Grade</h3>
+            <p style="font-size: 0.85rem; opacity: 0.75; margin-top: -0.5rem;">
+                Grades are normally issued automatically when an inspection is completed. Use this form only for manual corrections.
+            </p>
+            <form id="grade-form" class="form-grid">
+                <label>Stall ID
+                    <input type="number" id="grade-stallId" min="1" required placeholder="e.g. 1">
+                </label>
+                <label>Inspection ID <span style="font-weight:400;">(optional)</span>
+                    <input type="number" id="grade-inspectionId" min="1" placeholder="Linked inspection">
+                </label>
+                <label>Grade
+                    <select id="grade-grade" required>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </label>
+                <label>Valid From
+                    <input type="date" id="grade-validFrom" required>
+                </label>
+                <label>Valid To
+                    <input type="date" id="grade-validTo" required>
+                </label>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Grade</button>
+                </div>
+            </form>
+            <p id="grade-feedback" class="feedback" hidden></p>
+        </section>
+
+        <!-- Full history -->
+        <section class="panel panel-card">
+            <div class="panel-header">
+                <h3>Full Grade History</h3>
+                <div class="filters">
+                    <label>Stall ID
+                        <input type="number" id="filter-stallId" min="1" placeholder="All stalls">
+                    </label>
+                    <button type="button" id="apply-filter" class="btn btn-small">Apply</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Stall</th>
+                            <th>Grade</th>
+                            <th>Valid From</th>
+                            <th>Valid To</th>
+                            <th>Inspection</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grades-body"></tbody>
+                </table>
+            </div>
+            <p id="grades-empty" class="empty-state" hidden>No hygiene grades recorded yet.</p>
+        </section>
+    </main>
+
+    <!-- Edit Grade Modal -->
+    <div id="edit-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>Edit Grade #<span id="edit-id"></span></h3>
+            <form id="edit-form" class="form-grid">
+                <label>Stall ID
+                    <input type="number" id="edit-stallId" min="1" required>
+                </label>
+                <label>Inspection ID <span style="font-weight:400;">(optional)</span>
+                    <input type="number" id="edit-inspectionId" min="1">
+                </label>
+                <label>Grade
+                    <select id="edit-grade" required>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </label>
+                <label>Valid From
+                    <input type="date" id="edit-validFrom" required>
+                </label>
+                <label>Valid To
+                    <input type="date" id="edit-validTo" required>
+                </label>
+                <div class="modal-actions">
+                    <button type="button" id="edit-cancel" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="sub_footer">
+            <div class="footer-branding">
+                <div class="logo">
+                    <img src="../media/icons/hawker_icon.svg" alt="Hawkers Logo">
+                    <h1>Hawkers</h1>
+                </div>
+                <h3>Connect with us</h3>
+                <ul>
+                    <li><a href="http://"><img src="../media/icons/twitter.svg" alt="Twitter Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/facebook.svg" alt="Facebook Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/instagram.svg" alt="Instagram Icon"></a></li>
+                    <li><a href="http://"><img src="../media/icons/github.svg" alt="GitHub Icon"></a></li>
+                </ul>
+            </div>
+
+            <div class="footer-nav">
+                <nav>
+                    <h3>Pages</h3>
+                    <ul>
+                        <li><a href="./home.html">Home</a></li>
+                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./promotions.html">Promotions</a></li>
+                    </ul>
+                </nav>
+                <nav>
+                    <h3>Compliance</h3>
+                    <ul>
+                        <li><a href="./inspections.html">Inspections</a></li>
+                        <li><a href="./hygiene-grades.html">Hygiene Grades</a></li>
+                        <li><a href="./credit.html">Credit</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="footer-info">
+                <h3>Contact Us</h3>
+                <p>21 Revolution Street, Paris, France</p>
+                <p>+65 5752 6239</p>
+                <p>support@company.com</p>
+            </div>
+        </div>
+
+        <p>&copy; 2026 Hawkers. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="./Template/template.js"></script>
+    <script src="./scripts/hygiene-grades.js"></script>
+</body>
+</html>
