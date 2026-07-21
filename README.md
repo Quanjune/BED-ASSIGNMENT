@@ -124,3 +124,31 @@ or the user's role is not permitted.
 | `admin@hawkers.sg` | `Admin123` | admin |
 | `siti@test.com` | `Password123` | customer |
 | `chickenrice@test.com` | `Password123` | vendor (owns stall 1) |
+
+## Known limitations
+
+### Vendor self-registration does not grant stall access
+
+A vendor can create an account through the signup page, but that account will not be able
+to open the vendor dashboard. This is intentional.
+
+In the hawker centre scenario, a stall owner does not register online and instantly own a
+stall — the **operator assigns a stall unit through a rental agreement**. In this system
+that relationship is the `Users.stallId` column, which links a vendor account to exactly
+one stall. That link is assigned by the operator (seeded in the database), not created at
+signup.
+
+So a self-registered vendor account is created successfully but has no stall linked to it.
+The login flow checks this before redirecting and shows *"No stall is linked to this
+account. Please contact your operator."* instead of sending the user to a dashboard with
+no stall to manage.
+
+Auto-creating a stall at signup was deliberately avoided: it would let anyone create a
+stall in a hawker centre without a rental agreement or NEA approval, which does not
+reflect the real process.
+
+**Future work:** an operator/admin endpoint to assign a stall to an existing vendor
+account, or a vendor application-and-approval flow.
+
+To demonstrate the vendor features, use the seeded vendor account above
+(`chickenrice@test.com`), which the master SQL script links to stall 1.
