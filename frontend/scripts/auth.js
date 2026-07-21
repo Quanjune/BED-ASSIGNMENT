@@ -69,9 +69,9 @@ if (loginForm) {
 
       // Customer / admin
       if (role === "admin") {
-        window.location.href = "home.html";   // TODO: swap to admin-analytics.html once built
+        window.location.href = "index.html";   // TODO: swap to admin-analytics.html once built
       } else {
-        window.location.href = "home.html";   // customer
+        window.location.href = "index.html";   // customer
       }
     } catch (err) {
       errorBox.textContent = "Cannot reach the server. Is it running?";
