@@ -16,8 +16,11 @@ app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve
  
 // Serve the LOGIN page at the root URL "/" (login is the landing page).
 // After a successful login, auth.js redirects the user on to home.html.
+// Serve the home page at the root URL "/" (assignment requires index.html).
+// Visitors can browse freely; ordering requires a login (verifyToken on the
+// cart/order routes), so guests are blocked at the API, not at the front door.
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
  
 // ============================================================
