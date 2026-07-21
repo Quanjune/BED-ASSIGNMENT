@@ -1,4 +1,7 @@
-// Talks to the back-end REST API: GET/POST /api/feedback, GET/PUT/DELETE /api/feedback/:id
+// scripts/feedback.js — Feedback & Reviews page logic (Customer component)
+// Talks to the back-end REST API:
+//   GET/POST /api/feedback, GET/PUT/DELETE /api/feedback/:id   (mine)
+//   GET /api/centers, GET /api/centers/:centerId/stalls        (Quan Jun's, reused for the dropdowns)
 
 const form = document.getElementById("feedback-form");
 const formTitle = document.getElementById("form-title");
@@ -6,6 +9,8 @@ const submitBtn = document.getElementById("submit-btn");
 const cancelEditBtn = document.getElementById("cancel-edit");
 const formMessage = document.getElementById("form-message");
 const listDiv = document.getElementById("feedback-list");
+const centerSelect = document.getElementById("centerId");
+const stallSelect = document.getElementById("stallId");
 
 let editingId = null; // null = creating new; a number = editing that feedbackId
 
@@ -15,6 +20,57 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// ---------- Cascading dropdowns: centre first, then its stalls ----------
+async function loadCenters() {
+    try {
+        const response = await fetch("/api/centers");
+        if (!response.ok) throw new Error("Server returned " + response.status);
+        const centers = await response.json();
+
+        centerSelect.innerHTML = '<option value="">-- choose a centre --</option>';
+        centers.forEach((c) => {
+            const option = document.createElement("option");
+            option.value = c.centerId;     // the numeric id is what gets submitted
+            option.textContent = c.name;   // the user sees the centre name
+            centerSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error(error);
+        centerSelect.innerHTML = '<option value="">could not load centres</option>';
+    }
+}
+
+async function loadStallsForCenter(centerId) {
+    stallSelect.disabled = true;
+    stallSelect.innerHTML = '<option value="">-- loading stalls --</option>';
+    try {
+        const response = await fetch(`/api/centers/${centerId}/stalls`);
+        if (!response.ok) throw new Error("Server returned " + response.status);
+        const stalls = await response.json();
+
+        stallSelect.innerHTML = '<option value="">-- choose a stall --</option>';
+        stalls.forEach((s) => {
+            const option = document.createElement("option");
+            option.value = s.stallId;
+            option.textContent = s.name;
+            stallSelect.appendChild(option);
+        });
+        stallSelect.disabled = false;
+    } catch (error) {
+        console.error(error);
+        stallSelect.innerHTML = '<option value="">could not load stalls</option>';
+    }
+}
+
+centerSelect.addEventListener("change", () => {
+    if (centerSelect.value) {
+        loadStallsForCenter(centerSelect.value);
+    } else {
+        stallSelect.innerHTML = '<option value="">-- choose a centre first --</option>';
+        stallSelect.disabled = true;
+    }
+});
 
 // ---------- READ: load and display all feedback ----------
 async function loadFeedback() {
@@ -34,11 +90,11 @@ async function loadFeedback() {
             card.className = "card";
             card.innerHTML = `
                 <div class="review-head">
-                    <strong>Stall ${fb.stallId}</strong>
+                    <strong>${escapeHtml(fb.stallName)}</strong>
                     <span class="stars">${"★".repeat(fb.rating)}${"☆".repeat(5 - fb.rating)}</span>
                 </div>
                 <p class="comment">${fb.comment ? escapeHtml(fb.comment) : "<em>No comment</em>"}</p>
-                <p class="meta">by ${escapeHtml(fb.userId)} on ${new Date(fb.createdAt).toLocaleDateString()}</p>
+                <p class="meta">by ${escapeHtml(fb.userId)} on ${new Date(fb.createdAt).toLocaleDateString()} &middot; ${escapeHtml(fb.centerName)}</p>
                 <div class="card-actions">
                     <button data-id="${fb.feedbackId}" class="edit-btn secondary">Edit</button>
                     <button data-id="${fb.feedbackId}" class="delete-btn">Delete</button>
@@ -57,7 +113,7 @@ form.addEventListener("submit", async (event) => {
     event.preventDefault(); // stop the browser's default page reload
 
     const body = {
-        stallId: parseInt(document.getElementById("stallId").value),
+        stallId: parseInt(stallSelect.value),
         userId: document.getElementById("userId").value.trim(),
         rating: parseInt(document.getElementById("rating").value),
         comment: document.getElementById("comment").value.trim(),
@@ -127,13 +183,19 @@ listDiv.addEventListener("click", async (event) => {
             if (!response.ok) throw new Error("Not found");
             const fb = await response.json();
 
-            document.getElementById("stallId").value = fb.stallId;
+            // Pre-select the centre, load its stalls, then pre-select the stall.
+            // (await matters: the stall option must exist before we can select it.)
+            centerSelect.value = fb.centerId;
+            await loadStallsForCenter(fb.centerId);
+            stallSelect.value = fb.stallId;
+
             document.getElementById("userId").value = fb.userId;
             document.getElementById("rating").value = fb.rating;
             document.getElementById("comment").value = fb.comment || "";
 
             // stall and user cannot change on an edit (back-end only updates rating/comment)
-            document.getElementById("stallId").disabled = true;
+            centerSelect.disabled = true;
+            stallSelect.disabled = true;
             document.getElementById("userId").disabled = true;
 
             editingId = fb.feedbackId;
@@ -155,7 +217,9 @@ function resetForm() {
     formTitle.textContent = "Leave Feedback";
     submitBtn.textContent = "Submit Feedback";
     cancelEditBtn.classList.add("hidden");
-    document.getElementById("stallId").disabled = false;
+    centerSelect.disabled = false;
+    stallSelect.innerHTML = '<option value="">-- choose a centre first --</option>';
+    stallSelect.disabled = true;
     document.getElementById("userId").disabled = false;
 }
 
@@ -167,4 +231,5 @@ function showMessage(text, isError) {
 }
 
 // Initial load when the page opens
+loadCenters();
 loadFeedback();

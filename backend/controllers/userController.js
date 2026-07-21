@@ -42,7 +42,7 @@ async function login(req, res) {
     }
 
     const user = await userModel.findUserByEmail(email);
-    // Same message whether the email is missing OR the password is wrong —
+    // same message for a wrong email or wrong password so attackers can't tell which was wrong
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
@@ -52,7 +52,7 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // What future requests know about this user:
+    // userId and role go into the token so later requests know who is calling
     const payload = { userId: user.userId, role: user.role };
     const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
 
@@ -67,10 +67,10 @@ async function login(req, res) {
   }
 }
 
-// Returns the profile of whoever is logged in (identified by their token)
+// userId comes from the token, so a user can only fetch their own profile
 async function getProfile(req, res) {
   try {
-    const user = await userModel.findUserById(req.user.userId); // req.user came from verifyToken
+    const user = await userModel.findUserById(req.user.userId); // req.user set by verifyToken
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
@@ -85,7 +85,7 @@ async function updateProfile(req, res) {
   try {
     const { name, email } = req.body;
     if (!name || !email) return res.status(400).json({ message: 'Name and email are required.' });
-    // block taking an email that already belongs to someone else
+    // block an email that already belongs to another account
     const existing = await userModel.findUserByEmail(email);
     if (existing && existing.userId !== req.user.userId) {
       return res.status(409).json({ message: 'That email is already in use.' });

@@ -2,22 +2,19 @@
    vendor_auth.js  (Kishore - Vendor Management)
    Shared by vendor.html, vendor_agreements.html, vendor_performance.html.
 
-   Sign-in lives ONLY on Aswin's login.html. This file is the gate:
-   it reads the token Aswin's auth.js saved, checks the role, asks the
-   backend which stall the token owns, then opens the dashboard.
+   NOTE: login is handled centrally by Aswin's login.html + auth.js.
 
-   Flow:
-   1. Sign in on login.html -> auth.js saves localStorage["token"] and
-      localStorage["user"].
-   2. Vendor page loads -> this file reads THAT SAME token.
-        - no token             -> bounce to login.html
-        - token but not vendor -> bounce to home.html (wrong account)
-        - vendor token         -> GET /api/vendors/stall, open dashboard.
-   3. authFetch() sends Authorization: Bearer <token> on every vendor
-      request, so the backend resolves stallId from the token. The page
-      never picks a stall -> each vendor login only sees its own stall.
+   What it does:
+   1. Reads the JWT that login.html saved in sessionStorage. If there is
+      no token, it redirects to login.html instead of showing a form.
+   2. Asks the backend "whose stall am I?" (GET /api/vendors/stall) and
+      fills the "Your stall" header. A bad/expired token -> back to login.
+   3. Exposes authFetch() - fetch that automatically sends the token as
+      Authorization: Bearer <token> - used by every vendor page script.
 
-   The keys below ("token" / "user") MUST match Aswin's auth.js.
+   The page never picks a stall. The BACKEND decides which stall you
+   own from your token, so each vendor only ever sees and edits their
+   own stall.
    =================================================================== */
 
 (function () {
@@ -67,7 +64,9 @@
     try {
       const res = await authFetch("/api/vendors/stall");
       if (!res.ok) {
-        showLogin("Please sign in with a vendor account.");
+        // The no-stall case is now caught by login.html before a vendor ever reaches this page, so this just sends bad/expired sessions back to the central login.
+        clearSession();
+        window.location.href = "login.html";
         return;
       }
       const stall = await res.json();
@@ -77,12 +76,28 @@
       showDash();
       if (onReadyCb) onReadyCb(stall);
     } catch (e) {
-      // backend unreachable - show it on the dash status line
-      if (els.dash) els.dash.hidden = false;
-      if (els.status) {
-        els.status.textContent = "Couldn't reach the server. Is the backend running?";
-        els.status.className = "vm-status err";
-        els.status.hidden = false;
+      alert("Couldn't reach the server. Is the backend running?");
+    }
+  }
+
+  async function doLogin() {
+    const email = els.email.value.trim();
+    const password = els.password.value;
+    if (!email || !password) { showLogin("Email and password are both required."); return; }
+
+    els.btnLogin.disabled = true;
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { showLogin(data.message || "Login failed."); return; }
+
+      if (!data.user || data.user.role !== "vendor") {
+        showLogin("That account isn't a vendor account. Sign in with a stall owner login.");
+        return;
       }
     }
   }
@@ -103,20 +118,8 @@
     };
     if (els.btnLogout) els.btnLogout.addEventListener("click", doLogout);
 
-    // ---- the gate ----
-    const token = getToken();
-    const user = getUser();
-
-    if (!token) {
-      window.location.href = LOGIN_PAGE;
-      return;
-    }
-    if (!user || user.role !== "vendor") {
-      alert("This area is for stall owner (vendor) accounts. Please sign in with a vendor login.");
-      window.location.href = HOME_PAGE;
-      return;
-    }
-    loadStall();
+    if (getToken()) loadStall();                 // signed in via login.html -> load dashboard
+    else window.location.href = "login.html";    // not logged in -> central login page 
   }
 
   window.VendorAuth = { authFetch, initVendorGate, showLogin, getUser };

@@ -1,51 +1,62 @@
-// app.js
-// Main entry point (assignment requires back-end code named app.js).
-
-// IMPORTANT: .env lives at the repo root, but this file runs from /backend.
-// The explicit path makes dotenv find it no matter which folder `node` is run from.
 require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
-
+ 
 const express = require("express");
 const path = require("path");
-const sql = require("mssql");
+const sql = require("mssql"); 
 const dbConfig = require("./config/dbConfig");
-
+ 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+ 
 // --- Middleware ---
-app.use(express.json());                 // parse JSON bodies
+app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "..", "frontend")));        // serve front-end
+app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
-
-// Serve the homepage at the root URL "/"
+ 
+// Serve the LOGIN page at the root URL "/" (login is the landing page).
+// After a successful login, auth.js redirects the user on to home.html.
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "home.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
 });
-
+ 
 // ============================================================
-// KISHORE — Vendor Management (LIVE on this branch)
+// Routes (mounted under /api)
+// NOTE: only mount a route once its file actually exists in
+// backend/routes, otherwise the server crashes on startup with
+// "Cannot find module".
 // ============================================================
-app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 // menu CRUD
-app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); // rental agreements
-app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));           // my stall profile
-
-// ============================================================
-// TEAMMATE ROUTES — commented out locally because the files
-// don't exist on the vendor branch yet. UNCOMMENT BEFORE PUSH.
-// (Uncommenting a line whose file is missing crashes startup
-//  with "Cannot find module".)
-// ============================================================
-// app.use("/api/centers", require("./routes/centerRoutes"));        // Homepage
-// app.use("/api/products", require("./routes/productRoutes"));      // Product page
-// app.use("/api/cart", require("./routes/cartRoutes"));             // Add to order
-// app.use("/api/orders", require("./routes/orderRoutes"));          // Order history
-// app.use("/api/feedback", require("./routes/feedbackRoutes"));     // Customer feedback
-// app.use("/api/complaints", require("./routes/complaintRoutes"));  // Customer complaints
-app.use("/api/auth", require("./routes/userRoutes"));             // Aswin — login/signup
-
-
+ 
+// --- Aswin: authentication (signup / login / JWT) ---
+app.use("/api/auth", require("./routes/userRoutes"));
+ 
+// --- Quan Jun: product page flow + product CRUD ---
+// This one router handles /api/centers, /api/stalls and /api/products.
+app.use("/api", require("./routes/productRoutes"));
+ 
+// --- Quan Jun: add to cart ---
+app.use("/api/cart", require("./routes/cartRoutes"));
+ 
+// --- Quan Jun: product customisation options (addons) ---
+app.use("/api/products", require("./routes/addonRoutes"));
+ 
+// --- Quan Jun: checkout + order history ---
+app.use("/api/orders", require("./routes/orderRoutes"));
+ 
+// --- Timely: feedback, complaints & promo codes ---
+app.use("/api/feedback", require("./routes/feedbackRoutes"));
+app.use("/api/complaints", require("./routes/complaintRoutes"));
+app.use("/api/promos", require("./routes/promoRoutes"));
+ 
+// --- Kaden: NEA officer — regulatory & compliance ---
+app.use("/api/inspections", require("./routes/inspectionRoutes"));
+app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));
+ 
+// --- Kishore: vendor management ---
+app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 
+app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); 
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));          
+ 
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
   try {

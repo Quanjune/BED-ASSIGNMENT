@@ -3,26 +3,14 @@
 -- ONE master script that rebuilds HawkersDB from scratch,
 -- with sample data (assignment deliverable requirement).
 --
--- WHY YOUR DB BROKE (most likely):
---   Your old RentalAgreements table had a foreign key pointing at
---   FoodStalls. QJ's rebuild script tries to DROP FoodStalls but
---   doesn't know about RentalAgreements, so the DROP fails halfway
---   and the database is left half-dropped / half-created.
---   Fix = one script that drops EVERYTHING in child -> parent order.
 --
--- WHAT'S NEW vs the old scripts:
---   * 4 hawker centres x 4 stalls = 16 stalls
---   * Users table now has a stallId column -> each vendor account
---     owns exactly ONE stall (16 vendor accounts, one per stall)
---   * RentalAgreements replaced by StallAgreements: every legal
---     document a stall needs (rental, store licence, food safety,
---     fire safety...) with name / type / status / expiry per stall
+-- RUN ORDER:
+--   1) DB with Vendor logins.sql   (master - builds everything else) (this file)
+--   2) ProductOptions.sql
+--   3) promoCodes.sql
+--   4) feedback_complaints.sql   
 --
--- Run the WHOLE file in SSMS. Safe to re-run any time.
--- Tell Aswin (Users) and QJ (FoodStalls/Products seeds) before
--- pushing this - their schemas are kept identical except Users
--- gains the stallId column.
--- ============================================================
+-- Run the WHOLE file in SSMS. Safe to re-run any time-- ============================================================
 
 IF DB_ID('HawkersDB') IS NULL
     CREATE DATABASE HawkersDB;
