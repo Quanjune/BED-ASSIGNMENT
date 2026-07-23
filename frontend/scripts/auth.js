@@ -32,18 +32,46 @@ if (loginForm) {
         return;
       }
 
-      // Success: save the token + basic user info in the browser
+      // Success — store the token + user info.
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirect based on the role the server sent back
       const role = data.user.role;
+
+      if (role === "vendor") {
+        // The vendor page reads the token from sessionStorage under these keys.
+        sessionStorage.setItem("hawkerToken", data.accessToken);
+        sessionStorage.setItem("hawkerUser", JSON.stringify(data.user));
+
+        // Before sending a vendor to the stall page, confirm the backend can find
+        // a stall for this account. If it can't, keep them here with a message.
+        try {
+          const stallRes = await fetch("/api/vendors/stall", {
+            headers: { "Authorization": "Bearer " + data.accessToken }
+          });
+          if (!stallRes.ok) {
+            // Valid login, but no stall linked — undo the sign-in, stay on login.
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            sessionStorage.removeItem("hawkerToken");
+            sessionStorage.removeItem("hawkerUser");
+            errorBox.textContent = "No stall is linked to this account. Please contact your operator.";
+            return;
+          }
+        } catch (err) {
+          errorBox.textContent = "Cannot reach the server. Is it running?";
+          return;
+        }
+
+        window.location.href = "vendor.html";
+        return;
+      }
+
+      // Customer / admin
       if (role === "admin") {
-        window.location.href = "home.html";   // TODO: swap to admin-analytics.html once built
-      } else if (role === "vendor") {
-        window.location.href = "home.html";   // TODO: swap to vendor-dashboard.html once built
+        window.location.href = "index.html";   // TODO: swap to admin-analytics.html once built
       } else {
-        window.location.href = "home.html";   // customer
+        window.location.href = "index.html";   // customer
       }
     } catch (err) {
       errorBox.textContent = "Cannot reach the server. Is it running?";

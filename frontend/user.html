@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hawkers | My Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <section class="profile-section">
+    <h2>My Profile</h2>
+
+    <div class="profile-card">
+      <div class="profile-row">
+        <span class="label">Username</span>
+        <span class="value" id="pfName">-</span>
+        <button class="btn-pill" data-edit="name">Edit</button>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Role</span>
+        <span class="value" id="pfRole">-</span>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Email</span>
+        <span class="value" id="pfEmail">-</span>
+        <button class="btn-pill" data-edit="email">Edit</button>
+      </div>
+
+      <div class="profile-row">
+        <span class="label">Payment</span>
+        <span class="value" id="pfPayment">Not set</span>
+        <button class="btn-pill" id="pfPaymentBtn">Add</button>
+      </div>
+
+      <button class="primary-btn" id="logoutBtn">Logout</button>
+    </div>
+  </section>
+
+  <script src="scripts/profile.js"></script>
+</body>
+</html>
