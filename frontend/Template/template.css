@@ -353,9 +353,32 @@ footer p, footer h3 {
     }
 }
 
-/* Append to the END of frontend/Template/template.css */
-
+/* Active nav tab: red text + the grey pill from the FED design.
+   The pill lives on the <li> (which already has border-radius: 15px),
+   so we target the li that contains the active link. */
 #nav-links a.active-link {
   color: #a11;
   font-weight: 600;
+}
+
+#nav-links li:has(a.active-link) {
+  background-color: #DBDFD0;
+}
+
+/* Sticky footer: body fills the viewport, main takes the leftover space,
+   so the footer always sits at the bottom even on short pages. */
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;   /* keep children full width - without this main shrinks */
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+#site-footer {
+  flex-shrink: 0;
 }

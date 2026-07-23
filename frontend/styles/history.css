@@ -1,0 +1,111 @@
+/* styles/history.css — order history page.
+   Layout copied from the FED project, restyled to the #a11 palette. */
+
+.history-page {
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  padding: 0 1rem;
+}
+
+.history-title {
+  text-align: center;
+  margin: 0 0 16px 0;
+  font-family: "Playfair Display", serif;
+}
+
+/* ===== STATS ===== */
+.history-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.history-stats div {
+  background: #eee;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ===== LIST BACKGROUND ===== */
+.history-list {
+  background: #e9e6e6;
+  padding: 2rem;
+  border-radius: 10px;
+}
+
+.history-list .empty {
+  text-align: center;
+  color: #666;
+  margin: 0;
+  padding: 2rem 0;
+  font-size: 1.1rem;
+}
+
+/* Keep the grey panel a sensible height even with nothing in it */
+.history-list {
+  min-height: 160px;
+}
+
+/* ===== CARD ===== */
+.history-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.history-card:last-child { margin-bottom: 0; }
+
+/* ===== STATUS BADGE ===== */
+.status {
+  display: inline-block;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== ROW LAYOUT ===== */
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.main-row { cursor: pointer; }
+
+/* ===== TEXT ===== */
+.history-card .title {
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.history-card .meta {
+  font-size: 0.85rem;
+  color: #555;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.history-card .price {
+  font-weight: bold;
+}
+
+.history-details {
+  margin-top: 0.8rem;
+  border-top: 1px solid #eee;
+  padding-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.detail-item { margin: 0.2rem 0; }
+
+.detail-total {
+  margin-top: 0.4rem;
+  font-weight: bold;
+}

@@ -86,15 +86,42 @@ async function checkout(userId, paymentMethod, fulfillment) {
 }
 
 // ---- Order history ----
+// Returns each order with its line items attached, newest first.
 async function getOrdersByUser(userId) {
   const pool = await sql.connect(dbConfig);
-  const request = pool.request();
-  request.input("userId", sql.NVarChar, String(userId));
-  const result = await request.query(
+
+  const orderReq = pool.request();
+  orderReq.input("userId", sql.NVarChar, String(userId));
+  const orderRes = await orderReq.query(
     "SELECT orderId, subtotal, total, paymentMethod, fulfillment, status, createdAt " +
     "FROM Orders WHERE userId = @userId ORDER BY orderId DESC"
   );
-  return result.recordset;
+  const orders = orderRes.recordset;
+  if (orders.length === 0) return [];
+
+  // Fetch all line items for these orders in one query, then group them.
+  const itemReq = pool.request();
+  itemReq.input("userId", sql.NVarChar, String(userId));
+  const itemRes = await itemReq.query(
+    "SELECT oi.orderId, oi.productName, oi.quantity, oi.itemTotal " +
+    "FROM OrderItems oi " +
+    "INNER JOIN Orders o ON o.orderId = oi.orderId " +
+    "WHERE o.userId = @userId " +
+    "ORDER BY oi.orderItemId"
+  );
+
+  return orders.map(o => {
+    const items = itemRes.recordset.filter(i => i.orderId === o.orderId);
+    // Recompute the fee breakdown from the stored subtotal so history shows
+    // the same numbers the cart showed at checkout.
+    const fees = calculateFees(Number(o.subtotal), o.fulfillment);
+    return {
+      ...o,
+      items,
+      deliveryFee: fees.deliveryFee,
+      minOrderFee: fees.minOrderFee
+    };
+  });
 }
 
 module.exports = { checkout, getOrdersByUser, calculateFees, DELIVERY_FEE, MIN_ORDER };
