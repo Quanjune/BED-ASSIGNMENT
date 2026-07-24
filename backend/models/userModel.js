@@ -7,7 +7,7 @@ async function findUserByEmail(email) {
   try {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
-      .input('email', sql.NVarChar, email) // parameterised = safe from SQL injection
+      .input('email', sql.NVarChar, email) // parameterised input to prevent SQL injection
       .query('SELECT userId, name, email, passwordHash, role FROM Users WHERE email = @email');
     return result.recordset[0];
   } finally {

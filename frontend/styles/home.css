@@ -85,7 +85,19 @@ body {
     border-radius: 10px;
 
     text-align: center;
+
+    /* cards are now links: keep them looking like cards, not blue links */
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
+.card:hover {
+    border-color: #a11;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+}
+.card h4 { color: #111; }
 
 .card p {
     color: #474747;

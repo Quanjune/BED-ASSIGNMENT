@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./Template/template.css">
+  <link rel="stylesheet" href="./styles/home.css">
+  <title>Home</title>
+</head>
+<body>
+  <!-- Navbar injected by Template/template.js -->
+  <div id="site-header"></div>
+
+    <main>
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumbs">
+            <ul>
+                <li>Home</li>
+            </ul>
+        </nav>
+
+        <!-- Content -->
+        <section id="cta">
+            <h2>Feast On Local Delights</h2>
+            <p>Discover delectable local cuisine across a range of cultures from our hawker centers</p>
+            <a href="./centers.html">Order Now</a>
+        </section>
+
+        <section id="local-highlights">
+            <h3>Local Highlights</h3>
+            <div id="highlight-cards">
+                <!-- Each cuisine links to a representative stall's menu (products.html?stallId=N) -->
+                <a class="card" href="./products.html?stallId=1">
+                    <img src="../media/icons/main-dish.svg" alt="Chinese cuisine icon">
+                    <h4>Chinese</h4>
+                    <p>Hainanese chicken rice, claypot rice, char kway teow - heritage hawker classics.</p>
+                </a>
+                <a class="card" href="./products.html?stallId=8">
+                    <img src="../media/icons/main-dish.svg" alt="Malay cuisine icon">
+                    <h4>Malay</h4>
+                    <p>Nasi lemak with fragrant coconut rice, sambal and crispy sides.</p>
+                </a>
+                <a class="card" href="./products.html?stallId=12">
+                    <img src="../media/icons/main-dish.svg" alt="Japanese cuisine icon">
+                    <h4>Japanese</h4>
+                    <p>Donburi rice bowls, salmon and katsu curry from Shin Okaya.</p>
+                </a>
+                <a class="card" href="./products.html?stallId=16">
+                    <img src="../media/icons/main-dish.svg" alt="Western cuisine icon">
+                    <h4>Western</h4>
+                    <p>Chicken chops, burgers, fish &amp; chips and creamy pastas.</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+  <!-- Footer injected by Template/template.js -->
+  <div id="site-footer"></div>
+
+  <script src="./Template/template.js"></script>
+
+</body>
+</html>

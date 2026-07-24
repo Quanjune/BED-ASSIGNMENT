@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-// AUTHENTICATION — "who are you?"
-// Checks the token in the Authorization header. If valid, attaches the user to req.
+// verify the JWT from the Authorization header and attach the user to req
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // format: "Bearer <token>"
@@ -19,8 +18,7 @@ function verifyToken(req, res, next) {
   });
 }
 
-// AUTHORIZATION — "are you allowed?"
-// Use like authorizeRoles('admin') to lock a route to certain roles.
+// restrict a route to certain roles, e.g. authorizeRoles('admin') - runs after verifyToken
 function authorizeRoles(...allowedRoles) {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {

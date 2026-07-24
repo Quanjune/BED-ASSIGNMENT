@@ -1,0 +1,98 @@
+/* styles/addons.css — product customisation options + cart addon display.
+   Link this in product-detail.html and cart.html (after products.css). */
+
+/* ---- option groups on the product page ---- */
+.addon-group {
+  margin: 1rem 0;
+  padding: 0.75rem 0;
+  border-top: 1px solid #eee;
+}
+.addon-group h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.addon-group .req { color: #a11; margin-left: 0.25rem; }
+
+.addon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.addon-item input { cursor: pointer; }
+
+#live-price { font-weight: 700; color: #a11; }
+
+/* ---- chosen addons shown under each cart line ---- */
+.cart-addons {
+  margin: 0.1rem 0 0.2rem;
+  font-size: 0.82rem;
+  color: #777;
+}
+
+/* ============================================================
+   LAYOUT CENTERING FIX
+   .detail was max-width:520px pinned left inside the 1100px main.
+   Auto margins centre it. Applies to both product-detail and cart.
+   ============================================================ */
+.detail {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Product page: centre the heading, image, price and button nicely. */
+#product-detail {
+  text-align: center;
+}
+#product-detail .addon-group {
+  text-align: left;        /* keep option labels left-aligned for readability */
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#product-detail .detail-img { margin-left: auto; margin-right: auto; }
+
+/* Cart page: add class "cart-page" to <body> in cart.html.
+   The cart lives in a .detail wrapper (capped 520px); widen + centre it. */
+.cart-page .detail { max-width: 720px; }
+#cart-items { margin-left: auto; margin-right: auto; }
+#cart-summary {
+  margin-left: auto;
+  margin-right: auto;      /* centre the summary instead of floating right */
+  max-width: 340px;
+}
+
+/* Breadcrumb: give it a little breathing room so it isn't cramped at top. */
+#breadcrumbs { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+
+/* ---- quantity picker on the product page ---- */
+.qty-picker {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.qty-picker label { font-weight: 600; }
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+#product-detail .qty-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin-top: 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+#product-detail .qty-btn:hover { background: #f0f0f0; }
+#qty-value { min-width: 2rem; text-align: center; font-size: 1.1rem; }

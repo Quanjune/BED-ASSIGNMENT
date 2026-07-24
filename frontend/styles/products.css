@@ -1,7 +1,8 @@
 /* styles/products.css — shared styling for centres, stalls, products, detail */
 main {
   max-width: 1100px;
-  margin: 0 auto;
+  /* 80px top clears the fixed navbar (matches template.css); auto sides centre. */
+  margin: 80px auto 0;
   padding: 1rem 1.5rem 3rem;
 }
 
