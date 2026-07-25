@@ -38,7 +38,15 @@ function calculateFees(subtotal, fulfillment) {
 
 // ---- CHECKOUT: cart -> order ----
 // Reads the user's cart server-side, computes fees, writes Orders + OrderItems,
-// then clears the cart. Returns the created order.
+// then clears the cart.
+//
+// The three writes (order header, line items, empty the cart) all run inside a
+// TRANSACTION. A transaction groups statements so they either ALL succeed or
+// ALL get undone. Without one, a crash halfway through could leave an order
+// with no items in it, or a cart that never emptied after being paid for.
+//   begin()    - open the transaction
+//   commit()   - make every change permanent
+//   rollback() - undo everything since begin()
 async function checkout(userId, paymentMethod, fulfillment) {
   const items = await cartModel.getCartByUser(userId);
   if (!items || items.length === 0) return { emptyCart: true };
@@ -47,54 +55,117 @@ async function checkout(userId, paymentMethod, fulfillment) {
   const subtotal = items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
   const fees = calculateFees(subtotal, fulfillment);
 
+  // All items in one cart come from the same centre, so take it from line 1.
+  // centerId is nullable in the schema, so `?? null` keeps the insert safe.
+  const centerId = items[0].centerId ?? null;
+
   const pool = await sql.connect(dbConfig);
+  const transaction = new sql.Transaction(pool);
+  await transaction.begin();
 
-  // 1. Create the order header.
-  const orderReq = pool.request();
-  orderReq.input("userId", sql.NVarChar, String(userId));
-  orderReq.input("subtotal", sql.Decimal(10, 2), fees.subtotal);
-  orderReq.input("total", sql.Decimal(10, 2), fees.total);
-  orderReq.input("paymentMethod", sql.NVarChar, paymentMethod);
-  orderReq.input("fulfillment", sql.NVarChar, fulfillment);
-  const orderRes = await orderReq.query(
-    "INSERT INTO Orders (userId, subtotal, total, paymentMethod, fulfillment, status) " +
-    "VALUES (@userId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid'); " +
-    "SELECT SCOPE_IDENTITY() AS orderId;"
-  );
-  const orderId = orderRes.recordset[0].orderId;
-
-  // 2. Copy each cart line into OrderItems (name + addons so history reads well).
-  for (const item of items) {
-    const addonText = item.addons && item.addons.length
-      ? " (" + item.addons.map(a => a.label).join(", ") + ")"
-      : "";
-    const itemReq = pool.request();
-    itemReq.input("orderId", sql.Int, orderId);
-    itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
-    itemReq.input("quantity", sql.Int, item.quantity);
-    itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
-    await itemReq.query(
-      "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal) " +
-      "VALUES (@orderId, @productName, @quantity, @itemTotal)"
+  try {
+    // 1. Create the order header.
+    // Requests are built from the TRANSACTION, not the pool, so they take part
+    // in it. A request built from the pool would commit on its own immediately.
+    const orderReq = new sql.Request(transaction);
+    orderReq.input("userId", sql.NVarChar, String(userId));
+    orderReq.input("centerId", sql.Int, centerId);
+    orderReq.input("subtotal", sql.Decimal(10, 2), fees.subtotal);
+    orderReq.input("total", sql.Decimal(10, 2), fees.total);
+    orderReq.input("paymentMethod", sql.NVarChar, paymentMethod);
+    orderReq.input("fulfillment", sql.NVarChar, fulfillment);
+    const orderRes = await orderReq.query(
+      "INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status) " +
+      "VALUES (@userId, @centerId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid'); " +
+      "SELECT SCOPE_IDENTITY() AS orderId;"
     );
+    const orderId = orderRes.recordset[0].orderId;
+
+    // 2. Copy each cart line into OrderItems (name + addons so history reads well).
+    for (const item of items) {
+      const addonText = item.addons && item.addons.length
+        ? " (" + item.addons.map(a => a.label).join(", ") + ")"
+        : "";
+      const itemReq = new sql.Request(transaction);
+      itemReq.input("orderId", sql.Int, orderId);
+      itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
+      itemReq.input("quantity", sql.Int, item.quantity);
+      itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
+      await itemReq.query(
+        "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal) " +
+        "VALUES (@orderId, @productName, @quantity, @itemTotal)"
+      );
+    }
+
+    // 3. Empty the cart now the order exists.
+    // Done inline (not via cartModel.clearCart) because that helper builds its
+    // request from the pool, which would sit OUTSIDE this transaction.
+    const delAddons = new sql.Request(transaction);
+    delAddons.input("userId", sql.NVarChar, String(userId));
+    await delAddons.query(
+      "DELETE a FROM CartItemAddons a " +
+      "JOIN CartItems c ON c.cartItemId = a.cartItemId " +
+      "WHERE c.userId = @userId"
+    );
+
+    const delItems = new sql.Request(transaction);
+    delItems.input("userId", sql.NVarChar, String(userId));
+    await delItems.query("DELETE FROM CartItems WHERE userId = @userId");
+
+    // Everything worked - make it permanent.
+    await transaction.commit();
+
+    return { orderId, ...fees, paymentMethod, fulfillment, status: "paid" };
+  } catch (err) {
+    // Something failed - undo all of the above so the DB is left untouched.
+    await transaction.rollback();
+    throw err; // let the controller turn this into a 500 response
   }
-
-  // 3. Empty the cart now the order exists.
-  await cartModel.clearCart(userId);
-
-  return { orderId, ...fees, paymentMethod, fulfillment, status: "paid" };
 }
 
 // ---- Order history ----
+// Returns each order with its line items attached, newest first.
 async function getOrdersByUser(userId) {
   const pool = await sql.connect(dbConfig);
-  const request = pool.request();
-  request.input("userId", sql.NVarChar, String(userId));
-  const result = await request.query(
-    "SELECT orderId, subtotal, total, paymentMethod, fulfillment, status, createdAt " +
-    "FROM Orders WHERE userId = @userId ORDER BY orderId DESC"
+
+  const orderReq = pool.request();
+  orderReq.input("userId", sql.NVarChar, String(userId));
+  // LEFT JOIN (not INNER) because orders placed before centerId was recorded
+  // have NULL - an inner join would hide them from the history page entirely.
+  const orderRes = await orderReq.query(
+    "SELECT o.orderId, o.subtotal, o.total, o.paymentMethod, o.fulfillment, " +
+    "       o.status, o.createdAt, h.name AS centerName " +
+    "FROM Orders o " +
+    "LEFT JOIN HawkerCenters h ON h.centerId = o.centerId " +
+    "WHERE o.userId = @userId " +
+    "ORDER BY o.orderId DESC"
   );
-  return result.recordset;
+  const orders = orderRes.recordset;
+  if (orders.length === 0) return [];
+
+  // Fetch all line items for these orders in one query, then group them.
+  const itemReq = pool.request();
+  itemReq.input("userId", sql.NVarChar, String(userId));
+  const itemRes = await itemReq.query(
+    "SELECT oi.orderId, oi.productName, oi.quantity, oi.itemTotal " +
+    "FROM OrderItems oi " +
+    "INNER JOIN Orders o ON o.orderId = oi.orderId " +
+    "WHERE o.userId = @userId " +
+    "ORDER BY oi.orderItemId"
+  );
+
+  return orders.map(o => {
+    const items = itemRes.recordset.filter(i => i.orderId === o.orderId);
+    // Recompute the fee breakdown from the stored subtotal so history shows
+    // the same numbers the cart showed at checkout.
+    const fees = calculateFees(Number(o.subtotal), o.fulfillment);
+    return {
+      ...o,
+      items,
+      deliveryFee: fees.deliveryFee,
+      minOrderFee: fees.minOrderFee
+    };
+  });
 }
 
 module.exports = { checkout, getOrdersByUser, calculateFees, DELIVERY_FEE, MIN_ORDER };

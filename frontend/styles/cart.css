@@ -90,8 +90,9 @@
 /* ---- summary ---- */
 #cart-summary {
   margin-top: 1.5rem;
-  max-width: 320px;
-  margin-left: auto;
+  max-width: none;
+  margin-left: 0;
+  width: 100%;
 }
 
 .summary-line {

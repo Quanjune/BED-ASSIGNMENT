@@ -62,6 +62,24 @@ app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes"));
 app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));    
 app.use("/api/vendors/performance", require("./routes/vendorPerformanceRoutes"));      
  
+// ============================================================
+// Error handling — must come AFTER all routes are mounted.
+// Express matches middleware in order, so anything registered
+// here only runs when no route above has already responded.
+// ============================================================
+
+// Unknown /api/* URL -> JSON 404 (not the static handler's HTML page).
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
+// Central error handler. Four parameters (err first) is what tells
+// Express this is an error handler rather than normal middleware.
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ message: "Something went wrong on the server." });
+});
+
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
   try {
