@@ -12,11 +12,11 @@
 // ---------------------------------------------------------------
 
 // Which nav link should be highlighted? Work it out from the URL.
-const currentPage = window.location.pathname.split("/").pop() || "home.html";
+const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
 // One source of truth for the nav links.
 const NAV_LINKS = [
-  { label: "Home",       href: "./home.html" },
+  { label: "Home",       href: "./index.html" },
   { label: "Order",      href: "./centers.html" },
   { label: "History",    href: "./history.html" },
   { label: "Promotions", href: "./promotions.html" }
@@ -84,7 +84,7 @@ function buildFooter() {
           <nav>
             <h3>Pages</h3>
             <ul>
-              <li><a href="./home.html">Home</a></li>
+              <li><a href="./index.html">Home</a></li>
               <li><a href="./centers.html">Order</a></li>
               <li><a href="./history.html">History</a></li>
               <li><a href="./promotions.html">Promotions</a></li>
