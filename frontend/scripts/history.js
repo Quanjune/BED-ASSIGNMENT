@@ -50,7 +50,7 @@ function buildCard(order) {
         <div class="title">${firstItem}${extra}</div>
         <div class="meta">
           <span>🕒 ${formatWhen(order.createdAt)}</span>
-          <span>📍 ${isDelivery ? "Delivery" : "Takeaway"}</span>
+          <span>📍 ${order.centerName || (isDelivery ? "Delivery" : "Takeaway")}</span>
           <span>#${order.orderId}</span>
         </div>
       </div>

@@ -16,10 +16,11 @@ async function getCartByUser(userId) {
   request.input("userId", sql.NVarChar, String(userId));
   const result = await request.query(
     "SELECT c.cartItemId, c.userId, c.productId, c.quantity, c.unitPrice, " +
-    "       p.name AS productName, p.imagePath, " +
+    "       p.name AS productName, p.imagePath, s.centerId, " +
     "       (c.quantity * c.unitPrice) AS lineTotal " +
     "FROM CartItems c " +
     "JOIN Products p ON p.productId = c.productId " +
+    "JOIN FoodStalls s ON s.stallId = p.stallId " +
     "WHERE c.userId = @userId " +
     "ORDER BY c.cartItemId"
   );
