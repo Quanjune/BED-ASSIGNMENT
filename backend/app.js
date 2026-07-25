@@ -13,6 +13,7 @@ app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
+
  
 // Serve the LOGIN page at the root URL "/" (login is the landing page).
 // After a successful login, auth.js redirects the user on to home.html.
@@ -58,7 +59,8 @@ app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));
 // --- Kishore: vendor management ---
 app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); 
-app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));          
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));    
+app.use("/api/vendors/performance", require("./routes/vendorPerformanceRoutes"));      
  
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {

@@ -50,14 +50,97 @@
             </ul>
         </nav>
 
-        <section class="vendor-menu">
-            <div class="vm-head">
-                <p class="vm-eyebrow">Stall Owner</p>
-                <h2 class="vm-title">Stall Performance</h2>
-                <p class="vm-subtitle">Coming in Sprint 3 — a read-only dashboard of sales, top dishes, revenue &amp; ratings.</p>
+        <!-- The gate (vendor_auth.js) unhides this once the token checks out -->
+        <section id="dash-section" class="vendor-menu vp-wide" hidden>
+            <div class="vm-head vm-head-row">
+                <div>
+                    <p class="vm-eyebrow">Stall Owner</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
+                    <p class="vm-subtitle" id="stall-center"></p>
+                </div>
+                <!-- Reporting window -->
+                <div class="vp-range">
+                    <label class="vm-field vp-range-field">
+                        <span>Showing</span>
+                        <select id="in-days">
+                            <option value="7">Last 7 days</option>
+                            <option value="14">Last 14 days</option>
+                            <option value="30" selected>Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </label>
+                </div>
             </div>
-            <div class="vm-card">
-                <p class="vm-empty">This page is a placeholder for now. The backend endpoints and UI land in Sprint 2.</p>
+
+            <p id="status" class="vm-status" hidden></p>
+            <p id="link-note" class="vm-status warn" hidden></p>
+
+            <!-- ============ KPI row ============ -->
+            <div class="vp-kpis" id="kpi-row">
+                <div class="vm-card vp-kpi">
+                    <p class="vp-kpi-label">Revenue</p>
+                    <p class="vp-kpi-value" id="kpi-revenue">—</p>
+                    <p class="vp-kpi-delta" id="kpi-revenue-delta"></p>
+                </div>
+                <div class="vm-card vp-kpi">
+                    <p class="vp-kpi-label">Orders</p>
+                    <p class="vp-kpi-value" id="kpi-orders">—</p>
+                    <p class="vp-kpi-delta" id="kpi-orders-delta"></p>
+                </div>
+                <div class="vm-card vp-kpi">
+                    <p class="vp-kpi-label">Items sold</p>
+                    <p class="vp-kpi-value" id="kpi-items">—</p>
+                    <p class="vp-kpi-delta" id="kpi-items-delta"></p>
+                </div>
+                <div class="vm-card vp-kpi">
+                    <p class="vp-kpi-label">Avg order value</p>
+                    <p class="vp-kpi-value" id="kpi-aov">—</p>
+                    <p class="vp-kpi-delta" id="kpi-aov-sub"></p>
+                </div>
+            </div>
+
+            <!-- ============ Revenue trend ============ -->
+            <div class="vm-card vp-chart-card">
+                <h3 class="vm-card-title">Revenue trend</h3>
+                <div id="chart-revenue" class="vp-chart">
+                    <p class="vm-empty">Loading…</p>
+                </div>
+            </div>
+
+            <!-- ============ Two column: top dishes + peak hours ============ -->
+            <div class="vp-grid-2">
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Top dishes</h3>
+                    <div id="top-dishes"><p class="vm-empty">Loading…</p></div>
+                </div>
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Busiest hours</h3>
+                    <div id="peak-hours" class="vp-chart"><p class="vm-empty">Loading…</p></div>
+                </div>
+            </div>
+
+            <!-- ============ Two column: ratings + reviews ============ -->
+            <div class="vp-grid-2">
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Customer rating</h3>
+                    <div id="ratings"><p class="vm-empty">Loading…</p></div>
+                </div>
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Latest reviews</h3>
+                    <div id="reviews"><p class="vm-empty">Loading…</p></div>
+                </div>
+            </div>
+
+            <!-- ============ Two column: menu + compliance ============ -->
+            <div class="vp-grid-2">
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Menu &amp; likes</h3>
+                    <div id="menu-snapshot"><p class="vm-empty">Loading…</p></div>
+                </div>
+                <div class="vm-card">
+                    <h3 class="vm-card-title">Compliance &amp; documents</h3>
+                    <div id="compliance"><p class="vm-empty">Loading…</p></div>
+                </div>
             </div>
         </section>
     </main>
@@ -82,15 +165,15 @@
                     <h3>Pages</h3>
                     <ul>
                         <li><a href="./index.html">Home</a></li>
-                        <li><a href="./hawker_centers.html">Order</a></li>
-                        <li><a href="./history.html">History</a></li>
+                        <li><a href="./centers.html">Order</a></li>
+                        <li><a href="./user.html">History</a></li>
                         <li><a href="./promotions.html">Promotions</a></li>
                     </ul>
                 </nav>
                 <nav>
                     <h3>Order</h3>
                     <ul>
-                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
+                        <li><a href="./centers.html">Hawker Centers</a></li>
                         <li><a href="./stalls.html">Stalls</a></li>
                         <li><a href="./cart.html">Cart</a></li>
                         <li><a href="./credit.html">Credit</a></li>
@@ -108,5 +191,7 @@
     </footer>
 
     <script src="./Template/template.js"></script>
+    <script src="./scripts/vendor_auth.js"></script>
+    <script src="./scripts/vendor_performance.js"></script>
 </body>
 </html>

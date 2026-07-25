@@ -279,3 +279,189 @@ body.page-performance #nav-links li:nth-child(3) {
     color: rgba(71, 71, 71, 0.6);
     margin-top: 0.15rem;
 }
+
+
+/* ===================================================================
+   PASTE EVERYTHING BELOW AT THE END OF frontend/styles/vendor.css
+   Sprint 3 - Stall Performance dashboard (Kishore)
+   Same tokens as the rest of the vendor pages: ink #474747, sage #DBDFD0.
+   =================================================================== */
+
+/* The dashboard needs more room than the menu/agreements screens. */
+.vp-wide { max-width: 1180px; }
+
+/* Amber status line, used for the "figures are indicative" notice. */
+.vm-status.warn {
+    background: #F7F0DF;
+    color: #8A6D2B;
+}
+
+/* ---- Reporting window selector in the page head ---- */
+.vp-range { align-self: flex-end; }
+.vp-range-field { min-width: 190px; margin: 0; }
+
+/* ---- KPI row ---- */
+.vp-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.vp-kpi { padding: 1.1rem 1.2rem; }
+.vp-kpi-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(71, 71, 71, 0.55);
+}
+.vp-kpi-value {
+    margin: 0.35rem 0 0.2rem;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #474747;
+    line-height: 1.1;
+}
+.vp-kpi-delta { margin: 0; font-size: 0.76rem; font-weight: 600; }
+.vp-kpi-delta.up   { color: #4F7A4A; }
+.vp-kpi-delta.down { color: #B4483C; }
+.vp-kpi-delta.flat { color: rgba(71, 71, 71, 0.5); }
+
+/* ---- Charts ---- */
+.vp-chart-card { margin-bottom: 1rem; }
+.vp-chart svg { width: 100%; height: 200px; display: block; }
+.vp-bar { fill: #8DA37E; transition: fill 0.15s ease; }
+.vp-bar:hover { fill: #5F7A52; }
+.vp-grid { stroke: rgba(71, 71, 71, 0.18); stroke-width: 1; }
+.vp-axis { font-size: 10px; fill: rgba(71, 71, 71, 0.55); }
+.vp-chart-peak {
+    margin: 0.4rem 0 0;
+    font-size: 0.76rem;
+    color: rgba(71, 71, 71, 0.55);
+    text-align: right;
+}
+
+/* ---- Two-column card grid ---- */
+.vp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ---- Ranked list (top dishes) ---- */
+.vp-rank {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(71, 71, 71, 0.08);
+}
+.vp-rank:last-child { border-bottom: 0; }
+.vp-rank-no {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: #DBDFD0;
+    color: #474747;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vp-rank-body { flex: 1; min-width: 0; }
+.vp-rank-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.92rem;
+    color: #474747;
+}
+.vp-rank-top span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.vp-rank-sub { font-size: 0.75rem; color: rgba(71, 71, 71, 0.55); }
+.vp-rank-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: #EFEFEA;
+    margin: 0.3rem 0 0.2rem;
+    overflow: hidden;
+}
+.vp-rank-bar i {
+    display: block;
+    height: 100%;
+    background: #8DA37E;
+    border-radius: 999px;
+}
+
+/* ---- Ratings ---- */
+.vp-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+}
+.vp-score-num { font-size: 2.2rem; font-weight: 700; color: #474747; }
+.vp-score-stars { font-size: 1.1rem; color: #C9A227; letter-spacing: 0.08em; }
+.vp-score-sub { font-size: 0.8rem; color: rgba(71, 71, 71, 0.55); }
+.vp-star-row {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr 2rem;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(71, 71, 71, 0.7);
+}
+.vp-star-row .vp-rank-bar { margin: 0.25rem 0; }
+
+/* ---- Reviews ---- */
+.vp-review {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(71, 71, 71, 0.08);
+}
+.vp-review:last-child { border-bottom: 0; }
+.vp-review p { margin: 0.25rem 0 0; font-size: 0.88rem; color: #474747; }
+.vp-review-head { display: flex; justify-content: space-between; gap: 0.5rem; }
+.vp-review-stars { color: #C9A227; font-size: 0.85rem; letter-spacing: 0.06em; }
+.vp-review-date { font-size: 0.75rem; color: rgba(71, 71, 71, 0.5); }
+
+/* ---- Small stat trio (menu snapshot) ---- */
+.vp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+.vp-stats > div { text-align: center; }
+.vp-stats span {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #474747;
+}
+.vp-stats small { font-size: 0.72rem; color: rgba(71, 71, 71, 0.55); }
+
+/* ---- Generic line of dashboard text ---- */
+.vp-line {
+    margin: 0.45rem 0 0;
+    font-size: 0.88rem;
+    color: #474747;
+}
+.vp-line a { color: #5F7A52; font-weight: 600; }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+    .vp-kpis { grid-template-columns: repeat(2, 1fr); }
+    .vp-grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+    .vp-kpis { grid-template-columns: 1fr; }
+    .vp-range { align-self: stretch; }
+}
