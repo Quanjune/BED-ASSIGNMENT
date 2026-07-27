@@ -46,6 +46,9 @@ app.use("/api/products", require("./routes/addonRoutes"));
 // --- Quan Jun: checkout + order history ---
 app.use("/api/orders", require("./routes/orderRoutes"));
  
+// --- Aswin: admin analytics (read-only aggregation, admin-only) ---
+app.use("/api/admin", require("./routes/adminRoutes"));
+
 // --- Timely: feedback, complaints & promo codes ---
 app.use("/api/feedback", require("./routes/feedbackRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
