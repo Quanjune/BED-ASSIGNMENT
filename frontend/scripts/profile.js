@@ -29,6 +29,19 @@ async function loadProfile() {
     document.getElementById("pfName").textContent = current.name || "-";
     document.getElementById("pfRole").textContent = current.role || "-";
     document.getElementById("pfEmail").textContent = current.email || "-";
+
+    // Payment card (only the last 4 digits are stored)
+    const cardEl = document.getElementById("pfPayment");
+    const cardBtn = document.getElementById("pfPaymentBtn");
+    if (cardEl && cardBtn) {
+      if (current.cardLast4) {
+        cardEl.textContent = "•••• " + current.cardLast4;
+        cardBtn.textContent = "Remove";
+      } else {
+        cardEl.textContent = "Not set";
+        cardBtn.textContent = "Add";
+      }
+    }
   } catch (err) {
     alert("Couldn't reach the server. Is it running?");
   }
@@ -70,8 +83,43 @@ document.querySelectorAll("[data-edit]").forEach((btn) => {
 });
 
 // Payment — placeholder for now (not stored in the DB yet; team still deciding).
-document.getElementById("pfPaymentBtn")?.addEventListener("click", () => {
-  alert("Payment details aren't saved yet - the team is still deciding how to store them.");
+// Payment card: Add asks for a number and saves it; Remove clears it.
+document.getElementById("pfPaymentBtn")?.addEventListener("click", async () => {
+  if (current.cardLast4) {
+    // a card is saved -> remove it
+    if (!confirm("Remove your saved card?")) return;
+    try {
+      const res = await fetch(`${API}/me/card`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.message || "Couldn't remove the card."); return; }
+      await loadProfile();
+    } catch (err) {
+      alert("Couldn't reach the server. Is it running?");
+    }
+  } else {
+    // no card -> add one
+    const cardNumber = prompt("Enter your card number (13-19 digits):", "");
+    if (cardNumber === null) return;
+    try {
+      const res = await fetch(`${API}/me/card`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+        body: JSON.stringify({ cardNumber: cardNumber.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // validate() middleware returns { details: [...] }; controllers return { message }
+        alert(data.details ? data.details.join(" ") : (data.message || "Couldn't save the card."));
+        return;
+      }
+      await loadProfile();
+    } catch (err) {
+      alert("Couldn't reach the server. Is it running?");
+    }
+  }
 });
 
 // Logout — clear the token everywhere and go back to login.
