@@ -4,15 +4,25 @@
 
 const API = "/api/auth";
 const token = localStorage.getItem("token");
-
-// Must be logged in to view the profile.
-if (!token) {
-  window.location.href = "login.html";
-}
+const isGuest = !token;   // guests browse without logging in
 
 let current = { name: "", email: "", role: "" };
 
 async function loadProfile() {
+  // Guest: no token, so show a read-only "Guest" profile and skip the API call.
+  if (isGuest) {
+    document.getElementById("pfName").textContent = "Guest";
+    document.getElementById("pfRole").textContent = "Guest";
+    document.getElementById("pfEmail").textContent = "-";
+    const gCardEl = document.getElementById("pfPayment");
+    const gCardBtn = document.getElementById("pfPaymentBtn");
+    if (gCardEl) gCardEl.textContent = "Not set";
+    if (gCardBtn) gCardBtn.textContent = "Add";
+    const gLogout = document.getElementById("logoutBtn");
+    if (gLogout) gLogout.textContent = "Log in";   // for a guest this just goes to login
+    return;
+  }
+
   try {
     const res = await fetch(`${API}/me`, {
       headers: { "Authorization": "Bearer " + token }
@@ -72,6 +82,7 @@ async function saveField(field, newValue) {
 // Edit buttons (name + email)
 document.querySelectorAll("[data-edit]").forEach((btn) => {
   btn.addEventListener("click", () => {
+    if (isGuest) { alert("Please log in to edit your profile."); return; }
     const field = btn.dataset.edit;                 // "name" or "email"
     const label = field === "name" ? "username" : "email";
     const newValue = prompt(`Enter new ${label}:`, current[field] || "");
@@ -85,6 +96,7 @@ document.querySelectorAll("[data-edit]").forEach((btn) => {
 // Payment — placeholder for now (not stored in the DB yet; team still deciding).
 // Payment card: Add asks for a number and saves it; Remove clears it.
 document.getElementById("pfPaymentBtn")?.addEventListener("click", async () => {
+  if (isGuest) { alert("Please log in to add a card."); return; }
   if (current.cardLast4) {
     // a card is saved -> remove it
     if (!confirm("Remove your saved card?")) return;
