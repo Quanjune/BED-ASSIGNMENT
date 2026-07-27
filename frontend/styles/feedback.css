@@ -253,3 +253,51 @@ button.secondary {
         margin: 1rem;
     }
 }
+
+/* ============================================================
+   Guest sign-in notice (Timely)
+   Shown in place of the form when nobody is logged in.
+   Matches the .card .hint rule already used on promotions.css
+   so the three Support pages read the same.
+   ============================================================ */
+.card .hint {
+    margin: -0.5rem 0 1rem;
+    font-size: 0.9rem;
+    color: rgba(71, 71, 71, 0.7);
+}
+.card .hint a {
+    color: #a11;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   Locked stall read-out (Timely)
+   Replaces the centre + stall dropdowns when the stall arrived
+   in the URL from a stall card's button. Sits in the same
+   .form-row, so it lines up with the fields beside it.
+   ============================================================ */
+.locked-stall {
+    margin: 0;
+    padding: 0.55rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    line-height: 1.3;
+}
+.locked-stall strong {
+    font-size: 1rem;
+    color: #474747;
+}
+.locked-stall .locked-centre {
+    font-size: 0.85rem;
+    color: rgba(71, 71, 71, 0.65);
+}
+.locked-stall #change-stall {
+    font-size: 0.8rem;
+    color: #a11;
+    text-decoration: underline;
+    white-space: nowrap;
+}
+.locked-stall #change-stall:hover { color: #801; }

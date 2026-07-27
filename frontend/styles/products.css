@@ -98,3 +98,54 @@ main {
   font-size: 1rem;
 }
 .detail button:hover { background: #801; }
+
+/* ============================================================
+   Stall card extras (Timely - feedback / complaints / promos)
+   Rating line, promo tag and the Review / Report buttons that
+   stalls.js adds to each stall card.
+   ============================================================ */
+
+/* ---- Rating line ---- */
+.item-rating {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.item-rating .stars { color: #e8a33d; letter-spacing: 1px; }
+.item-rating .rating-value { font-weight: 600; color: #333; }
+.item-rating .rating-count { color: #888; }
+.item-rating-empty { color: #999; font-style: italic; }
+
+/* ---- Promo tag ---- */
+.item-promo {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0a7d55;
+}
+
+/* ---- Card action buttons ----
+   margin-top:auto pushes this row to the bottom of the card, so the buttons
+   line up across cards even when stall names wrap onto two lines. */
+.item-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.7rem;
+}
+.card-btn {
+  flex: 1;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 999px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.card-btn:hover { background: #f0f0f0; }
+.review-btn:hover { border-color: #e8a33d; color: #a06a12; }
+.report-btn:hover { border-color: #a11; color: #a11; }

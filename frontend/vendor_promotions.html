@@ -8,10 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./Template/template.css">
     <link rel="stylesheet" href="./styles/vendor.css">
-    <title>Vendor · Menu</title>
+    <!-- Small add-on sheet for the promo badges + code list. Kept separate from
+         vendor.css so this feature owns its own styling. -->
+    <link rel="stylesheet" href="./styles/vendor_promotions.css">
+    <title>Vendor · Promotions</title>
 </head>
-<body class="page-menu">
-    <!-- Header (same structure as index.html) -->
+<body class="page-promotions">
+    <!-- Header (same structure as the other vendor pages) -->
     <header>
         <div class="header-brand">
             <button id="hamburger">
@@ -49,7 +52,7 @@
             <ul>
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./vendor.html">Vendor</a></li>
-                <li><a href="./vendor.html">Menu</a></li>
+                <li><a href="./vendor_promotions.html">Promotions</a></li>
             </ul>
         </nav>
 
@@ -58,7 +61,7 @@
             <div class="vm-head">
                 <p class="vm-eyebrow">Stall Owner</p>
                 <h2 class="vm-title">Vendor sign in</h2>
-                <p class="vm-subtitle">Sign in with your stall owner account to manage your menu.</p>
+                <p class="vm-subtitle">Sign in with your stall owner account to manage your promo codes.</p>
             </div>
 
             <div class="vm-card vm-login">
@@ -77,11 +80,11 @@
             </div>
         </section>
 
-        <!-- ============ 2) MENU DASHBOARD (your stall only) ============ -->
+        <!-- ============ 2) PROMOTIONS DASHBOARD (your stall only) ============ -->
         <section id="dash-section" class="vendor-menu" hidden>
             <div class="vm-head vm-head-row">
                 <div>
-                    <p class="vm-eyebrow">Stall Owner</p>
+                    <p class="vm-eyebrow">Promotions</p>
                     <h2 class="vm-title" id="stall-name">Your stall</h2>
                     <p class="vm-subtitle" id="stall-center"></p>
                 </div>
@@ -94,45 +97,71 @@
             <div class="vm-layout">
                 <!-- Add / edit form -->
                 <div class="vm-card vm-form">
-                    <h3 id="form-title" class="vm-card-title">Add a dish</h3>
+                    <h3 id="form-title" class="vm-card-title">Create a code</h3>
 
                     <input id="edit-id" type="hidden" value="">
 
                     <label class="vm-field">
-                        <span>Dish name <em>*</em></span>
-                        <input id="in-name" type="text" placeholder="Chicken Rice">
+                        <span>Code <em>*</em></span>
+                        <input id="in-code" type="text" placeholder="SAVE5" maxlength="50">
+                        <small class="vm-hint">Letters and numbers only. Saved in CAPITALS.</small>
                     </label>
                     <label class="vm-field">
-                        <span>Description</span>
-                        <textarea id="in-desc" rows="2" placeholder="Tender poached chicken with fragrant rice."></textarea>
+                        <span>Discount type <em>*</em></span>
+                        <select id="in-type">
+                            <option value="fixed">Fixed amount ($)</option>
+                            <option value="percent">Percentage (%)</option>
+                        </select>
                     </label>
                     <label class="vm-field">
-                        <span>Image URL</span>
-                        <input id="in-image" type="text" placeholder="https://… or /media/products/dish.jpg">
+                        <span>Value <em>*</em></span>
+                        <input id="in-value" type="number" min="0.01" step="0.01" placeholder="5">
                     </label>
                     <label class="vm-field">
-                        <span>Base price (S$) <em>*</em></span>
-                        <input id="in-price" type="number" min="0" step="0.01" placeholder="4.50">
+                        <span>Expiry date <em>*</em></span>
+                        <input id="in-expiry" type="date">
+                    </label>
+                    <label class="vm-field">
+                        <span>Usage limit <em>*</em></span>
+                        <input id="in-limit" type="number" min="1" step="1" placeholder="100">
+                    </label>
+                    <label class="vm-field vm-field-check">
+                        <span>
+                            <input id="in-active" type="checkbox" checked>
+                            Active (customers can use it right now)
+                        </span>
                     </label>
 
                     <div class="vm-form-actions">
-                        <button id="btn-save" class="vm-btn vm-btn-primary">Save dish</button>
+                        <button id="btn-save" class="vm-btn vm-btn-primary">Save code</button>
                         <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
                     </div>
                 </div>
 
-                <!-- Menu list -->
+                <!-- Codes list -->
                 <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Your menu</h3>
-                    <div id="menu-list" class="vm-menu-list">
-                        <p class="vm-empty">Loading your menu…</p>
+                    <h3 class="vm-card-title">Your codes</h3>
+                    <p class="vm-subtitle vm-list-note">Only codes belonging to your stall are shown here.</p>
+                    <div id="promo-list" class="vm-menu-list">
+                        <p class="vm-empty">Loading your codes…</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- Read-only tester: the exact check the cart performs -->
+            <div class="vm-card vm-validate">
+                <h3 class="vm-card-title">Test a code</h3>
+                <p class="vm-subtitle">Runs the same read-only check the ordering page uses. It never changes a code or an order.</p>
+                <div class="vm-validate-row">
+                    <input id="validate-code" type="text" placeholder="Enter a code, e.g. SAVE5">
+                    <button id="btn-validate" class="vm-btn vm-btn-ghost">Check code</button>
+                </div>
+                <div id="validate-result" class="vm-validate-result" hidden></div>
             </div>
         </section>
     </main>
 
-    <!-- Footer (same as index.html) -->
+    <!-- Footer (same as the other vendor pages) -->
     <footer>
         <div class="sub_footer">
             <div class="footer-branding">
@@ -153,18 +182,18 @@
                     <h3>Pages</h3>
                     <ul>
                         <li><a href="./index.html">Home</a></li>
-                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./centers.html">Order</a></li>
                         <li><a href="./history.html">History</a></li>
                         <li><a href="./promotions.html">Promotions</a></li>
                     </ul>
                 </nav>
                 <nav>
-                    <h3>Order</h3>
+                    <h3>Vendor</h3>
                     <ul>
-                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
-                        <li><a href="./stalls.html">Stalls</a></li>
-                        <li><a href="./cart.html">Cart</a></li>
-                        <li><a href="./credit.html">Credit</a></li>
+                        <li><a href="./vendor.html">Menu</a></li>
+                        <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
+                        <li><a href="./vendor_performance.html">Performance</a></li>
+                        <li><a href="./vendor_promotions.html">Promotions</a></li>
                     </ul>
                 </nav>
             </div>
@@ -182,7 +211,7 @@
     <script src="./Template/template.js"></script>
     <!-- Shared vendor login gate + authFetch -->
     <script src="./scripts/vendor_auth.js"></script>
-    <!-- Vendor menu logic -->
-    <script src="./scripts/vendor.js"></script>
+    <!-- Vendor promotions logic -->
+    <script src="./scripts/vendor_promotions.js"></script>
 </body>
 </html>
