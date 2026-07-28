@@ -120,4 +120,28 @@ async function getAllUsers(req, res) {
   }
 }
 
-module.exports = { signup, login, getProfile, updateProfile, deleteAccount, getAllUsers };
+// Save a card. We derive and store only the last 4 digits, never the full number.
+async function saveCard(req, res) {
+  try {
+    const { cardNumber } = req.body;
+    const cardLast4 = cardNumber.slice(-4);
+    const rows = await userModel.saveCard(req.user.userId, cardLast4);
+    if (rows === 0) return res.status(404).json({ message: 'User not found.' });
+    return res.status(200).json({ message: 'Card saved.', card: { cardLast4 } });
+  } catch (err) {
+    console.error('Save card error:', err);
+    return res.status(500).json({ message: 'Something went wrong saving the card.' });
+  }
+}
+
+async function removeCard(req, res) {
+  try {
+    await userModel.removeCard(req.user.userId);
+    return res.status(200).json({ message: 'Card removed.' });
+  } catch (err) {
+    console.error('Remove card error:', err);
+    return res.status(500).json({ message: 'Something went wrong removing the card.' });
+  }
+}
+
+module.exports = { signup, login, getProfile, updateProfile, deleteAccount, getAllUsers, saveCard, removeCard };
