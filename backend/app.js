@@ -11,16 +11,15 @@ const PORT = process.env.PORT || 3000;
 // --- Middleware ---
 app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "..", "frontend"))); // serve front-end
+app.use(express.static(path.join(__dirname, "..", "frontend"), { index: false })); // serve front-end (no auto index.html at "/")
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
  
-// Serve the LOGIN page at the root URL "/" (login is the landing page).
-// After a successful login, auth.js redirects the user on to home.html.
-// Serve the home page at the root URL "/" (assignment requires index.html).
-// Visitors can browse freely; ordering requires a login (verifyToken on the
-// cart/order routes), so guests are blocked at the API, not at the front door.
+// Serve the LOGIN page at "/" (the landing page). Guests reach the home page
+// (index.html) via the "Continue as guest" button; logged-in users are sent
+// there by auth.js. Ordering stays blocked for guests by verifyToken on the
+// cart/order routes.
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+  res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
 });
  
 // ============================================================
@@ -60,6 +59,24 @@ app.use("/api/vendors/menu", require("./routes/vendorRoutes"));
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); 
 app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));          
  
+// ============================================================
+// Error handling — must come AFTER all routes are mounted.
+// Express matches middleware in order, so anything registered
+// here only runs when no route above has already responded.
+// ============================================================
+
+// Unknown /api/* URL -> JSON 404 (not the static handler's HTML page).
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: `API route not found: ${req.method} ${req.originalUrl}` });
+});
+
+// Central error handler. Four parameters (err first) is what tells
+// Express this is an error handler rather than normal middleware.
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ message: "Something went wrong on the server." });
+});
+
 // --- Start server, connect to DB ---
 app.listen(PORT, async () => {
   try {

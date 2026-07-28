@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./Template/template.css">
+  <link rel="stylesheet" href="./styles/history.css">
+  <title>History</title>
+</head>
+<body>
+  <!-- Navbar injected by Template/template.js -->
+  <div id="site-header"></div>
+
+  <main class="history-page">
+    <nav id="breadcrumbs">
+      <ul>
+        <li><a href="./centers.html">Hawker Centres</a></li>
+        <li>History</li>
+      </ul>
+    </nav>
+
+    <h2 class="history-title">History</h2>
+
+    <div class="history-stats">
+      <div id="stat-total">Total Order: 0</div>
+      <div id="stat-completed">Completed: 0</div>
+      <div id="stat-spent">Total Spent: $0.00</div>
+    </div>
+
+    <div id="history-list" class="history-list"></div>
+  </main>
+
+  <!-- Footer injected by Template/template.js -->
+  <div id="site-footer"></div>
+
+  <script src="./Template/template.js"></script>
+  <script src="./scripts/history.js"></script>
+</body>
+</html>
