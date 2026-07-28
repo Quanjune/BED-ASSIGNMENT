@@ -61,25 +61,49 @@
         </section>
 
         <!-- CREATE: complaint form -->
+        <!-- Shown to guests instead of the form. Complaints have real
+             consequences for a stall, so they must be attributable. -->
+        <section class="card hidden" id="guest-notice">
+            <h3>Sign in to file a complaint</h3>
+            <p class="hint">Complaints are tied to your account so the stall and our team can follow up.
+               <a href="#" id="guest-login-link">Sign in</a> to continue.</p>
+        </section>
+
         <section class="card" id="form-card">
             <h3>New Complaint</h3>
             <form id="complaint-form">
                 <div class="form-row">
-                    <div class="form-field">
+                    <!-- The two pickers are hidden when the stall arrives in the URL
+                         (see #field-locked below). They stay in the DOM because the
+                         form still reads their values on submit. -->
+                    <div class="form-field" id="field-center">
                         <label for="centerId">Hawker Centre</label>
                         <select id="centerId" required>
                             <option value="">-- loading centres --</option>
                         </select>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field" id="field-stall">
                         <label for="stallId">Stall</label>
                         <select id="stallId" required disabled>
                             <option value="">-- choose a centre first --</option>
                         </select>
                     </div>
+                    <!-- Shown INSTEAD of the two pickers when you arrive from a stall
+                         card, where the stall is already decided. Re-picking it there
+                         would let you submit against a different stall than the list
+                         below is showing. -->
+                    <div class="form-field hidden" id="field-locked">
+                        <label>Reporting about</label>
+                        <p class="locked-stall">
+                            <span id="locked-stall-name">&mdash;</span>
+                            <a href="#" id="change-stall" title="Pick the stall you are reporting yourself">change</a>
+                        </p>
+                    </div>
                     <div class="form-field">
-                        <label for="userId">Your Name</label>
-                        <input type="text" id="userId" required placeholder="e.g. John Doe">
+                        <label for="userId">Filing as</label>
+                        <!-- Filled from your login. Read-only: the server takes the
+                             author from your token, not from this box. -->
+                        <input type="text" id="userId" readonly placeholder="Sign in to file">
                     </div>
                     <div class="form-field">
                         <label for="category">Category</label>
@@ -174,6 +198,7 @@
     <!-- Template Script -->
     <script src="./Template/template.js"></script>
     <!-- Page Script -->
+    <script src="./scripts/session.js"></script>
     <script src="./scripts/complaints.js"></script>
 </body>
 </html>

@@ -363,3 +363,50 @@ button.secondary {
         margin: 1rem;
     }
 }
+
+/* ============================================================
+   CUSTOMER VIEW additions (Timely)
+   promotions.html is now the read-only customer/guest page; the
+   create/edit form moved to vendor_promotions.html. The form and
+   validate rules above are left in place so nothing else that
+   reuses this sheet breaks, but this page only needs the list.
+   ============================================================ */
+
+.promo-card { display: flex; flex-direction: column; }
+
+/* Scope badges: sitewide codes work anywhere, stall deals don't. */
+.badge.sitewide { background: #e8eefc; color: #2b4fa2; }
+.badge.stall    { background: #e3f5ec; color: #0a7d55; }
+
+.promo-card .promo-discount {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0a7d55;
+  margin: 0.35rem 0 0.2rem;
+}
+
+.promo-card .card-actions {
+  margin-top: 0.9rem;
+  display: flex;
+}
+
+/* Copy-to-clipboard button */
+.copy-btn {
+  flex: 1;
+  border: 1px dashed #bbb;
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.copy-btn:hover { background: #f0f0f0; border-color: #888; }
+.copy-btn.copied {
+  background: #e3f5ec;
+  border-style: solid;
+  border-color: #0a7d55;
+  color: #0a7d55;
+  font-weight: 600;
+}
