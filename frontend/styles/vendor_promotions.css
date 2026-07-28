@@ -155,7 +155,6 @@
 }
 
 /* ---- Review / complaint rows ---- */
-.vm-stars { color: #e8a33d; letter-spacing: 1px; }
 
 .vm-review-comment {
   margin: 0.4rem 0 0.3rem;
@@ -164,3 +163,37 @@
 }
 
 .vm-complaint-actions { margin-top: 0.6rem; }
+
+/* ============================================================
+   Complaints + performance additions (Timely)
+   Used by vendor_complaints.html and vendor_performance.html.
+   ============================================================ */
+
+/* ---- Filter chips (Open / Resolved / All) ---- */
+.vm-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.vm-filters { display: flex; gap: 0.4rem; }
+.vm-chip {
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.vm-chip:hover { background: #f0f0f0; }
+.vm-chip.is-active {
+  background: #474747;
+  border-color: #474747;
+  color: #fff;
+}
+
+/* ---- A complaint row ---- */
+.vm-complaint { display: block; }
