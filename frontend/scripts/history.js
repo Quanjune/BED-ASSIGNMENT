@@ -2,8 +2,13 @@
 // Loads the logged-in user's past orders from GET /api/orders and renders
 // one expandable card per order, plus summary stats at the top.
 // The token identifies the user, so the browser never sends a userId.
+//
+// If the visitor is not logged in (or their token has expired) we do NOT
+// redirect them away. We show a sign-in panel in place of the order list
+// so they can see where they are and choose to log in.
 
 const listEl = document.getElementById("history-list");
+const statsEl = document.querySelector(".history-stats");
 const statTotal = document.getElementById("stat-total");
 const statCompleted = document.getElementById("stat-completed");
 const statSpent = document.getElementById("stat-spent");
@@ -76,9 +81,39 @@ function buildCard(order) {
   return card;
 }
 
+// Renders a "please log in" panel inside the order list instead of
+// bouncing the visitor to login.html.
+//   reason "guest"   -> never logged in
+//   reason "expired" -> had a token, but the server rejected it (401/403)
+function showSignedOut(reason) {
+  // The stats pills would just read "0" and look broken, so hide them.
+  if (statsEl) statsEl.style.display = "none";
+
+  const heading = reason === "expired"
+    ? "Your session has expired"
+    : "You're not logged in";
+
+  const message = reason === "expired"
+    ? "Please log in again to see your order history."
+    : "Log in to view your past orders, receipts and spending summary.";
+
+  listEl.innerHTML = `
+    <div class="signed-out">
+      <div class="signed-out-icon">\u{1F512}</div>
+      <h3 class="signed-out-title">${heading}</h3>
+      <p class="signed-out-text">${message}</p>
+      <div class="signed-out-actions">
+        <a class="btn-primary" href="./login.html">Log In</a>
+        <a class="btn-secondary" href="./signup.html">Sign Up</a>
+      </div>
+    </div>
+  `;
+}
+
 async function loadHistory() {
+  // No token at all -> guest. Show the panel, do not redirect.
   if (!token) {
-    window.location.href = "./login.html";
+    showSignedOut("guest");
     return;
   }
 
@@ -87,8 +122,11 @@ async function loadHistory() {
       headers: { Authorization: "Bearer " + token }
     });
 
+    // Token exists but the server rejected it (expired or tampered with).
+    // Clear the stale token so the navbar stops showing a logged-in state.
     if (res.status === 401 || res.status === 403) {
-      window.location.href = "./login.html";
+      localStorage.removeItem("token");
+      showSignedOut("expired");
       return;
     }
     if (!res.ok) throw new Error("Failed to load orders");
