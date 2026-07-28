@@ -55,55 +55,67 @@
 
        
 
-        <!-- ============ 2) MENU DASHBOARD (your stall only) ============ -->
+        <!-- ============ 2) MENU DASHBOARD (my stall only) ============ -->
         <section id="dash-section" class="vendor-menu" hidden>
             <div class="vm-head vm-head-row">
-                <div>
-                    <p class="vm-eyebrow">Stall Owner</p>
-                    <h2 class="vm-title" id="stall-name">Your stall</h2>
-                    <p class="vm-subtitle" id="stall-center"></p>
+                <div class="vm-head-main">
+                    <img id="stall-photo" class="vm-head-photo" alt="" hidden>
+                    <div>
+                        <p class="vm-eyebrow">Stall Owner</p>
+                        <h2 class="vm-title" id="stall-name">My stall</h2>
+                        <p class="vm-subtitle" id="stall-center"></p>
+                    </div>
                 </div>
-                
+                <button id="btn-add" type="button" class="vm-btn vm-btn-primary vm-btn-add">+ Add dish</button>
             </div>
 
             <!-- status line -->
             <p id="status" class="vm-status" hidden></p>
 
-            <div class="vm-layout">
-                <!-- Add / edit form -->
-                <div class="vm-card vm-form">
-                    <h3 id="form-title" class="vm-card-title">Add a dish</h3>
+            <!-- Menu list (full width) -->
+            <div class="vm-card vm-list">
+                <h3 class="vm-card-title">My menu</h3>
+                <div id="menu-list" class="vm-menu-list">
+                    <p class="vm-empty">Loading your menu…</p>
+                </div>
+            </div>
 
-                    <input id="edit-id" type="hidden" value="">
+            <!-- ============ Add / Edit dish pop-up ============ -->
+            <div id="form-modal" class="vm-modal-overlay" hidden>
+                <div class="vm-modal" role="dialog" aria-modal="true" aria-labelledby="form-title">
+                    <div class="vm-modal-head">
+                        <h3 id="form-title" class="vm-card-title">Add a dish</h3>
+                        <button id="btn-close" type="button" class="vm-modal-close" aria-label="Close">&times;</button>
+                    </div>
 
-                    <label class="vm-field">
-                        <span>Dish name <em>*</em></span>
-                        <input id="in-name" type="text" placeholder="Chicken Rice">
-                    </label>
-                    <label class="vm-field">
-                        <span>Description</span>
-                        <textarea id="in-desc" rows="2" placeholder="Tender poached chicken with fragrant rice."></textarea>
-                    </label>
-                    <label class="vm-field">
-                        <span>Image URL</span>
-                        <input id="in-image" type="text" placeholder="https://… or /media/products/dish.jpg">
-                    </label>
-                    <label class="vm-field">
-                        <span>Base price (S$) <em>*</em></span>
-                        <input id="in-price" type="number" min="0" step="0.01" placeholder="4.50">
-                    </label>
+                    <div class="vm-modal-body">
+                        <input id="edit-id" type="hidden" value="">
+
+                        <label class="vm-field">
+                            <span>Dish name <em>*</em></span>
+                            <input id="in-name" type="text" placeholder="Chicken Rice">
+                        </label>
+                        <label class="vm-field">
+                            <span>Description</span>
+                            <textarea id="in-desc" rows="2" placeholder="Tender poached chicken with fragrant rice."></textarea>
+                        </label>
+                        <label class="vm-field">
+                            <span>Image URL</span>
+                            <input id="in-image" type="text" placeholder="https://… or /media/products/dish.jpg">
+                        </label>
+                        <!-- live preview of the picture above -->
+                        <div id="img-preview" class="vm-img-preview" hidden>
+                            <img id="img-preview-el" alt="Dish picture preview">
+                        </div>
+                        <label class="vm-field">
+                            <span>Base price (S$) <em>*</em></span>
+                            <input id="in-price" type="number" min="0" step="0.01" placeholder="4.50">
+                        </label>
+                    </div>
 
                     <div class="vm-form-actions">
                         <button id="btn-save" class="vm-btn vm-btn-primary">Save dish</button>
-                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
-                    </div>
-                </div>
-
-                <!-- Menu list -->
-                <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Your menu</h3>
-                    <div id="menu-list" class="vm-menu-list">
-                        <p class="vm-empty">Loading your menu…</p>
+                        <button id="btn-cancel" type="button" class="vm-btn vm-btn-ghost">Cancel</button>
                     </div>
                 </div>
             </div>

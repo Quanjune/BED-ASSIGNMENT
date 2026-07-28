@@ -35,6 +35,22 @@ const btnSave   = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const listEl    = document.getElementById("agreement-list");
 
+// pop-up (modal) bits
+const modal    = document.getElementById("form-modal");
+const btnAdd   = document.getElementById("btn-add");
+const btnClose = document.getElementById("btn-close");
+
+// ---- modal open / close -------------------------------------------
+function openModal() {
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";   // stop the page behind from scrolling
+    inName.focus();
+}
+function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+}
+
 // ---- helpers ------------------------------------------------------
 function showStatus(msg, type) {
     statusEl.textContent = msg;
@@ -136,7 +152,7 @@ async function loadAgreements() {
 
 function render(items) {
     if (!items.length) {
-        listEl.innerHTML = '<p class="vm-empty">No agreements or licences recorded yet. Add your first one on the left.</p>';
+        listEl.innerHTML = '<p class="vm-empty">No agreements or licences recorded yet. Click “+ Add document” to add your first one.</p>';
         return;
     }
     listEl.innerHTML = "";
@@ -187,8 +203,7 @@ function startEdit(it) {
     inRent.value   = it.type === "Rental" && it.rent != null ? it.rent : "";
     formTitle.textContent = "Edit document";
     btnSave.textContent = "Update document";
-    btnCancel.hidden = false;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    openModal();
 }
 
 function resetForm() {
@@ -199,7 +214,6 @@ function resetForm() {
     syncRentField();
     formTitle.textContent = "Add a document";
     btnSave.textContent = "Save document";
-    btnCancel.hidden = true;
 }
 
 async function save() {
@@ -245,6 +259,7 @@ async function save() {
         }
         showStatus(editing ? "Document updated." : "Document added.", "ok");
         resetForm();
+        closeModal();
         loadAgreements();
     } catch (e) {
         showStatus("Couldn't reach the server. Is the backend running?", "err");
@@ -271,8 +286,16 @@ async function remove(it) {
 
 // ---- wire up ------------------------------------------------------
 btnSave.addEventListener("click", save);
-btnCancel.addEventListener("click", resetForm);
+btnCancel.addEventListener("click", () => { resetForm(); closeModal(); });
 inType.addEventListener("change", syncRentField);
+
+// open a fresh "Add document" pop-up
+btnAdd.addEventListener("click", () => { clearStatus(); resetForm(); openModal(); });
+
+// close: X button, clicking the dark backdrop, or pressing Escape
+btnClose.addEventListener("click", () => { resetForm(); closeModal(); });
+modal.addEventListener("click", (e) => { if (e.target === modal) { resetForm(); closeModal(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) { resetForm(); closeModal(); } });
 
 // The gate (vendor_auth.js) shows the login card first; once the login and
 // stall lookup succeed it calls onReady, and only then do we load the list.

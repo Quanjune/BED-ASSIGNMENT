@@ -465,3 +465,98 @@ body.page-performance #nav-links li:nth-child(3) {
     .vp-kpis { grid-template-columns: 1fr; }
     .vp-range { align-self: stretch; }
 }
+
+/* ===================================================================
+   Add / Edit modal  (menu + agreements)
+   Replaces the old side-by-side form column. The list is now full
+   width and the form lives in a pop-up opened by the "+ Add" button.
+   Shared by vendor.html and vendor_agreements.html (both load this file).
+   =================================================================== */
+
+/* "+ Add dish / + Add document" button, top-right of the dashboard head */
+.vm-btn-add { white-space: nowrap; align-self: flex-start; }
+
+/* Optional stall photo shown beside the stall name in the header */
+.vm-head-main { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.vm-head-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #E4E4DE;
+    background: #F6F5EF;
+    flex-shrink: 0;
+}
+
+/* Dim backdrop that covers the page while the form is open */
+.vm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(46, 46, 46, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: vm-fade 0.15s ease;
+}
+.vm-modal-overlay[hidden] { display: none; }
+
+/* The pop-up card itself */
+.vm-modal {
+    background: #FFFFFF;
+    border: 1px solid #E4E4DE;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 460px;
+    margin: auto;
+    padding: 1.5rem;
+    animation: vm-pop 0.18s ease;
+}
+.vm-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.vm-modal-head .vm-card-title { margin: 0; }
+.vm-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: rgba(71, 71, 71, 0.6);
+    cursor: pointer;
+    padding: 0.1rem 0.45rem;
+    border-radius: 8px;
+}
+.vm-modal-close:hover { background: #F6F5EF; color: #474747; }
+.vm-modal-body .vm-field { margin-bottom: 0.9rem; }
+
+/* Live picture preview under the Image URL field (menu form) */
+.vm-img-preview { margin: -0.2rem 0 0.9rem; }
+.vm-img-preview img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #E4E4DE;
+    background: #F6F5EF;
+    display: block;
+}
+
+@keyframes vm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vm-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 500px) {
+    .vm-modal { padding: 1.2rem; }
+    .vm-modal-overlay { padding: 1rem 0.75rem; }
+    .vm-form-actions { flex-direction: column-reverse; }
+    .vm-form-actions .vm-btn { width: 100%; }
+}
