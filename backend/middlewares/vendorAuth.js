@@ -17,12 +17,41 @@ async function attachVendorStall(req, res, next) {
     req.stallId = stallId;
     next();
   } catch (err) {
-    console.error(err);
+    console.error("ERROR:", err);
+    console.error("MESSAGE:", err.message);
+    console.error("CODE:", err.code);
+    console.error("ORIGINAL:", err.originalError);
+
     res.status(500).json({ error: "Internal Server Error" });
-  }
+}
 }
 
 // 1) valid token?  2) role is vendor?  3) which stall is theirs?
 const requireVendor = [verifyToken, authorizeRoles("vendor"), attachVendorStall];
 
 module.exports = { requireVendor, attachVendorStall };
+
+
+async function attachVendorStall(req, res, next) {
+  try {
+    console.log("JWT User:", req.user);
+
+    const stallId = await stallModel.getStallIdForUser(req.user.userId);
+
+    console.log("Stall ID:", stallId);
+
+    if (!stallId) {
+      return res.status(403).json({ error: "This vendor account has no stall assigned yet." });
+    }
+
+    req.stallId = stallId;
+    next();
+  } catch (err) {
+    console.error("ERROR:", err);
+    console.error("MESSAGE:", err.message);
+    console.error("CODE:", err.code);
+    console.error("ORIGINAL:", err.originalError);
+
+    res.status(500).json({ error: "Internal Server Error" });
+}
+}

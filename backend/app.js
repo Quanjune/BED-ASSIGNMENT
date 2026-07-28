@@ -59,7 +59,7 @@ app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));
 app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); 
 app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));    
-app.use("/api/vendors/performance", require("./routes/vendorPerformanceRoutes"));      
+app.use("/api/vendors/performance", require("./routes/vendorperformanceRoutes"));      
  
 // ============================================================
 // Error handling — must come AFTER all routes are mounted.
