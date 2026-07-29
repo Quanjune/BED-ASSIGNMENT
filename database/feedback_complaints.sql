@@ -49,16 +49,44 @@ CREATE TABLE Complaints (
 );
 GO
 
--- Sample data (stallId 1-3 exist in the master script's 16 stalls)
+-- Sample feedback across many stalls with varied ratings (stallId 1-16 exist).
 INSERT INTO Feedback (stallId, userId, rating, comment) VALUES
-(1, 'user123', 5, 'Tender chicken and fragrant rice. Best in Maxwell!'),
-(1, 'user456', 4, 'Very good but the queue was long.'),
-(3, 'user123', 2, 'Hokkien mee was lukewarm when served.');
+(1,  'user123', 5, 'Tender chicken and fragrant rice. Best in Maxwell!'),
+(1,  'user456', 4, 'Very good but the queue was long.'),
+(1,  'user789', 5, 'Consistent quality every visit.'),
+(2,  'user123', 4, 'Crispy oyster cake, worth the wait.'),
+(3,  'user456', 2, 'Porridge was lukewarm when served.'),
+(5,  'user123', 5, 'Best hokkien mee, great wok hei.'),
+(5,  'user789', 4, 'Generous portion of prawns.'),
+(6,  'user456', 5, 'Char siew was perfectly caramelised.'),
+(6,  'user123', 4, 'Sio bak was crispy.'),
+(9,  'user123', 3, 'Decent shui kueh, a bit oily.'),
+(10, 'user456', 4, 'Silky boneless chicken rice.'),
+(11, 'user456', 2, 'Prawn mee soup was too salty.'),
+(13, 'user789', 5, 'Fried oyster was fresh and eggy.'),
+(14, 'user123', 4, 'Satay had good charcoal flavour.'),
+(15, 'user456', 5, 'Sticky, smoky BBQ wings. Amazing.'),
+(16, 'user789', 3, 'Ice kachang was a bit too sweet.');
 GO
 
-INSERT INTO Complaints (stallId, userId, category, description, status) VALUES
-(3, 'user456', 'Hygiene', 'Table was not cleaned and utensils looked dirty.', 'Open'),
-(2, 'user123', 'Service', 'Waited very long and received the wrong order.', 'Resolved');
+-- Sample complaints spread across categories, centres and months
+-- (createdAt back-dated so the "monthly trend" chart has several points).
+INSERT INTO Complaints (stallId, userId, category, description, status, createdAt) VALUES
+-- this month
+(3,  'user456', 'Hygiene',      'Table was not cleaned and utensils looked dirty.', 'Open',     GETDATE()),
+(2,  'user123', 'Service',      'Waited very long and received the wrong order.',   'Resolved', GETDATE()),
+(1,  'user789', 'Food Quality', 'Chicken rice was undercooked.',                    'Open',     GETDATE()),
+-- 1 month ago
+(5,  'user123', 'Hygiene',      'Flies around the drink area.',                     'Resolved', DATEADD(month,-1,GETDATE())),
+(6,  'user456', 'Service',      'Rude staff at the counter.',                       'Open',     DATEADD(month,-1,GETDATE())),
+(9,  'user789', 'Pricing',      'Charged more than the listed menu price.',         'Open',     DATEADD(month,-1,GETDATE())),
+-- 2 months ago
+(13, 'user123', 'Hygiene',      'Dirty trays were not cleared.',                    'Resolved', DATEADD(month,-2,GETDATE())),
+(14, 'user456', 'Food Quality', 'Satay was served cold.',                           'Open',     DATEADD(month,-2,GETDATE())),
+(2,  'user789', 'Other',        'Overcrowded, no seats available.',                 'Open',     DATEADD(month,-2,GETDATE())),
+-- 3 months ago
+(10, 'user123', 'Service',      'Order took over 40 minutes.',                      'Resolved', DATEADD(month,-3,GETDATE())),
+(11, 'user456', 'Hygiene',      'Utensils were wet and dirty.',                     'Open',     DATEADD(month,-3,GETDATE()));
 GO
 
 PRINT 'Feedback and Complaints tables created with sample data.';
