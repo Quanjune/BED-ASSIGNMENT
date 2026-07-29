@@ -1,0 +1,181 @@
+/* admin.css - content styles for the admin pages.
+   The navbar/footer come from template.css; this file only styles the
+   page body (cards, charts, tables, filters) so nothing clashes. */
+
+/* Keep the fixed navbar above the page content so charts scroll UNDER it
+   instead of bleeding over the top. (Only loaded on admin pages.) */
+header {
+  z-index: 100;
+}
+
+.admin-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.admin-page h1 {
+  margin: 0 0 0.25rem;
+  color: #d2691e;
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.admin-subtitle {
+  margin: 0 0 1.5rem;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+/* ---- Stat cards ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem 1.25rem;
+  border: 2px solid #f0a35e;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.stat-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #d2691e;
+  font-weight: 600;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.stat-subtext {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: #999;
+}
+
+/* ---- Cards & charts ---- */
+.card {
+  padding: 1rem 1.25rem;
+  border: 2px solid #f0a35e;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.card h3 {
+  margin: 0 0 0.75rem;
+  color: #d2691e;
+  font-size: 1.05rem;
+}
+
+/* fixed height keeps Chart.js from growing tall and looking stretched */
+.chart-box {
+  position: relative;
+  height: 260px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ---- Tables ---- */
+.table-card {
+  padding: 1rem 1.25rem;
+  border: 2px solid #f0a35e;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-card th,
+.table-card td {
+  padding: 0.7rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.table-card th {
+  color: #d2691e;
+  font-weight: 600;
+}
+
+.table-card tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---- Role badges ---- */
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.badge-vendor   { background: #dbe7ff; color: #1a56c4; }
+.badge-customer { background: #dcf5dc; color: #2e7d32; }
+.badge-admin    { background: #efd9fb; color: #7b2ea8; }
+
+/* ---- Filter bar (search + role filter) ---- */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid #f0a35e;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+}
+
+.filter-bar input {
+  flex: 1;
+}
+
+/* ---- Delete button (trash) ---- */
+.del-btn {
+  padding: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #c0392b;
+  line-height: 0;
+}
+.del-btn:hover { color: #922b21; }
+.del-btn svg { width: 18px; height: 18px; }
+
+/* ---- Logout pill in the admin nav ---- */
+.admin-logout {
+  padding: 0.55rem 1.2rem;
+  border: 0.1rem solid #474747;
+  border-radius: 25px;
+  background: #fff;
+  font-weight: bold;
+  font-family: inherit;
+  color: #474747;
+  cursor: pointer;
+}
+.admin-logout:hover { background: #f5f5f5; }
+
+.muted { color: #999; }

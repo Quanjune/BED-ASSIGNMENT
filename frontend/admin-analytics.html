@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hawkers | Analytics &amp; Reports</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="Template/template.css">
+  <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="admin-page">
+    <h1>Analytics &amp; Reports</h1>
+    <p class="admin-subtitle">Platform-wide complaints, ratings and top stalls.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Best Hawker Centre</h3>
+        <p class="stat-value" id="best-hawker" style="font-size:1.3rem;">–</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Complaints</h3>
+        <p class="stat-value" id="total-complaints">–</p>
+      </div>
+      <div class="stat-card">
+        <h3>Average Rating</h3>
+        <p class="stat-value" id="avg-rating">–</p>
+        <p class="stat-subtext">Based on <span id="review-count">0</span> reviews</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Orders</h3>
+        <p class="stat-value" id="total-orders">–</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Complaints by Category</h3>
+        <div class="chart-box"><canvas id="categoryChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Complaints by Hawker Centre</h3>
+        <div class="chart-box"><canvas id="centreChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Highest Rated Stalls</h3>
+        <div class="chart-box"><canvas id="ratingChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Monthly Complaint Trend</h3>
+        <div class="chart-box"><canvas id="monthChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <h3>Top Performing Stalls</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th><th>Stall</th><th>Centre</th>
+            <th>Rating</th><th>Reviews</th><th>Complaints</th>
+            <th>Orders</th><th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody id="top-stalls-body"><!-- filled by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="./Template/admin-template.js"></script>
+<script src="scripts/admin-analytics.js"></script>
+</body>
+</html>
