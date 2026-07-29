@@ -50,7 +50,8 @@ async function getSummary() {
 
     return { ...core, totalOrders, totalRevenue, bestHawker };
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -69,7 +70,8 @@ async function getComplaintsByCentre() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -86,7 +88,8 @@ async function getComplaintsByCategory() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -103,7 +106,8 @@ async function getComplaintsByMonth() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -127,17 +131,17 @@ async function getTopStalls() {
       ORDER BY avgRating DESC, reviewCount DESC
     `)).recordset;
 
-    // Per-stall orders + revenue. OrderItems store the product by name, so we
-    // map them back to a stall via Products.name -> Products.stallId.
+    // Per-stall orders + revenue. OrderItems now carries stallId directly,
+    // so we group on it (reliable even when the line name has add-on text).
     // Wrapped because Orders/OrderItems may not exist in every DB copy.
     try {
       const rev = (await connection.request().query(`
-        SELECT p.stallId,
+        SELECT oi.stallId,
                COUNT(DISTINCT oi.orderId) AS orderCount,
                ISNULL(SUM(oi.itemTotal), 0) AS revenue
         FROM OrderItems oi
-        JOIN Products p ON oi.productName = p.name
-        GROUP BY p.stallId
+        WHERE oi.stallId IS NOT NULL
+        GROUP BY oi.stallId
       `)).recordset;
 
       const map = {};
@@ -153,7 +157,8 @@ async function getTopStalls() {
 
     return stalls;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -174,7 +179,8 @@ async function getAgreementsSummary() {
     `);
     return result.recordset[0];
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -193,7 +199,8 @@ async function listUsers() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -207,7 +214,8 @@ async function deleteUserById(userId) {
       .query(`DELETE FROM Users WHERE userId = @userId`);
     return result.rowsAffected[0];
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
