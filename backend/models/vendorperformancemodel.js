@@ -233,7 +233,7 @@ async function complaints(pool, stallId, schema) {
   if (!has(schema, "Complaints")) return null;
   const r = await pool.request().input("stallId", sql.Int, stallId).query(`
     SELECT COUNT(*) AS total,
-           SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS open,
+           SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS [open],
            SUM(CASE WHEN status <> 'Open' THEN 1 ELSE 0 END) AS resolved
     FROM Complaints WHERE stallId = @stallId`);
   const x = r.recordset[0] || {};

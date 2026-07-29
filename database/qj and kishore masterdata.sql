@@ -1743,3 +1743,153 @@ INSERT INTO AddonOptions (groupId, label, price, sortOrder) VALUES
 (@gid, 'Soft Drink', 1.50, 3),
 (@gid, 'Bottled Water', 1.00, 4);
 GO
+
+
+-- ================================================================
+-- ================================================================
+-- PART 3 - SAMPLE ORDERS  (Kishore - Vendor Management, Sprint 3)
+-- Seeds Orders + OrderItems so BOTH the customer Order History page AND
+-- the vendor Stall Performance dashboard have real data to show.
+-- On a freshly rebuilt DB nobody has "checked out" yet, so without this
+-- block Orders/OrderItems are empty and every one of those pages renders
+-- a blank / zeroed state.
+--
+-- WHAT THIS GENERATES
+--   * ~640 orders spread over the last 150 days. The date is recent-weighted
+--     (a squared random draw) so there are more orders lately - that makes the
+--     dashboard's trend line climb and the "vs previous period" arrows turn
+--     positive, and keeps the freshest orders at the top of Order History.
+--   * Order times land in real meal windows (breakfast / lunch / dinner) so
+--     the "Peak Hours" chart on the performance page is meaningful.
+--   * Stalls are filled by even rotation, so ALL 16 vendors' dashboards get
+--     sales - no vendor ever logs in to an empty page.
+--   * Every line item carries productId AND stallId, so the performance model
+--     links each sale straight to the stall (its most accurate 'stallId' mode)
+--     instead of guessing by product name.
+--   * ~1 in 20 orders is 'cancelled'. The revenue maths correctly leaves those
+--     out, which is exactly the behaviour we want to demonstrate.
+--
+-- WHO OWNS THE ORDERS
+--   The two real customer logins get a modest, believable number of orders
+--   each so their Order History pages look right when you log in:
+--       Kishore (userId 19, grkishore07@gmail.com)  -> first 24 orders
+--       Siti    (userId 2,  siti@test.com)          -> next  20 orders
+--   The rest are attributed to walk-in customer ids (1001..1040). Orders.userId
+--   is just a string with no FK, so these are harmless: they still power the
+--   vendor dashboards and the admin analytics totals, they simply don't clutter
+--   any one person's history page.
+--
+-- Money mirrors backend/models/orderModel.js calculateFees() exactly:
+--   delivery = +$5 fee plus the shortfall up to the $12 minimum; takeaway = free.
+-- ================================================================
+-- ================================================================
+USE HawkersDB;
+GO
+
+SET NOCOUNT ON;
+
+-- Clean slate so re-running just this block on its own never double-seeds.
+-- (The full rebuild at the top of the file already drops these tables, so on
+--  a normal whole-file run this DELETE simply hits two empty tables.)
+DELETE FROM OrderItems;
+DELETE FROM Orders;
+GO
+
+DECLARE @N INT = 640;          -- total orders to create
+DECLARE @i INT = 1;
+
+DECLARE @orderId INT, @stallId INT, @centerId INT, @userId NVARCHAR(100);
+DECLARE @createdAt DATETIME, @daysAgo INT, @hour INT, @minute INT;
+DECLARE @fulfillment NVARCHAR(30), @payment NVARCHAR(30), @status NVARCHAR(30);
+DECLARE @lines INT, @k INT, @productId INT, @qty INT;
+DECLARE @pname NVARCHAR(100), @price DECIMAL(10,2);
+DECLARE @subtotal DECIMAL(10,2), @total DECIMAL(10,2), @minFee DECIMAL(10,2);
+DECLARE @r FLOAT;
+
+WHILE @i <= @N
+BEGIN
+    -- Even rotation guarantees every stall gets a fair share of sales.
+    SET @stallId  = ((@i - 1) % 16) + 1;
+    SET @centerId = (SELECT centerId FROM FoodStalls WHERE stallId = @stallId);
+
+    -- First 24 orders -> Kishore, next 20 -> Siti, the rest -> walk-in ids.
+    SET @userId =
+        CASE WHEN @i <= 24 THEN N'19'
+             WHEN @i <= 44 THEN N'2'
+             ELSE CONVERT(NVARCHAR(100), 1001 + (@i % 40)) END;
+
+    -- Recent-weighted day (0 = today). Squaring a 0..1 draw bunches orders
+    -- toward the present, so the trend lines climb over the window.
+    SET @r = RAND(CHECKSUM(NEWID()));
+    SET @daysAgo = CAST(150.0 * (@r * @r) AS INT);
+
+    -- Drop the order into a real meal window so Peak Hours is realistic.
+    SET @r = RAND(CHECKSUM(NEWID()));
+    SET @hour =
+        CASE WHEN @r < 0.30 THEN 7  + (ABS(CHECKSUM(NEWID())) % 4)    -- breakfast 07-10
+             WHEN @r < 0.75 THEN 11 + (ABS(CHECKSUM(NEWID())) % 4)    -- lunch     11-14
+             ELSE                18 + (ABS(CHECKSUM(NEWID())) % 4) END; -- dinner   18-21
+    SET @minute = ABS(CHECKSUM(NEWID())) % 60;
+    SET @createdAt =
+        DATEADD(minute, @minute,
+        DATEADD(hour,   @hour,
+        CAST(DATEADD(day, -@daysAgo, CAST(GETDATE() AS date)) AS DATETIME)));
+
+    SET @fulfillment = CASE WHEN RAND(CHECKSUM(NEWID())) < 0.60 THEN 'takeaway' ELSE 'delivery' END;
+    SET @payment =
+        CASE ABS(CHECKSUM(NEWID())) % 3 WHEN 0 THEN 'card' WHEN 1 THEN 'paynow' ELSE 'cash' END;
+    SET @status = CASE WHEN ABS(CHECKSUM(NEWID())) % 20 = 0 THEN 'cancelled' ELSE 'paid' END;
+
+    -- Header first; subtotal/total are backfilled once the lines are known.
+    INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status, createdAt)
+    VALUES (@userId, @centerId, 0, 0, @payment, @fulfillment, @status, @createdAt);
+    SET @orderId = SCOPE_IDENTITY();
+
+    -- 1..3 line items, all from THIS stall's four dishes. The first (most-liked)
+    -- dish is chosen most often, so Top Dishes has a clear best-seller.
+    SET @lines = 1 + (ABS(CHECKSUM(NEWID())) % 3);
+    SET @subtotal = 0;
+    SET @k = 1;
+    WHILE @k <= @lines
+    BEGIN
+        SET @r = RAND(CHECKSUM(NEWID()));
+        SET @productId = (@stallId - 1) * 4 +
+            CASE WHEN @r < 0.45 THEN 1
+                 WHEN @r < 0.72 THEN 2
+                 WHEN @r < 0.89 THEN 3
+                 ELSE 4 END;
+        SELECT @pname = name, @price = basePrice FROM Products WHERE productId = @productId;
+
+        SET @r = RAND(CHECKSUM(NEWID()));
+        SET @qty = CASE WHEN @r < 0.55 THEN 1 WHEN @r < 0.85 THEN 2 ELSE 3 END;
+
+        INSERT INTO OrderItems (orderId, productName, quantity, itemTotal, productId, stallId)
+        VALUES (@orderId, @pname, @qty, @price * @qty, @productId, @stallId);
+
+        SET @subtotal = @subtotal + (@price * @qty);
+        SET @k = @k + 1;
+    END
+
+    -- Fees: identical rules to orderModel.calculateFees().
+    SET @minFee = 0;
+    IF @fulfillment = 'delivery'
+    BEGIN
+        IF @subtotal < 12.00 SET @minFee = 12.00 - @subtotal;
+        SET @total = @subtotal + 5.00 + @minFee;
+    END
+    ELSE
+        SET @total = @subtotal;
+
+    UPDATE Orders SET subtotal = @subtotal, total = @total WHERE orderId = @orderId;
+
+    SET @i = @i + 1;
+END
+GO
+
+DECLARE @orders INT     = (SELECT COUNT(*) FROM Orders);
+DECLARE @items  INT     = (SELECT COUNT(*) FROM OrderItems);
+DECLARE @rev DECIMAL(12,2) = (SELECT ISNULL(SUM(total),0) FROM Orders WHERE status <> 'cancelled');
+PRINT 'PART 3 complete: ' + CONVERT(VARCHAR, @orders) + ' orders, '
+    + CONVERT(VARCHAR, @items) + ' line items, $'
+    + CONVERT(VARCHAR, @rev) + ' revenue seeded for Order History + Stall Performance.';
+GO
