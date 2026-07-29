@@ -12,7 +12,7 @@ const dbConfig = require("../config/dbConfig");
 
 const SELECT_COLUMNS = `
         co.complaintId, co.stallId, co.userId, co.category, co.description,
-        co.status, co.createdAt,
+        co.status, co.createdAt, co.resolutionNote, co.resolvedAt,
         COALESCE(u.name, co.userId) AS userName,
         s.name AS stallName, s.centerId, c.name AS centerName`;
 
@@ -86,14 +86,22 @@ async function createComplaint(data) {
 }
 
 // PUT - update the status (e.g. 'Open' -> 'Resolved').
-async function updateComplaintStatus(id, status) {
+async function updateComplaintStatus(id, status, resolutionNote) {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
+    // Resolving stamps the note + time. Re-opening clears both, so a
+    // re-opened complaint never shows a stale "this was fixed" message.
+    const resolving = status === "Resolved";
     const result = await connection.request()
       .input("id", sql.Int, id)
       .input("status", sql.NVarChar, status)
-      .query("UPDATE Complaints SET status = @status WHERE complaintId = @id");
+      .input("note", sql.NVarChar, resolving ? (resolutionNote || null) : null)
+      .query(`UPDATE Complaints
+              SET status = @status,
+                  resolutionNote = @note,
+                  resolvedAt = ${resolving ? "GETDATE()" : "NULL"}
+              WHERE complaintId = @id`);
     return result.rowsAffected[0];
   } finally {
     if (connection) await connection.close();
