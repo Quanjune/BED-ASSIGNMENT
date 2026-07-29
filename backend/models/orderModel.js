@@ -87,14 +87,17 @@ async function checkout(userId, paymentMethod, fulfillment) {
         ? " (" + item.addons.map(a => a.label).join(", ") + ")"
         : "";
       const itemReq = new sql.Request(transaction);
-      itemReq.input("orderId", sql.Int, orderId);
-      itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
-      itemReq.input("quantity", sql.Int, item.quantity);
-      itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
-      await itemReq.query(
-        "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal) " +
-        "VALUES (@orderId, @productName, @quantity, @itemTotal)"
-      );
+itemReq.input("orderId", sql.Int, orderId);
+itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
+itemReq.input("quantity", sql.Int, item.quantity);
+itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
+itemReq.input("productId", sql.Int, item.productId);          // added
+itemReq.input("stallId", sql.Int, item.stallId ?? null);      // added
+await itemReq.query(
+  "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal, productId, stallId) " +
+  "VALUES (@orderId, @productName, @quantity, @itemTotal, @productId, " +
+  "        (SELECT stallId FROM Products WHERE productId = @productId))"  // added
+);
     }
 
     // 3. Empty the cart now the order exists.
