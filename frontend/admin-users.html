@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hawkers | User Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Template/template.css">
+  <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="admin-page">
+    <h1>User Management</h1>
+    <p class="admin-subtitle">All registered users across the platform.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><h3>Vendors</h3><p class="stat-value" id="count-vendor">–</p></div>
+      <div class="stat-card"><h3>Customers</h3><p class="stat-value" id="count-customer">–</p></div>
+      <div class="stat-card"><h3>Admins</h3><p class="stat-value" id="count-admin">–</p></div>
+      <div class="stat-card"><h3>Total Users</h3><p class="stat-value" id="count-total">–</p></div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search by name or email…">
+      <select id="roleFilter">
+        <option value="all">All Roles</option>
+        <option value="vendor">Vendors</option>
+        <option value="customer">Customers</option>
+        <option value="admin">Admins</option>
+      </select>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Email</th><th>Role</th><th>Stall</th><th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="users-body"><!-- filled by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="./Template/admin-template.js"></script>
+<script src="scripts/admin-users.js"></script>
+</body>
+</html>
