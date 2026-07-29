@@ -51,7 +51,7 @@ async function loadPromoCounts() {
     const promos = await res.json();
     const map = new Map();
     promos.forEach((p) => {
-      if (p.stallId == null) return;
+      if (p.stallId == null) return;   // defensive: no sitewide codes exist any more
       map.set(p.stallId, (map.get(p.stallId) || 0) + 1);
     });
     return map;
