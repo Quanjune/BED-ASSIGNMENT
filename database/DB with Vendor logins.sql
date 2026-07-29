@@ -10,8 +10,7 @@
 --   3) promoCodes.sql
 --   4) feedback_complaints.sql   
 --
--- Run the WHOLE file in SSMS. Safe to re-run any time.
--- ============================================================
+-- Run the WHOLE file in SSMS. Safe to re-run any time-- ============================================================
 
 IF DB_ID('HawkersDB') IS NULL
     CREATE DATABASE HawkersDB;

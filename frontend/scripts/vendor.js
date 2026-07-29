@@ -27,6 +27,33 @@ const btnSave   = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const listEl    = document.getElementById("menu-list");
 
+// pop-up (modal) bits
+const modal      = document.getElementById("form-modal");
+const btnAdd     = document.getElementById("btn-add");
+const btnClose   = document.getElementById("btn-close");
+const imgPreview = document.getElementById("img-preview");
+const imgPrevEl  = document.getElementById("img-preview-el");
+
+// ---- modal open / close -------------------------------------------
+function openModal() {
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";   // stop the page behind from scrolling
+    inName.focus();
+}
+function closeModal() {
+    modal.hidden = true;
+    document.body.style.overflow = "";
+}
+
+// Live preview: show the picture as soon as a URL/path is typed or pasted.
+function updatePreview() {
+    const url = inImage.value.trim();
+    if (!url) { imgPreview.hidden = true; imgPrevEl.removeAttribute("src"); return; }
+    imgPrevEl.src = url;
+    imgPreview.hidden = false;
+}
+imgPrevEl.onerror = () => { imgPreview.hidden = true; };  // hide if the link is broken
+
 // ---- helpers ------------------------------------------------------
 function showStatus(msg, type) {
     statusEl.textContent = msg;
@@ -49,11 +76,12 @@ function money(v) {
     return isNaN(n) ? "\u2014" : "S$" + n.toFixed(2);
 }
 
-// If a request comes back 401/403 the token is missing/expired ->
-// send the user back to the sign-in card.
+// 401/403 = token missing or expired. Nothing to fix on this page,
+// so hand off to the gate, which clears the session and bounces to
+// login.html. Returns true so the caller stops handling the response.
 function handleAuthFail(res, data) {
     if (res.status === 401 || res.status === 403) {
-        VendorAuth.showLogin(data.message || data.error || "Your session expired. Sign in again.");
+        VendorAuth.showLogin((data && data.error) || "Your session has expired. Please sign in again.");
         return true;
     }
     return false;
@@ -81,7 +109,7 @@ async function loadMenu() {
 
 function render(items) {
     if (!items.length) {
-        listEl.innerHTML = '<p class="vm-empty">No dishes on your menu yet. Add your first one on the left.</p>';
+        listEl.innerHTML = '<p class="vm-empty">No dishes on your menu yet. Click “+ Add dish” to add your first one.</p>';
         return;
     }
     listEl.innerHTML = "";
@@ -116,6 +144,7 @@ function render(items) {
 
 // ---- add / edit ---------------------------------------------------
 function startEdit(it) {
+    resetForm();
     editId.value  = it.id ?? "";
     inName.value  = it.name ?? "";
     inDesc.value  = it.desc ?? "";
@@ -123,8 +152,8 @@ function startEdit(it) {
     inPrice.value = it.price ?? "";
     formTitle.textContent = "Edit dish";
     btnSave.textContent = "Update dish";
-    btnCancel.hidden = false;
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    updatePreview();
+    openModal();
 }
 
 function resetForm() {
@@ -132,7 +161,8 @@ function resetForm() {
     inName.value = inDesc.value = inImage.value = inPrice.value = "";
     formTitle.textContent = "Add a dish";
     btnSave.textContent = "Save dish";
-    btnCancel.hidden = true;
+    imgPreview.hidden = true;
+    imgPrevEl.removeAttribute("src");
 }
 
 async function save() {
@@ -171,6 +201,7 @@ async function save() {
         }
         showStatus(editing ? "Dish updated." : "Dish added.", "ok");
         resetForm();
+        closeModal();
         loadMenu();
     } catch (e) {
         showStatus("Couldn't reach the server. Is the backend running?", "err");
@@ -197,8 +228,19 @@ async function remove(it) {
 
 // ---- wire up ------------------------------------------------------
 btnSave.addEventListener("click", save);
-btnCancel.addEventListener("click", resetForm);
+btnCancel.addEventListener("click", () => { resetForm(); closeModal(); });
 
-// The gate (vendor_auth.js) shows the login card first; once the login and
-// stall lookup succeed it calls onReady, and only then do we load the menu.
+// open a fresh "Add dish" pop-up
+btnAdd.addEventListener("click", () => { clearStatus(); resetForm(); openModal(); });
+
+// close: X button, clicking the dark backdrop, or pressing Escape
+btnClose.addEventListener("click", () => { resetForm(); closeModal(); });
+modal.addEventListener("click", (e) => { if (e.target === modal) { resetForm(); closeModal(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) { resetForm(); closeModal(); } });
+
+// keep the picture preview in sync with the Image URL field
+inImage.addEventListener("input", updatePreview);
+
+// The gate (vendor_auth.js) checks the token and resolves the stall first;
+// once that succeeds it calls onReady, and only then do we load the menu.
 VendorAuth.initVendorGate({ onReady: () => { resetForm(); loadMenu(); } });

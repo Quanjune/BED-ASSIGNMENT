@@ -13,6 +13,7 @@ app.use(express.json()); // parse JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "..", "frontend"), { index: false })); // serve front-end (no auto index.html at "/")
 app.use("/media", express.static(path.join(__dirname, "..", "media"))); // serve icons/images
+
  
 // Serve the LOGIN page at "/" (the landing page). Guests reach the home page
 // (index.html) via the "Continue as guest" button; logged-in users are sent
@@ -57,7 +58,8 @@ app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));
 // --- Kishore: vendor management ---
 app.use("/api/vendors/menu", require("./routes/vendorRoutes"));                 
 app.use("/api/vendors/agreements", require("./routes/vendorAgreementsRoutes")); 
-app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));          
+app.use("/api/vendors/stall", require("./routes/vendorStallRoutes"));    
+app.use("/api/vendors/performance", require("./routes/vendorperformanceRoutes"));      
  
 // ============================================================
 // Error handling — must come AFTER all routes are mounted.
