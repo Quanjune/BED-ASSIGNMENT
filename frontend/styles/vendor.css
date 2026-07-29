@@ -15,18 +15,35 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 
 /* ---- Nav item count ----
-   The template hides children 5/6/7 on desktop (that fit home's 4 links
-   + divider + cart + user). The vendor nav has 3 links, so the mobile-only
-   items are children 4/5/6 — override to hide those on desktop instead. */
-#nav-links :nth-child(4),
-#nav-links :nth-child(5),
-#nav-links :nth-child(6) {
+   The last three items in the vendor nav (divider, Account, Exit to site)
+   duplicate the header buttons on the right, so they are desktop-hidden and
+   only appear inside the mobile hamburger menu.
+
+   This used to name children 4/5/6 by position, which silently broke the
+   moment a tab was added: with a 4th link, "Promotions" became child 4 and
+   vanished on desktop. nth-last-child counts from the END, so it always
+   targets those same three items no matter how many tabs exist. Add a sixth
+   tab later and nothing here needs touching. */
+/* Rule 1 re-shows every tab. This is REQUIRED, not redundant: template.css
+   hides children 5/6/7 by position (correct for the 4-link customer nav), and
+   with five vendor tabs that silently swallows "Complaints". The :not() gives
+   this the same specificity as that rule, and vendor.css loads afterwards, so
+   it wins. A bare "#nav-links > *" would NOT be enough - it scores lower and
+   would lose to template.css. */
+#nav-links > *:not(:nth-last-child(-n + 3)) {
+    display: flex;
+}
+
+/* Rule 2 then hides only the final three (divider, Account, Exit to site),
+   which duplicate the buttons on the right of the header. Counting from the
+   END means adding a sixth tab later needs no change here. */
+#nav-links > :nth-last-child(-n + 3) {
     display: none;
 }
+
+/* On mobile the hamburger menu shows everything, including those three. */
 @media (max-width: 460px) {
-    #nav-links :nth-child(4),
-    #nav-links :nth-child(5),
-    #nav-links :nth-child(6) {
+    #nav-links > :nth-last-child(-n + 3) {
         display: flex;
     }
 }

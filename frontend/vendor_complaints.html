@@ -11,9 +11,9 @@
     <!-- Small add-on sheet for the promo badges + code list. Kept separate from
          vendor.css so this feature owns its own styling. -->
     <link rel="stylesheet" href="./styles/vendor_promotions.css">
-    <title>Vendor · Promotions</title>
+    <title>Vendor · Complaints</title>
 </head>
-<body class="page-promotions">
+<body class="page-complaints">
     <!-- Header (same structure as the other vendor pages) -->
     <header>
         <div class="header-brand">
@@ -53,7 +53,7 @@
             <ul>
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./vendor.html">Vendor</a></li>
-                <li><a href="./vendor_promotions.html">Promotions</a></li>
+                <li><a href="./vendor_complaints.html">Complaints</a></li>
             </ul>
         </nav>
 
@@ -62,7 +62,7 @@
             <div class="vm-head">
                 <p class="vm-eyebrow">Stall Owner</p>
                 <h2 class="vm-title">Vendor sign in</h2>
-                <p class="vm-subtitle">Sign in with your stall owner account to manage your promo codes.</p>
+                <p class="vm-subtitle">Sign in with your stall owner account to see complaints about your stall.</p>
             </div>
 
             <div class="vm-card vm-login">
@@ -81,83 +81,52 @@
             </div>
         </section>
 
-        <!-- ============ 2) PROMOTIONS DASHBOARD (your stall only) ============ -->
+        <!-- ============ 2) COMPLAINTS DASHBOARD (your stall only) ============ -->
         <section id="dash-section" class="vendor-menu" hidden>
             <div class="vm-head vm-head-row">
                 <div>
-                    <p class="vm-eyebrow">Promotions</p>
-                    <h2 class="vm-title" id="stall-name">My stall</h2>
+                    <p class="vm-eyebrow">Complaints</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
                     <p class="vm-subtitle" id="stall-center"></p>
                 </div>
                 <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
             </div>
 
-            <!-- status line -->
             <p id="status" class="vm-status" hidden></p>
 
-            <div class="vm-layout">
-                <!-- Add / edit form -->
-                <div class="vm-card vm-form">
-                    <h3 id="form-title" class="vm-card-title">Create a code</h3>
-
-                    <input id="edit-id" type="hidden" value="">
-
-                    <label class="vm-field">
-                        <span>Code <em>*</em></span>
-                        <input id="in-code" type="text" placeholder="SAVE5" maxlength="50">
-                        <small class="vm-hint">Letters and numbers only. Saved in CAPITALS.</small>
-                    </label>
-                    <label class="vm-field">
-                        <span>Discount type <em>*</em></span>
-                        <select id="in-type">
-                            <option value="fixed">Fixed amount ($)</option>
-                            <option value="percent">Percentage (%)</option>
-                        </select>
-                    </label>
-                    <label class="vm-field">
-                        <span>Value <em>*</em></span>
-                        <input id="in-value" type="number" min="0.01" step="0.01" placeholder="5">
-                    </label>
-                    <label class="vm-field">
-                        <span>Expiry date <em>*</em></span>
-                        <input id="in-expiry" type="date">
-                    </label>
-                    <label class="vm-field">
-                        <span>Usage limit <em>*</em></span>
-                        <input id="in-limit" type="number" min="1" step="1" placeholder="100">
-                    </label>
-                    <label class="vm-field vm-field-check">
-                        <span>
-                            <input id="in-active" type="checkbox" checked>
-                            Active (customers can use it right now)
-                        </span>
-                    </label>
-
-                    <div class="vm-form-actions">
-                        <button id="btn-save" class="vm-btn vm-btn-primary">Save code</button>
-                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
-                    </div>
+            <!-- Headline counts -->
+            <div class="vm-stats">
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-open">&mdash;</span>
+                    <span class="vm-stat-label">Open</span>
                 </div>
-
-                <!-- Codes list -->
-                <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Your codes</h3>
-                    <p class="vm-subtitle vm-list-note">Only codes belonging to your stall are shown here.</p>
-                    <div id="promo-list" class="vm-menu-list">
-                        <p class="vm-empty">Loading your codes…</p>
-                    </div>
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-resolved">&mdash;</span>
+                    <span class="vm-stat-label">Resolved</span>
+                </div>
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-total">&mdash;</span>
+                    <span class="vm-stat-label">Total filed</span>
                 </div>
             </div>
 
-            <!-- Read-only tester: the exact check the cart performs -->
-            <div class="vm-card vm-validate">
-                <h3 class="vm-card-title">Test a code</h3>
-                <p class="vm-subtitle">Runs the same read-only check the ordering page uses. It never changes a code or an order.</p>
-                <div class="vm-validate-row">
-                    <input id="validate-code" type="text" placeholder="Enter a code, e.g. SAVE5">
-                    <button id="btn-validate" class="vm-btn vm-btn-ghost">Check code</button>
+            <div class="vm-card vm-list">
+                <div class="vm-list-head">
+                    <h3 class="vm-card-title">Complaints filed against your stall</h3>
+                    <!-- Open first by default: those are the ones needing action -->
+                    <div class="vm-filters" id="filters">
+                        <button class="vm-chip is-active" data-filter="open">Open</button>
+                        <button class="vm-chip" data-filter="resolved">Resolved</button>
+                        <button class="vm-chip" data-filter="all">All</button>
+                    </div>
                 </div>
-                <div id="validate-result" class="vm-validate-result" hidden></div>
+                <p class="vm-subtitle vm-list-note">
+                    You cannot edit or delete a complaint &mdash; it is the customer&rsquo;s account of
+                    what happened. Mark one resolved once you have dealt with it.
+                </p>
+                <div id="complaint-list" class="vm-menu-list">
+                    <p class="vm-empty">Loading complaints&hellip;</p>
+                </div>
             </div>
         </section>
     </main>
@@ -212,7 +181,7 @@
     <script src="./Template/template.js"></script>
     <!-- Shared vendor login gate + authFetch -->
     <script src="./scripts/vendor_auth.js"></script>
-    <!-- Vendor promotions logic -->
-    <script src="./scripts/vendor_promotions.js"></script>
+    <!-- Vendor complaints logic -->
+    <script src="./scripts/vendor_complaints.js"></script>
 </body>
 </html>
