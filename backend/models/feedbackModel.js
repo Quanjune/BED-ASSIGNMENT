@@ -14,6 +14,7 @@ const dbConfig = require("../config/dbConfig");
 // Shared column list + joins so every read returns the same shape.
 const SELECT_COLUMNS = `
         f.feedbackId, f.stallId, f.userId, f.rating, f.comment, f.createdAt,
+        f.vendorReply, f.vendorRepliedAt,
         COALESCE(u.name, f.userId) AS userName,
         s.name AS stallName, s.centerId, c.name AS centerName`;
 
@@ -126,6 +127,28 @@ async function updateFeedback(id, data) {
   }
 }
 
+// PUT (vendor) - save or clear the stall's public reply to a review.
+// Only the reply columns are touched: the customer's rating and comment are
+// never modified here, which is what keeps a review the customer's own words.
+// Passing an empty reply clears it and blanks the timestamp.
+async function updateVendorReply(id, reply) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const hasReply = Boolean(reply && reply.trim());
+    const result = await connection.request()
+      .input("id", sql.Int, id)
+      .input("reply", sql.NVarChar, hasReply ? reply.trim() : null)
+      .query(`UPDATE Feedback
+              SET vendorReply = @reply,
+                  vendorRepliedAt = ${hasReply ? "GETDATE()" : "NULL"}
+              WHERE feedbackId = @id`);
+    return result.rowsAffected[0];
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 // DELETE - remove a row. Returns rows deleted (0 = id not found).
 async function deleteFeedback(id) {
   let connection;
@@ -147,5 +170,6 @@ module.exports = {
   getFeedbackById,
   createFeedback,
   updateFeedback,
+  updateVendorReply,
   deleteFeedback,
 };

@@ -24,6 +24,9 @@ router.get("/stall/:stallId", feedbackController.getFeedbackByStall); // GET /ap
 router.get("/", feedbackController.getAllFeedback);                 // GET  /api/feedback
 router.get("/:id", feedbackController.getFeedbackById);             // GET  /api/feedback/5
 router.post("/", verifyToken, feedbackController.createFeedback);   // POST /api/feedback
+// Vendor reply. A distinct path from PUT /:id so a vendor can never reach
+// the handler that edits a customer's rating or comment.
+router.put("/:id/reply", verifyToken, feedbackController.replyToFeedback); // PUT /api/feedback/5/reply
 router.put("/:id", verifyToken, feedbackController.updateFeedback); // PUT  /api/feedback/5
 router.delete("/:id", verifyToken, feedbackController.deleteFeedback); // DEL /api/feedback/5
 
