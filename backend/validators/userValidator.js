@@ -59,4 +59,12 @@ const updateProfileSchema = Joi.object({
   email
 });
 
-module.exports = { signupSchema, loginSchema, updateProfileSchema };
+// Card: only the number is needed. The controller stores just the last 4 digits.
+const cardSchema = Joi.object({
+  cardNumber: Joi.string().trim().pattern(/^\d{13,19}$/).required().messages({
+    "string.pattern.base": "Card number must be 13 to 19 digits.",
+    "any.required": "Card number is required."
+  })
+});
+
+module.exports = { signupSchema, loginSchema, updateProfileSchema, cardSchema };

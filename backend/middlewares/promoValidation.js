@@ -3,9 +3,14 @@
 // On bad input it short-circuits with 400 and the controller never runs.
 // On good input it also CLEANS the body (trim, uppercase, number coercion)
 // so the controller and model can trust what they receive.
+//
+// NOTE on stallId: it is validated here only for shape. WHICH stall a code
+// ends up on is decided by promoController from the JWT - a vendor's code is
+// always forced onto their own stall, so a stallId in the body is ignored for
+// them. Only an admin may pass one (or leave it out for a platform-wide code).
 
 function validatePromo(req, res, next) {
-  const { code, discountType, discountValue, expiryDate, usageLimit, isActive } = req.body;
+  const { code, discountType, discountValue, expiryDate, usageLimit, isActive, stallId } = req.body;
 
   // code: required, 3-50 chars, letters/numbers only (e.g. SAVE5)
   if (!code || typeof code !== "string" || code.trim().length < 3 || code.trim().length > 50) {
@@ -43,6 +48,16 @@ function validatePromo(req, res, next) {
   // isActive: optional; accepts true/false/1/0; defaults to true when omitted
   if (isActive !== undefined && typeof isActive !== "boolean" && isActive !== 1 && isActive !== 0) {
     return res.status(400).json({ message: "isActive must be true or false.", field: "isActive" });
+  }
+
+  // stallId: optional. Empty string / null / undefined all mean "platform-wide".
+  // Anything else must look like a number.
+  if (stallId !== undefined && stallId !== null && stallId !== "") {
+    const sid = parseInt(stallId);
+    if (isNaN(sid) || sid < 1) {
+      return res.status(400).json({ message: "stallId must be a positive whole number, or left empty.", field: "stallId" });
+    }
+    req.body.stallId = sid;
   }
 
   // Write the cleaned, normalised values back so downstream code trusts them.

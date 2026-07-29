@@ -27,6 +27,8 @@
                 <li><a href="./vendor.html">Menu</a></li>
                 <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
                 <li><a href="./vendor_performance.html">Performance</a></li>
+                <li><a href="./vendor_promotions.html">Promotions</a></li>
+                <li><a href="./vendor_complaints.html">Complaints</a></li>
                 <li><div class="divider"></div></li>
                 <li><a href="./user.html">Account</a></li>
                 <li><a href="./index.html">Exit to site</a></li>
@@ -52,96 +54,82 @@
             </ul>
         </nav>
 
-        <!-- ============ 1) VENDOR SIGN-IN (shown until logged in) ============ -->
-        <section id="login-section" class="vendor-menu" hidden>
-            <div class="vm-head">
-                <p class="vm-eyebrow">Stall Owner</p>
-                <h2 class="vm-title">Vendor sign in</h2>
-                <p class="vm-subtitle">Sign in with your stall owner account to manage your agreements and licences.</p>
-            </div>
+        
 
-            <div class="vm-card vm-login">
-                <p id="login-status" class="vm-status err" hidden></p>
-                <label class="vm-field">
-                    <span>Email <em>*</em></span>
-                    <input id="login-email" type="email" placeholder="chickenrice@test.com" autocomplete="username">
-                </label>
-                <label class="vm-field">
-                    <span>Password <em>*</em></span>
-                    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
-                </label>
-                <div class="vm-form-actions">
-                    <button id="btn-login" class="vm-btn vm-btn-primary">Sign in</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ 2) AGREEMENTS DASHBOARD (your stall only) ============ -->
+        <!-- ============ 2) AGREEMENTS DASHBOARD (my stall only) ============ -->
         <section id="dash-section" class="vendor-menu" hidden>
             <div class="vm-head vm-head-row">
-                <div>
-                    <p class="vm-eyebrow">Agreements &amp; Licences</p>
-                    <h2 class="vm-title" id="stall-name">Your stall</h2>
-                    <p class="vm-subtitle" id="stall-center"></p>
+                <div class="vm-head-main">
+                    <img id="stall-photo" class="vm-head-photo" alt="" hidden>
+                    <div>
+                        <p class="vm-eyebrow">Agreements &amp; Licences</p>
+                        <h2 class="vm-title" id="stall-name">My stall</h2>
+                        <p class="vm-subtitle" id="stall-center"></p>
+                    </div>
                 </div>
-                <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
+                <button id="btn-add" type="button" class="vm-btn vm-btn-primary vm-btn-add">+ Add document</button>
             </div>
 
             <!-- status line -->
             <p id="status" class="vm-status" hidden></p>
 
-            <div class="vm-layout">
-                <!-- Add / edit form -->
-                <div class="vm-card vm-form">
-                    <h3 id="form-title" class="vm-card-title">Add a document</h3>
+            <!-- Documents list (full width) -->
+            <div class="vm-card vm-list">
+                <h3 class="vm-card-title">My agreements &amp; licences</h3>
+                <div id="agreement-list" class="vm-menu-list">
+                    <p class="vm-empty">Loading your documents…</p>
+                </div>
+            </div>
 
-                    <input id="edit-id" type="hidden" value="">
+            <!-- ============ Add / Edit document pop-up ============ -->
+            <div id="form-modal" class="vm-modal-overlay" hidden>
+                <div class="vm-modal" role="dialog" aria-modal="true" aria-labelledby="form-title">
+                    <div class="vm-modal-head">
+                        <h3 id="form-title" class="vm-card-title">Add a document</h3>
+                        <button id="btn-close" type="button" class="vm-modal-close" aria-label="Close">&times;</button>
+                    </div>
 
-                    <label class="vm-field">
-                        <span>Document name <em>*</em></span>
-                        <input id="in-name" type="text" placeholder="SFA Food Shop Licence">
-                    </label>
-                    <label class="vm-field">
-                        <span>Type <em>*</em></span>
-                        <select id="in-type">
-                            <option value="Rental">Rental</option>
-                            <option value="Store Licence">Store Licence</option>
-                            <option value="Food Safety">Food Safety</option>
-                            <option value="Fire Safety">Fire Safety</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </label>
-                    <label class="vm-field">
-                        <span>Start date <em>*</em></span>
-                        <input id="in-start" type="date">
-                    </label>
-                    <label class="vm-field">
-                        <span>Expiry date <em>*</em></span>
-                        <input id="in-end" type="date">
-                    </label>
-                    <label class="vm-field">
-                        <span>Monthly rent (S$) <em id="rent-req">*</em></span>
-                        <input id="in-rent" type="number" min="0" step="0.01" placeholder="1800.00">
-                    </label>
-                    <label class="vm-field">
-                        <span>Status</span>
-                        <select id="in-status">
-                            <option value="Active">Active</option>
-                            <option value="Terminated">Terminated</option>
-                        </select>
-                    </label>
+                    <div class="vm-modal-body">
+                        <input id="edit-id" type="hidden" value="">
+
+                        <label class="vm-field">
+                            <span>Document name <em>*</em></span>
+                            <input id="in-name" type="text" placeholder="SFA Food Shop Licence">
+                        </label>
+                        <label class="vm-field">
+                            <span>Type <em>*</em></span>
+                            <select id="in-type">
+                                <option value="Rental">Rental</option>
+                                <option value="Store Licence">Store Licence</option>
+                                <option value="Food Safety">Food Safety</option>
+                                <option value="Fire Safety">Fire Safety</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </label>
+                        <label class="vm-field">
+                            <span>Start date <em>*</em></span>
+                            <input id="in-start" type="date">
+                        </label>
+                        <label class="vm-field">
+                            <span>Expiry date <em>*</em></span>
+                            <input id="in-end" type="date">
+                        </label>
+                        <label class="vm-field">
+                            <span>Monthly rent (S$) <em id="rent-req">*</em></span>
+                            <input id="in-rent" type="number" min="0" step="0.01" placeholder="1800.00">
+                        </label>
+                        <label class="vm-field">
+                            <span>Status</span>
+                            <select id="in-status">
+                                <option value="Active">Active</option>
+                                <option value="Terminated">Terminated</option>
+                            </select>
+                        </label>
+                    </div>
 
                     <div class="vm-form-actions">
                         <button id="btn-save" class="vm-btn vm-btn-primary">Save document</button>
-                        <button id="btn-cancel" class="vm-btn vm-btn-ghost" hidden>Cancel</button>
-                    </div>
-                </div>
-
-                <!-- Documents list -->
-                <div class="vm-card vm-list">
-                    <h3 class="vm-card-title">Your agreements &amp; licences</h3>
-                    <div id="agreement-list" class="vm-menu-list">
-                        <p class="vm-empty">Loading your documents…</p>
+                        <button id="btn-cancel" type="button" class="vm-btn vm-btn-ghost">Cancel</button>
                     </div>
                 </div>
             </div>

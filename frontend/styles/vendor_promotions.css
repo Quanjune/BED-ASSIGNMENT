@@ -1,0 +1,199 @@
+/* ============================================================
+   vendor_promotions.css  (Timely - Promotions)
+   Add-on sheet for vendor_promotions.html only. Loaded AFTER
+   vendor.css so it can lean on the .vm-* look without editing
+   Kishore's file - keeps the two features from fighting over
+   the same stylesheet.
+   ============================================================ */
+
+/* ---- Form extras ---- */
+.vm-hint {
+  color: rgba(71, 71, 71, 0.6);
+  font-size: 0.78rem;
+}
+
+/* Checkbox sits inline with its label rather than stacked. */
+.vm-field-check span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+.vm-field-check input { width: auto; margin: 0; }
+
+.vm-list-note {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ---- One code in the list ---- */
+.vm-promo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.vm-promo-main { flex: 1; min-width: 0; }
+
+.vm-promo-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.vm-promo-head strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.vm-promo-discount {
+  margin: 0.3rem 0 0.15rem;
+  font-weight: 600;
+  color: #0a7d55;
+}
+.vm-promo-meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(71, 71, 71, 0.7);
+}
+
+.vm-promo-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ---- Status badges ----
+   .vm-badge already exists in vendor.css; these are just the colour
+   variants this page needs. */
+.vm-badge.live    { background: #e3f5ec; color: #0a7d55; }
+.vm-badge.off     { background: #eee;    color: #666; }
+.vm-badge.expired { background: #fdecec; color: #a11; }
+
+/* ---- Code tester ---- */
+.vm-validate { margin-top: 1.25rem; }
+
+.vm-validate-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.vm-validate-row input {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.vm-validate-row input:focus {
+  outline: none;
+  border-color: #474747;
+}
+
+.vm-validate-result {
+  margin-top: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+.vm-validate-result.valid   { background: #e3f5ec; border-color: #b6e2cd; }
+.vm-validate-result.invalid { background: #fdecec; border-color: #f2c6c6; }
+
+.vm-validate-message {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+.vm-validate-result pre {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+}
+
+/* ---- Narrow screens: stack the row ---- */
+@media (max-width: 600px) {
+  .vm-promo-item { flex-direction: column; }
+  .vm-promo-actions { width: 100%; }
+  .vm-promo-actions .vm-btn { flex: 1; }
+}
+
+
+/* ============================================================
+   Performance page additions (Timely)
+   vendor_performance.html loads this same sheet for its stat
+   tiles and the review / complaint rows.
+   ============================================================ */
+
+/* ---- Headline stat tiles ---- */
+.vm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.vm-stat {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.vm-stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #474747;
+  line-height: 1.1;
+}
+.vm-stat-label {
+  font-size: 0.82rem;
+  color: rgba(71, 71, 71, 0.65);
+}
+
+/* ---- Review / complaint rows ---- */
+
+.vm-review-comment {
+  margin: 0.4rem 0 0.3rem;
+  line-height: 1.45;
+  color: #474747;
+}
+
+.vm-complaint-actions { margin-top: 0.6rem; }
+
+/* ============================================================
+   Complaints + performance additions (Timely)
+   Used by vendor_complaints.html and vendor_performance.html.
+   ============================================================ */
+
+/* ---- Filter chips (Open / Resolved / All) ---- */
+.vm-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.vm-filters { display: flex; gap: 0.4rem; }
+.vm-chip {
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.vm-chip:hover { background: #f0f0f0; }
+.vm-chip.is-active {
+  background: #474747;
+  border-color: #474747;
+  color: #fff;
+}
+
+/* ---- A complaint row ---- */
+.vm-complaint { display: block; }

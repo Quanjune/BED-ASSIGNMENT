@@ -15,18 +15,35 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 
 /* ---- Nav item count ----
-   The template hides children 5/6/7 on desktop (that fit home's 4 links
-   + divider + cart + user). The vendor nav has 3 links, so the mobile-only
-   items are children 4/5/6 — override to hide those on desktop instead. */
-#nav-links :nth-child(4),
-#nav-links :nth-child(5),
-#nav-links :nth-child(6) {
+   The last three items in the vendor nav (divider, Account, Exit to site)
+   duplicate the header buttons on the right, so they are desktop-hidden and
+   only appear inside the mobile hamburger menu.
+
+   This used to name children 4/5/6 by position, which silently broke the
+   moment a tab was added: with a 4th link, "Promotions" became child 4 and
+   vanished on desktop. nth-last-child counts from the END, so it always
+   targets those same three items no matter how many tabs exist. Add a sixth
+   tab later and nothing here needs touching. */
+/* Rule 1 re-shows every tab. This is REQUIRED, not redundant: template.css
+   hides children 5/6/7 by position (correct for the 4-link customer nav), and
+   with five vendor tabs that silently swallows "Complaints". The :not() gives
+   this the same specificity as that rule, and vendor.css loads afterwards, so
+   it wins. A bare "#nav-links > *" would NOT be enough - it scores lower and
+   would lose to template.css. */
+#nav-links > *:not(:nth-last-child(-n + 3)) {
+    display: flex;
+}
+
+/* Rule 2 then hides only the final three (divider, Account, Exit to site),
+   which duplicate the buttons on the right of the header. Counting from the
+   END means adding a sixth tab later needs no change here. */
+#nav-links > :nth-last-child(-n + 3) {
     display: none;
 }
+
+/* On mobile the hamburger menu shows everything, including those three. */
 @media (max-width: 460px) {
-    #nav-links :nth-child(4),
-    #nav-links :nth-child(5),
-    #nav-links :nth-child(6) {
+    #nav-links > :nth-last-child(-n + 3) {
         display: flex;
     }
 }
@@ -202,7 +219,7 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vm-item .vm-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
 /* ===================================================================
-   Additions — login-scoped rework (sign-in card, thumbs, badges)
+   Additions — dashboard header, thumbs, badges
    =================================================================== */
 
 /* Dashboard header row: stall name on the left, Sign out on the right */
@@ -213,11 +230,7 @@ body.page-performance #nav-links li:nth-child(3) {
     gap: 1rem;
 }
 
-/* Sign-in card stays narrow instead of stretching across the page */
-.vm-login {
-    max-width: 420px;
-}
-.vm-login .vm-field { margin-bottom: 0.9rem; }
+
 
 /* Selects + textareas styled to match .vm-field input */
 .vm-field select,
@@ -282,4 +295,285 @@ body.page-performance #nav-links li:nth-child(3) {
     font-size: 0.8rem;
     color: rgba(71, 71, 71, 0.6);
     margin-top: 0.15rem;
+}
+
+
+/* ===================================================================
+   PASTE EVERYTHING BELOW AT THE END OF frontend/styles/vendor.css
+   Sprint 3 - Stall Performance dashboard (Kishore)
+   Same tokens as the rest of the vendor pages: ink #474747, sage #DBDFD0.
+   =================================================================== */
+
+/* The dashboard needs more room than the menu/agreements screens. */
+.vp-wide { max-width: 1180px; }
+
+/* Amber status line, used for the "figures are indicative" notice. */
+.vm-status.warn {
+    background: #F7F0DF;
+    color: #8A6D2B;
+}
+
+/* ---- Reporting window selector in the page head ---- */
+.vp-range { align-self: flex-end; }
+.vp-range-field { min-width: 190px; margin: 0; }
+
+/* ---- KPI row ---- */
+.vp-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.vp-kpi { padding: 1.1rem 1.2rem; }
+.vp-kpi-label {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(71, 71, 71, 0.55);
+}
+.vp-kpi-value {
+    margin: 0.35rem 0 0.2rem;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #474747;
+    line-height: 1.1;
+}
+.vp-kpi-delta { margin: 0; font-size: 0.76rem; font-weight: 600; }
+.vp-kpi-delta.up   { color: #4F7A4A; }
+.vp-kpi-delta.down { color: #B4483C; }
+.vp-kpi-delta.flat { color: rgba(71, 71, 71, 0.5); }
+
+/* ---- Charts ---- */
+.vp-chart-card { margin-bottom: 1rem; }
+.vp-chart svg { width: 100%; height: 200px; display: block; }
+.vp-bar { fill: #8DA37E; transition: fill 0.15s ease; }
+.vp-bar:hover { fill: #5F7A52; }
+.vp-grid { stroke: rgba(71, 71, 71, 0.18); stroke-width: 1; }
+.vp-axis { font-size: 10px; fill: rgba(71, 71, 71, 0.55); }
+.vp-chart-peak {
+    margin: 0.4rem 0 0;
+    font-size: 0.76rem;
+    color: rgba(71, 71, 71, 0.55);
+    text-align: right;
+}
+
+/* ---- Two-column card grid ---- */
+.vp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* ---- Ranked list (top dishes) ---- */
+.vp-rank {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(71, 71, 71, 0.08);
+}
+.vp-rank:last-child { border-bottom: 0; }
+.vp-rank-no {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: #DBDFD0;
+    color: #474747;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vp-rank-body { flex: 1; min-width: 0; }
+.vp-rank-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.92rem;
+    color: #474747;
+}
+.vp-rank-top span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.vp-rank-sub { font-size: 0.75rem; color: rgba(71, 71, 71, 0.55); }
+.vp-rank-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: #EFEFEA;
+    margin: 0.3rem 0 0.2rem;
+    overflow: hidden;
+}
+.vp-rank-bar i {
+    display: block;
+    height: 100%;
+    background: #8DA37E;
+    border-radius: 999px;
+}
+
+/* ---- Ratings ---- */
+.vp-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+}
+.vp-score-num { font-size: 2.2rem; font-weight: 700; color: #474747; }
+.vp-score-stars { font-size: 1.1rem; color: #C9A227; letter-spacing: 0.08em; }
+.vp-score-sub { font-size: 0.8rem; color: rgba(71, 71, 71, 0.55); }
+.vp-star-row {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr 2rem;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(71, 71, 71, 0.7);
+}
+.vp-star-row .vp-rank-bar { margin: 0.25rem 0; }
+
+/* ---- Reviews ---- */
+.vp-review {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(71, 71, 71, 0.08);
+}
+.vp-review:last-child { border-bottom: 0; }
+.vp-review p { margin: 0.25rem 0 0; font-size: 0.88rem; color: #474747; }
+.vp-review-head { display: flex; justify-content: space-between; gap: 0.5rem; }
+.vp-review-stars { color: #C9A227; font-size: 0.85rem; letter-spacing: 0.06em; }
+.vp-review-date { font-size: 0.75rem; color: rgba(71, 71, 71, 0.5); }
+
+/* ---- Small stat trio (menu snapshot) ---- */
+.vp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+.vp-stats > div { text-align: center; }
+.vp-stats span {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #474747;
+}
+.vp-stats small { font-size: 0.72rem; color: rgba(71, 71, 71, 0.55); }
+
+/* ---- Generic line of dashboard text ---- */
+.vp-line {
+    margin: 0.45rem 0 0;
+    font-size: 0.88rem;
+    color: #474747;
+}
+.vp-line a { color: #5F7A52; font-weight: 600; }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+    .vp-kpis { grid-template-columns: repeat(2, 1fr); }
+    .vp-grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+    .vp-kpis { grid-template-columns: 1fr; }
+    .vp-range { align-self: stretch; }
+}
+
+/* ===================================================================
+   Add / Edit modal  (menu + agreements)
+   Replaces the old side-by-side form column. The list is now full
+   width and the form lives in a pop-up opened by the "+ Add" button.
+   Shared by vendor.html and vendor_agreements.html (both load this file).
+   =================================================================== */
+
+/* "+ Add dish / + Add document" button, top-right of the dashboard head */
+.vm-btn-add { white-space: nowrap; align-self: flex-start; }
+
+/* Optional stall photo shown beside the stall name in the header */
+.vm-head-main { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.vm-head-photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #E4E4DE;
+    background: #F6F5EF;
+    flex-shrink: 0;
+}
+
+/* Dim backdrop that covers the page while the form is open */
+.vm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(46, 46, 46, 0.55);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: vm-fade 0.15s ease;
+}
+.vm-modal-overlay[hidden] { display: none; }
+
+/* The pop-up card itself */
+.vm-modal {
+    background: #FFFFFF;
+    border: 1px solid #E4E4DE;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 460px;
+    margin: auto;
+    padding: 1.5rem;
+    animation: vm-pop 0.18s ease;
+}
+.vm-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.vm-modal-head .vm-card-title { margin: 0; }
+.vm-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: rgba(71, 71, 71, 0.6);
+    cursor: pointer;
+    padding: 0.1rem 0.45rem;
+    border-radius: 8px;
+}
+.vm-modal-close:hover { background: #F6F5EF; color: #474747; }
+.vm-modal-body .vm-field { margin-bottom: 0.9rem; }
+
+/* Live picture preview under the Image URL field (menu form) */
+.vm-img-preview { margin: -0.2rem 0 0.9rem; }
+.vm-img-preview img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #E4E4DE;
+    background: #F6F5EF;
+    display: block;
+}
+
+@keyframes vm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vm-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 500px) {
+    .vm-modal { padding: 1.2rem; }
+    .vm-modal-overlay { padding: 1rem 0.75rem; }
+    .vm-form-actions { flex-direction: column-reverse; }
+    .vm-form-actions .vm-btn { width: 100%; }
 }

@@ -73,9 +73,20 @@
         return;
       }
       const stall = await res.json();
-      if (els.stallName) els.stallName.textContent = stall.stallName || "Your stall";
+      if (els.stallName) els.stallName.textContent = stall.stallName || "My stall";
       if (els.stallCenter) els.stallCenter.textContent =
         (stall.centerName || "") + (stall.location ? " \u00b7 " + stall.location : "");
+      // Optional stall photo beside the name (hidden until it actually loads).
+      if (els.stallPhoto) {
+        if (stall.imagePath) {
+          els.stallPhoto.src = stall.imagePath;
+          els.stallPhoto.alt = stall.stallName || "";
+          els.stallPhoto.hidden = false;
+          els.stallPhoto.onerror = () => { els.stallPhoto.hidden = true; };
+        } else {
+          els.stallPhoto.hidden = true;
+        }
+      }
       showDash();
       if (onReadyCb) onReadyCb(stall);
     } catch (e) {
@@ -131,6 +142,7 @@
       btnLogout: document.getElementById("btn-logout"),
       stallName: document.getElementById("stall-name"),
       stallCenter: document.getElementById("stall-center"),
+      stallPhoto: document.getElementById("stall-photo"),
     };
     if (els.btnLogin) els.btnLogin.addEventListener("click", doLogin);
     if (els.password) els.password.addEventListener("keydown", (e) => {

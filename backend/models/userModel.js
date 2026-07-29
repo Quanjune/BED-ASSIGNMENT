@@ -41,7 +41,7 @@ async function findUserById(userId) {
     connection = await sql.connect(dbConfig);
     const result = await connection.request()
       .input('userId', sql.Int, userId)
-      .query('SELECT userId, name, email, role, createdAt FROM Users WHERE userId = @userId');
+      .query('SELECT userId, name, email, role, createdAt, cardLast4 FROM Users WHERE userId = @userId');
     return result.recordset[0];
   } finally {
     if (connection) await connection.close();
@@ -82,4 +82,29 @@ async function getAllUsers() {
   } finally { if (connection) await connection.close(); }
 }
 
-module.exports = { findUserByEmail, createUser, findUserById, updateUser, deleteUser, getAllUsers };
+// Save (overwrite) the user's card. Only the last 4 digits are ever stored.
+async function saveCard(userId, cardLast4) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input('userId', sql.Int, userId)
+      .input('cardLast4', sql.Char(4), cardLast4)
+      .query('UPDATE Users SET cardLast4=@cardLast4 WHERE userId=@userId');
+    return result.rowsAffected[0];
+  } finally { if (connection) await connection.close(); }
+}
+
+// Remove the saved card (set the column back to NULL).
+async function removeCard(userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input('userId', sql.Int, userId)
+      .query('UPDATE Users SET cardLast4=NULL WHERE userId=@userId');
+    return result.rowsAffected[0];
+  } finally { if (connection) await connection.close(); }
+}
+
+module.exports = { findUserByEmail, createUser, findUserById, updateUser, deleteUser, getAllUsers, saveCard, removeCard };

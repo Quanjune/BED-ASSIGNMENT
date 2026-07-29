@@ -1,5 +1,19 @@
 const API = "/api/auth"; // the same server serves both the frontend and the API
 
+// Pages like complaints.html send guests here as
+//   login.html?next=complaints.html%3FstallId%3D3
+// so we can drop them back where they were once they sign in.
+// SAFETY: only same-site relative paths are honoured. Anything with a
+// scheme or a leading slash is ignored, so this can't be used to bounce
+// someone to another website after they log in.
+function getNextTarget() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (!next) return null;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(next)) return null;  // http:, javascript: ...
+  if (next.startsWith("/") || next.startsWith("\\")) return null;
+  return next;
+}
+
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
@@ -67,8 +81,11 @@ if (loginForm) {
         return;
       }
 
-      // Customer / admin
-      if (role === "admin") {
+      // Customer / admin - go back where they came from, if anywhere
+      const next = getNextTarget();
+      if (next) {
+        window.location.href = next;
+      } else if (role === "admin") {
         window.location.href = "admin-analytics.html";   // admin landing
       } else {
         window.location.href = "index.html";   // customer

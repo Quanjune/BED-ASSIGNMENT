@@ -25,7 +25,7 @@
         <nav class="header-nav">
             <ul id="nav-links">
                 <li><a href="./index.html">Home</a></li>
-                <li><a href="./hawker_centers.html">Order</a></li>
+                <li><a href="./centers.html">Order</a></li>
                 <li><a href="./history.html">History</a></li>
                 <li><a href="./promotions.html">Promotions</a></li>
                 <li><div class="divider"></div></li>
@@ -61,25 +61,49 @@
         </section>
 
         <!-- CREATE / UPDATE: feedback form -->
+        <!-- Shown to guests instead of the form (reviews are readable by
+             everyone, but writing one needs an account). -->
+        <section class="card hidden" id="guest-notice">
+            <h3>Want to leave a review?</h3>
+            <p class="hint">You can read every review below without an account.
+               <a href="#" id="guest-login-link">Sign in</a> to add your own.</p>
+        </section>
+
         <section class="card" id="form-card">
             <h3 id="form-title">Leave Feedback</h3>
             <form id="feedback-form">
                 <div class="form-row">
-                    <div class="form-field">
+                    <!-- The two pickers are hidden when the stall arrives in the URL
+                         (see #field-locked below). They stay in the DOM because the
+                         form still reads their values on submit. -->
+                    <div class="form-field" id="field-center">
                         <label for="centerId">Hawker Centre</label>
                         <select id="centerId" required>
                             <option value="">-- loading centres --</option>
                         </select>
                     </div>
-                    <div class="form-field">
+                    <div class="form-field" id="field-stall">
                         <label for="stallId">Stall</label>
                         <select id="stallId" required disabled>
                             <option value="">-- choose a centre first --</option>
                         </select>
                     </div>
+                    <!-- Shown INSTEAD of the two pickers when you arrive from a stall
+                         card, where the stall is already decided. Re-picking it there
+                         would let you submit against a different stall than the list
+                         below is showing. -->
+                    <div class="form-field hidden" id="field-locked">
+                        <label>Reviewing</label>
+                        <p class="locked-stall">
+                            <span id="locked-stall-name">&mdash;</span>
+                            <a href="#" id="change-stall" title="Pick the stall you are reviewing yourself">change</a>
+                        </p>
+                    </div>
                     <div class="form-field">
-                        <label for="userId">Your Name</label>
-                        <input type="text" id="userId" required placeholder="e.g. John Doe">
+                        <label for="userId">Posting as</label>
+                        <!-- Filled from your login. Read-only: the server takes the
+                             author from your token, not from this box. -->
+                        <input type="text" id="userId" readonly placeholder="Sign in to review">
                     </div>
                     <div class="form-field">
                         <label for="rating">Rating</label>
@@ -109,7 +133,7 @@
 
         <!-- READ: list of all reviews -->
         <section id="review-section">
-            <h3>All Reviews</h3>
+            <h3 id="list-heading">All Reviews</h3>
             <div id="feedback-list">
                 <p class="loading">Loading reviews...</p>
             </div>
@@ -138,7 +162,7 @@
                     <h3>Pages</h3>
                     <ul>
                         <li><a href="./index.html">Home</a></li>
-                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./centers.html">Order</a></li>
                         <li><a href="./history.html">History</a></li>
                         <li><a href="./promotions.html">Promotions</a></li>
                     </ul>
@@ -175,6 +199,7 @@
     <!-- Template Script -->
     <script src="./Template/template.js"></script>
     <!-- Page Script -->
+    <script src="./scripts/session.js"></script>
     <script src="./scripts/feedback.js"></script>
 </body>
 </html>
