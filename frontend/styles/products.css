@@ -1,9 +1,18 @@
-/* styles/products.css — shared styling for centres, stalls, products, detail */
+/* main stays FULL WIDTH so full-bleed sections (.page-hero) can reach the
+   page edges, same as the homepage. The 1100px reading width now lives on
+   the content sections below. */
 main {
+  margin: 80px 0 0;
+  padding: 0 0 3rem;
+}
+
+/* Content sections keep the 1100px band and line up with #breadcrumbs,
+   which already centres itself at 1100px in template.css. */
+.listing,
+.detail {
   max-width: 1100px;
-  /* 80px top clears the fixed navbar (matches template.css); auto sides centre. */
-  margin: 80px auto 0;
-  padding: 1rem 1.5rem 3rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 0;
 }
 
 #breadcrumbs ul {
@@ -21,9 +30,22 @@ main {
 
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
   margin-top: 1rem;
+}
+
+/* Hawker centres page only — 4 centres, so give them more room. */
+#centres-container {
+  gap: 1.5rem;
+}
+
+#centres-container .item-img {
+  height: 220px;          /* was 160px */
+}
+
+#centres-container .item-title {
+  font-size: 1.15rem;
 }
 
 /* ---- Card ----
@@ -149,3 +171,44 @@ main {
 .card-btn:hover { background: #f0f0f0; }
 .review-btn:hover { border-color: #e8a33d; color: #a06a12; }
 .report-btn:hover { border-color: #a11; color: #a11; }
+
+/* ---- Page hero strip ----
+   Same idea as the homepage #cta, but ~half the height since this is a
+   listing page, not a landing page. Stays inside main's 1100px so it
+   lines up with the breadcrumb and the cards below it. */
+.page-hero {
+  height: 220px;
+  margin: 0;
+  /* border-radius + overflow removed - it's edge-to-edge now */
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+
+  text-align: center;
+  color: #FFFFFF;
+
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("/media/images/hawker_center/hawker_center_large.jpg") no-repeat center center / cover;
+}
+
+.page-hero h2 {
+  margin: 0;
+  font-family: "Playfair Display", serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+}
+
+.page-hero p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 560px) {
+  .page-hero { height: 150px; }
+  .page-hero h2 { font-size: 1.6rem; }
+}
