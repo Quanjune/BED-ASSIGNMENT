@@ -69,7 +69,7 @@ if (loginForm) {
 
       // Customer / admin
       if (role === "admin") {
-        window.location.href = "index.html";   // TODO: swap to admin-analytics.html once built
+        window.location.href = "admin-analytics.html";   // admin landing
       } else {
         window.location.href = "index.html";   // customer
       }

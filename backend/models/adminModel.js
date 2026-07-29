@@ -11,30 +11,44 @@ async function getSummary() {
   try {
     connection = await sql.connect(dbConfig);
 
-    const totals = (await connection.request().query(`
+    // Core numbers from tables that always exist (Users, FoodStalls,
+    // Complaints, Feedback). Kept separate so a missing Orders table
+    // can't blank these out.
+    const core = (await connection.request().query(`
       SELECT
-        (SELECT COUNT(*) FROM Users)                                       AS totalUsers,
-        (SELECT COUNT(*) FROM Users WHERE role = 'customer')               AS totalCustomers,
-        (SELECT COUNT(*) FROM Users WHERE role = 'vendor')                 AS totalVendors,
-        (SELECT COUNT(*) FROM FoodStalls)                                  AS totalStalls,
-        (SELECT COUNT(*) FROM Orders)                                      AS totalOrders,
-        (SELECT ISNULL(SUM(total), 0) FROM Orders)                         AS totalRevenue,
-        (SELECT COUNT(*) FROM Complaints)                                  AS totalComplaints,
-        (SELECT COUNT(*) FROM Feedback)                                    AS reviewCount,
+        (SELECT COUNT(*) FROM Users)                                        AS totalUsers,
+        (SELECT COUNT(*) FROM Users WHERE role = 'customer')                AS totalCustomers,
+        (SELECT COUNT(*) FROM Users WHERE role = 'vendor')                  AS totalVendors,
+        (SELECT COUNT(*) FROM FoodStalls)                                   AS totalStalls,
+        (SELECT COUNT(*) FROM Complaints)                                   AS totalComplaints,
+        (SELECT COUNT(*) FROM Feedback)                                     AS reviewCount,
         (SELECT ISNULL(AVG(CAST(rating AS DECIMAL(4,2))), 0) FROM Feedback) AS avgRating
     `)).recordset[0];
 
-    // best hawker centre by total order revenue
-    const best = (await connection.request().query(`
-      SELECT TOP 1 hc.name AS centreName, SUM(o.total) AS revenue
-      FROM Orders o
-      JOIN HawkerCenters hc ON o.centerId = hc.centerId
-      GROUP BY hc.name
-      ORDER BY revenue DESC
-    `)).recordset[0];
+    // Order-based numbers. Orders/OrderItems may not be loaded in every
+    // copy of the DB, so degrade gracefully instead of failing the whole card set.
+    let totalOrders = 0, totalRevenue = 0, bestHawker = "N/A";
+    try {
+      const o = (await connection.request().query(`
+        SELECT (SELECT COUNT(*) FROM Orders)             AS totalOrders,
+               (SELECT ISNULL(SUM(total), 0) FROM Orders) AS totalRevenue
+      `)).recordset[0];
+      totalOrders = o.totalOrders;
+      totalRevenue = o.totalRevenue;
 
-    totals.bestHawker = best ? best.centreName : "N/A";
-    return totals;
+      const best = (await connection.request().query(`
+        SELECT TOP 1 hc.name AS centreName, SUM(o.total) AS revenue
+        FROM Orders o
+        JOIN HawkerCenters hc ON o.centerId = hc.centerId
+        GROUP BY hc.name
+        ORDER BY revenue DESC
+      `)).recordset[0];
+      if (best) bestHawker = best.centreName;
+    } catch (e) {
+      console.warn("Orders data unavailable for summary:", e.message);
+    }
+
+    return { ...core, totalOrders, totalRevenue, bestHawker };
   } finally {
     if (connection) await connection.close();
   }
@@ -98,7 +112,7 @@ async function getTopStalls() {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
-    const result = await connection.request().query(`
+    const stalls = (await connection.request().query(`
       SELECT TOP 10
         fs.stallId,
         fs.name AS stallName,
@@ -111,8 +125,33 @@ async function getTopStalls() {
       LEFT JOIN Feedback f ON f.stallId = fs.stallId
       GROUP BY fs.stallId, fs.name, hc.name
       ORDER BY avgRating DESC, reviewCount DESC
-    `);
-    return result.recordset;
+    `)).recordset;
+
+    // Per-stall orders + revenue. OrderItems store the product by name, so we
+    // map them back to a stall via Products.name -> Products.stallId.
+    // Wrapped because Orders/OrderItems may not exist in every DB copy.
+    try {
+      const rev = (await connection.request().query(`
+        SELECT p.stallId,
+               COUNT(DISTINCT oi.orderId) AS orderCount,
+               ISNULL(SUM(oi.itemTotal), 0) AS revenue
+        FROM OrderItems oi
+        JOIN Products p ON oi.productName = p.name
+        GROUP BY p.stallId
+      `)).recordset;
+
+      const map = {};
+      rev.forEach(r => { map[r.stallId] = r; });
+      stalls.forEach(s => {
+        s.orderCount = map[s.stallId] ? map[s.stallId].orderCount : 0;
+        s.revenue    = map[s.stallId] ? map[s.stallId].revenue : 0;
+      });
+    } catch (e) {
+      console.warn("Order data unavailable for top stalls:", e.message);
+      stalls.forEach(s => { s.orderCount = 0; s.revenue = 0; });
+    }
+
+    return stalls;
   } finally {
     if (connection) await connection.close();
   }
@@ -139,11 +178,46 @@ async function getAgreementsSummary() {
   }
 }
 
+// ---- User management (admin) ----
+
+// Every user (with the stall a vendor owns, if any), without password hashes.
+async function listUsers() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request().query(`
+      SELECT u.userId, u.name, u.email, u.role, u.createdAt, fs.name AS stallName
+      FROM Users u
+      LEFT JOIN FoodStalls fs ON u.stallId = fs.stallId
+      ORDER BY u.userId
+    `);
+    return result.recordset;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// Delete a user by id. Returns rows affected (0 = not found).
+async function deleteUserById(userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request()
+      .input("userId", sql.Int, userId)
+      .query(`DELETE FROM Users WHERE userId = @userId`);
+    return result.rowsAffected[0];
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   getSummary,
   getComplaintsByCentre,
   getComplaintsByCategory,
   getComplaintsByMonth,
   getTopStalls,
-  getAgreementsSummary
+  getAgreementsSummary,
+  listUsers,
+  deleteUserById
 };

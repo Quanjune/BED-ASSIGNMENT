@@ -16,4 +16,8 @@ router.get("/complaints-by-month", controller.getComplaintsByMonth);
 router.get("/top-stalls", controller.getTopStalls);
 router.get("/agreements-summary", controller.getAgreementsSummary);
 
+// User management (admin: list + delete)
+router.get("/users", controller.getUsers);
+router.delete("/users/:id", controller.deleteUser);
+
 module.exports = router;
