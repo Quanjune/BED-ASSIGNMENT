@@ -8,10 +8,13 @@
 -- Everyone on the team should run THIS file so the shared database matches.
 --
 -- RUN ORDER:
---   1) HawkersDB full rebuild (current).sql   (this file - builds everything)
---   2) ProductOptions.sql
+--   1) kishore_data.sql        (this file - builds everything)
+--   2) ProductOptions.sql      (addons - needs all 64 products)
 --   3) promoCodes.sql
 --   4) feedback_complaints.sql
+--   5) Inspectionpage.sql
+--
+--   user_card.sql is NO LONGER NEEDED - cardLast4 is built in below.
 --
 -- Run the WHOLE file in SSMS. Safe to re-run any time.
 --
@@ -31,6 +34,17 @@ GO
 -- ------------------------------------------------------------
 -- 1) DROP everything, child -> parent (FKs decide the order).
 -- ------------------------------------------------------------
+-- Dependent tables owned by other teammates must be dropped FIRST: they
+-- hold foreign keys into CartItems / Products / FoodStalls, so those DROPs
+-- fail otherwise and the script half-applies.
+IF OBJECT_ID('dbo.CartItemAddons',  'U') IS NOT NULL DROP TABLE dbo.CartItemAddons;
+IF OBJECT_ID('dbo.AddonOptions',    'U') IS NOT NULL DROP TABLE dbo.AddonOptions;
+IF OBJECT_ID('dbo.AddonGroups',     'U') IS NOT NULL DROP TABLE dbo.AddonGroups;
+IF OBJECT_ID('dbo.HygieneGrades',   'U') IS NOT NULL DROP TABLE dbo.HygieneGrades;
+IF OBJECT_ID('dbo.Inspections',     'U') IS NOT NULL DROP TABLE dbo.Inspections;
+IF OBJECT_ID('dbo.Feedback',        'U') IS NOT NULL DROP TABLE dbo.Feedback;
+IF OBJECT_ID('dbo.Complaints',      'U') IS NOT NULL DROP TABLE dbo.Complaints;
+IF OBJECT_ID('dbo.PromoCodes',      'U') IS NOT NULL DROP TABLE dbo.PromoCodes;
 IF OBJECT_ID('dbo.StallAgreements',   'U') IS NOT NULL DROP TABLE dbo.StallAgreements;
 IF OBJECT_ID('dbo.RentalPayments',    'U') IS NOT NULL DROP TABLE dbo.RentalPayments;   -- legacy
 IF OBJECT_ID('dbo.RentalAgreements',  'U') IS NOT NULL DROP TABLE dbo.RentalAgreements; -- legacy
@@ -74,6 +88,7 @@ CREATE TABLE Users (
     passwordHash  NVARCHAR(255)  NOT NULL,
     role          NVARCHAR(20)   NOT NULL DEFAULT 'customer',
     stallId       INT            NULL,
+    cardLast4     CHAR(4)        NULL,          -- last 4 digits only, never the full number
     createdAt     DATETIME       NOT NULL DEFAULT GETDATE(),
     CONSTRAINT CHK_Users_Role CHECK (role IN ('customer','vendor','admin')),
     CONSTRAINT FK_Users_Stall FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
@@ -123,8 +138,14 @@ CREATE TABLE OrderItems (
     productName  NVARCHAR(100) NOT NULL,
     quantity     INT NOT NULL,
     itemTotal    DECIMAL(10,2) NOT NULL,
+    productId    INT NULL,                    -- which product this line was
+    stallId      INT NULL,                    -- which stall sold it
     CONSTRAINT FK_OrderItems_Order
-        FOREIGN KEY (orderId) REFERENCES Orders(orderId)
+        FOREIGN KEY (orderId) REFERENCES Orders(orderId),
+    CONSTRAINT FK_OrderItems_Product
+        FOREIGN KEY (productId) REFERENCES Products(productId),
+    CONSTRAINT FK_OrderItems_Stall
+        FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
 );
 GO
 
