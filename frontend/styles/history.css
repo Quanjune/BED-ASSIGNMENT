@@ -3,8 +3,19 @@
 
 .history-page {
   max-width: 900px;
-  margin: 0 auto 40px auto;
+  /* Breadcrumb is inside main, so main's 80px top margin (template.css)
+     clears the fixed navbar for free - same as centers.html. */
+  margin: 80px auto 40px auto;
   padding: 0 1rem;
+}
+
+/* template.css styles #breadcrumbs but has no "/" separator (products.css
+   adds it, but this page doesn't load that file). Add it here so the
+   breadcrumb reads "Home / History". */
+#breadcrumbs li:not(:last-child)::after {
+  content: "/";
+  margin: 0 0.5rem;
+  color: rgba(71, 71, 71, 0.5);
 }
 
 .history-title {
