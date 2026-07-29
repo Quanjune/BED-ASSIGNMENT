@@ -193,6 +193,11 @@ async function loadFeedback() {
                 </div>
                 <p class="comment">${fb.comment ? escapeHtml(fb.comment) : "<em>No comment</em>"}</p>
                 <p class="meta">by ${escapeHtml(fb.userName)} on ${new Date(fb.createdAt).toLocaleDateString()} &middot; ${escapeHtml(fb.centerName)}</p>
+                ${fb.vendorReply && fb.vendorReply.trim() ? `
+                <div class="vendor-reply">
+                    <p class="vendor-reply-label">Reply from ${escapeHtml(fb.stallName)}</p>
+                    <p class="vendor-reply-text">${escapeHtml(fb.vendorReply)}</p>
+                </div>` : ""}
                 ${mine ? `
                 <div class="card-actions">
                     <button data-id="${fb.feedbackId}" class="edit-btn secondary">Edit</button>

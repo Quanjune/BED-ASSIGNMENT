@@ -31,7 +31,17 @@
                 <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
                 <li><a href="./vendor_performance.html">Performance</a></li>
                 <li><a href="./vendor_promotions.html">Promotions</a></li>
-                <li><a href="./vendor_complaints.html">Complaints</a></li>
+                <!-- "Customer" is a dropdown, not a page of its own. It opens on
+                     hover and on keyboard focus (:focus-within), so it works
+                     without JavaScript. On mobile the hamburger menu shows both
+                     child links inline instead. -->
+                <li class="nav-dropdown">
+                    <span class="nav-dropdown-toggle" tabindex="0" role="button" aria-haspopup="true">Customer</span>
+                    <ul class="nav-dropdown-menu">
+                        <li><a href="./vendor_complaints.html">Complaints</a></li>
+                        <li><a href="./vendor_feedback.html">Feedback</a></li>
+                    </ul>
+                </li>
                 <li><div class="divider"></div></li>
                 <li><a href="./user.html">Account</a></li>
                 <li><a href="./index.html">Exit to site</a></li>
@@ -54,6 +64,7 @@
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./vendor.html">Vendor</a></li>
                 <li><a href="./vendor_complaints.html">Complaints</a></li>
+                        <li><a href="./vendor_feedback.html">Feedback</a></li>
             </ul>
         </nav>
 
