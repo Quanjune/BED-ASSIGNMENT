@@ -24,8 +24,13 @@ body {
 
     font-family: "DM Sans", Arial, Helvetica, sans-serif;
 
+    /* Background.svg is a 360x360 tile - repeat it, don't stretch it.
+       Absolute path because app.js mounts media/ at /media, not inside frontend/. */
     background-color: #FFFFFF;
-    /* background: url("/assets/images/Background.jpg") no-repeat center center / cover fixed; */
+    background-image: url("/media/images/Background.svg");
+    background-repeat: repeat;
+    background-size: 360px 360px;
+    background-attachment: scroll;
 }
 
 main {
@@ -53,8 +58,9 @@ main {
 }
 #breadcrumbs ul {
     margin: 0;
-    padding: 0.75rem 1.5rem;  /* 1.5rem inset matches main's 1.5rem, so the
-                                 breadcrumb lines up with the page title/content */
+    /* Fixed spacing so the breadcrumb sits identically on EVERY page,
+       regardless of what that page's stylesheet does to main. */
+    padding: 1.25rem 1.5rem;
     font-size: 1rem;
     list-style: none;
 }
