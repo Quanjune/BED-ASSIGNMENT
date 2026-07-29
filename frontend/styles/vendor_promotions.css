@@ -197,3 +197,52 @@
 
 /* ---- A complaint row ---- */
 .vm-complaint { display: block; }
+
+/* ============================================================
+   Vendor reply UI (Timely)
+   Used by vendor_feedback.html: the saved reply panel and the
+   compose box. Kept generic (vm-resolution / vm-respond) so the
+   complaints page can reuse it if replies are added there later.
+   ============================================================ */
+
+/* Star row on a review */
+.vm-stars { color: #e8a33d; letter-spacing: 1px; }
+
+/* The stall's saved reply, shown to them and (publicly) to customers */
+.vm-resolution {
+  margin-top: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  background: #EBF2E9;
+  border-left: 3px solid #4F7A4A;
+  border-radius: 6px;
+}
+.vm-resolution-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4F7A4A;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.vm-resolution-text {
+  margin: 0;
+  line-height: 1.45;
+  color: #474747;
+}
+
+/* The compose box on a review with no reply yet */
+.vm-respond { margin-top: 0.7rem; }
+.vm-respond textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+.vm-respond textarea:focus {
+  outline: none;
+  border-color: #474747;
+}

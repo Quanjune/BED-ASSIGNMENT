@@ -577,3 +577,98 @@ body.page-performance #nav-links li:nth-child(3) {
     .vm-form-actions { flex-direction: column-reverse; }
     .vm-form-actions .vm-btn { width: 100%; }
 }
+/* ============================================================
+   "Customer" dropdown in the vendor nav (Complaints / Feedback)
+   Pure CSS - no JavaScript. It opens on hover and on keyboard
+   focus, so tabbing to it works too.
+
+   NOTE the child combinators (>) throughout. Without them these
+   rules would also hit the nested <li>s inside the submenu, and
+   template.css's positional #nav-links :nth-child(...) rules
+   already reach descendants - mixing the two caused the earlier
+   disappearing-tab bug.
+   ============================================================ */
+.nav-dropdown {
+    position: relative;
+}
+
+/* The toggle is a <span>, not a link, because it goes nowhere on its
+   own. These rules make it look and sit exactly like a nav link. */
+.nav-dropdown-toggle {
+    cursor: default;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.nav-dropdown-toggle::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform 0.15s ease;
+}
+.nav-dropdown:hover > .nav-dropdown-toggle::after,
+.nav-dropdown:focus-within > .nav-dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+/* The panel. left:50%/translateX centres it under the toggle.
+   padding-top on the wrapper keeps a hover bridge so the menu
+   doesn't close while the pointer travels down to it. */
+.nav-dropdown > .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+
+    margin: 0;
+    padding: 0.35rem;
+    min-width: 11rem;
+
+    list-style: none;
+    background: #fff;
+    border: 1px solid #DBDFD0;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+.nav-dropdown:hover > .nav-dropdown-menu,
+.nav-dropdown:focus-within > .nav-dropdown-menu {
+    display: block;
+}
+
+.nav-dropdown > .nav-dropdown-menu > li {
+    padding: 0;
+    border-radius: 8px;
+}
+.nav-dropdown > .nav-dropdown-menu > li > a {
+    display: block;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+.nav-dropdown > .nav-dropdown-menu > li > a:hover {
+    background-color: #DBDFD0;
+}
+
+/* Mobile: the hamburger panel is a vertical list, so a floating
+   dropdown makes no sense. Show both child links inline, indented
+   under "Customer". */
+@media (max-width: 460px) {
+    .nav-dropdown > .nav-dropdown-menu {
+        display: block;
+        position: static;
+        transform: none;
+        min-width: 0;
+        margin-top: 0.2rem;
+        padding: 0 0 0 0.9rem;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+    .nav-dropdown-toggle::after { display: none; }
+}

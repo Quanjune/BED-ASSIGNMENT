@@ -5,6 +5,7 @@
 // review" enforceable - before this, anyone could pass any name and edit any row.
 // Reads stay public so guests can browse reviews before signing up.
 const feedbackModel = require("../models/feedbackModel");
+const stallModel = require("../models/vendorStallModel"); // Kishore's, read-only reuse
 
 // Shared guard: the author, or an admin, may change a review.
 // Vendors deliberately cannot edit or delete reviews of their own stall -
@@ -127,6 +128,49 @@ async function updateFeedback(req, res) {
   }
 }
 
+// PUT /api/feedback/:id/reply  (the stall's own vendor, or admin)
+// A vendor may ONLY attach a reply. They cannot touch the rating or the
+// comment - those stay the customer's words. The check below re-reads the
+// review and compares its stallId to the stall this vendor actually owns,
+// so nobody can reply on another stall's behalf by guessing an id.
+async function replyToFeedback(req, res) {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid feedback id" });
+    }
+
+    const existing = await feedbackModel.getFeedbackById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Feedback not found" });
+    }
+
+    if (req.user.role !== "admin") {
+      const myStall = await stallModel.getStallIdForUser(req.user.userId);
+      if (!myStall || myStall !== existing.stallId) {
+        return res.status(403).json({
+          error: "You can only reply to reviews of your own stall.",
+        });
+      }
+    }
+
+    // An empty reply is allowed on purpose: that is how a vendor removes
+    // one they regret. The model clears the timestamp to match.
+    const reply = typeof req.body.vendorReply === "string"
+      ? req.body.vendorReply.slice(0, 1000)   // matches the column width
+      : "";
+
+    const rowsChanged = await feedbackModel.updateVendorReply(id, reply);
+    if (rowsChanged === 0) {
+      return res.status(404).json({ error: "Feedback not found" });
+    }
+    res.json({ message: reply.trim() ? "Reply saved" : "Reply removed" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to save reply" });
+  }
+}
+
 // DELETE /api/feedback/:id  (author or admin)
 async function deleteFeedback(req, res) {
   try {
@@ -161,5 +205,6 @@ module.exports = {
   getFeedbackById,
   createFeedback,
   updateFeedback,
+  replyToFeedback,
   deleteFeedback,
 };
