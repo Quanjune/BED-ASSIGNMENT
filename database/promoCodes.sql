@@ -1,7 +1,10 @@
 -- promo_codes.sql
 -- PromoCodes table for the promo code feature (individual feature).
 -- Run in SSMS against HawkersDB. Safe to re-run (drops + recreates).
--- Standalone table: NO foreign keys to CartItems or any cart/order table.
+-- A code is owned by a stall (stallId -> FoodStalls) or is platform-wide
+-- (stallId NULL, managed by admin). It has NO foreign keys to CartItems or
+-- any cart/order table. Because of the FoodStalls FK, the master script
+-- ("DB with Vendor logins.sql") MUST be run before this file.
 --
 -- RUN ORDER:
 --   1) DB with Vendor logins.sql   (master - builds everything else)
@@ -16,6 +19,7 @@ GO
 
 CREATE TABLE PromoCodes (
     promoId       INT IDENTITY(1,1) PRIMARY KEY,      -- auto-numbered unique id
+    stallId       INT           NULL,                 -- owning stall; NULL = platform-wide (admin)
     code          NVARCHAR(50)  NOT NULL UNIQUE,      -- e.g. 'SAVE5' (no two codes alike)
     discountType  NVARCHAR(10)  NOT NULL,             -- 'percent' or 'fixed'
     discountValue DECIMAL(6,2)  NOT NULL,             -- 10 = 10% off, or 5.00 = $5 off
@@ -27,19 +31,23 @@ CREATE TABLE PromoCodes (
     CONSTRAINT CHK_PromoCodes_Type    CHECK (discountType IN ('percent', 'fixed')),
     CONSTRAINT CHK_PromoCodes_Value   CHECK (discountValue > 0),
     CONSTRAINT CHK_PromoCodes_Percent CHECK (discountType <> 'percent' OR discountValue <= 100),
-    CONSTRAINT CHK_PromoCodes_Usage   CHECK (usageLimit >= 1 AND timesUsed >= 0)
+    CONSTRAINT CHK_PromoCodes_Usage   CHECK (usageLimit >= 1 AND timesUsed >= 0),
+    -- A code's stall must exist. NULL is allowed (platform-wide, admin-managed).
+    CONSTRAINT FK_PromoCodes_Stall    FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
 );
 GO
 
 -- Sample codes: one for each branch of the validate endpoint, so every
 -- outcome can be demonstrated in Postman. Expiry dates are relative to
 -- today (DATEADD) so the demo data never goes stale.
-INSERT INTO PromoCodes (code, discountType, discountValue, expiryDate, usageLimit, timesUsed, isActive) VALUES
-('SAVE5',     'fixed',   5.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE), 100, 0, 1),  -- valid ($5 off)
-('WELCOME10', 'percent', 10.00, CAST(DATEADD(MONTH,  3, GETDATE()) AS DATE),  50, 0, 1),  -- valid (10% off)
-('EXPIRED20', 'percent', 20.00, CAST(DATEADD(DAY,  -30, GETDATE()) AS DATE), 100, 0, 1),  -- fails: expired
-('MAXEDOUT',  'fixed',   3.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE),   5, 5, 1),  -- fails: limit hit
-('INACTIVE5', 'fixed',   5.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE), 100, 0, 0);  -- fails: switched off
+-- stallId column: NULL = platform-wide (admin) code, a number = that stall's own code.
+-- Mixed here so both the admin view and a vendor's own-stall view have data to show.
+INSERT INTO PromoCodes (stallId, code, discountType, discountValue, expiryDate, usageLimit, timesUsed, isActive) VALUES
+(NULL, 'SAVE5',     'fixed',   5.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE), 100, 0, 1),  -- valid ($5 off), platform-wide
+(1,    'WELCOME10', 'percent', 10.00, CAST(DATEADD(MONTH,  3, GETDATE()) AS DATE),  50, 0, 1),  -- valid (10% off), stall 1
+(NULL, 'EXPIRED20', 'percent', 20.00, CAST(DATEADD(DAY,  -30, GETDATE()) AS DATE), 100, 0, 1),  -- fails: expired
+(1,    'MAXEDOUT',  'fixed',   3.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE),   5, 5, 1),  -- fails: limit hit, stall 1
+(NULL, 'INACTIVE5', 'fixed',   5.00,  CAST(DATEADD(MONTH,  6, GETDATE()) AS DATE), 100, 0, 0);  -- fails: switched off
 GO
 
 PRINT 'PromoCodes table created with 5 sample codes.';

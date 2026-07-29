@@ -37,13 +37,15 @@ CREATE TABLE Feedback (
 GO
 
 CREATE TABLE Complaints (
-    complaintId  INT IDENTITY(1,1) PRIMARY KEY,
-    stallId      INT NOT NULL,
-    userId       NVARCHAR(100) NOT NULL,
-    category     NVARCHAR(50) NULL,                      -- e.g. Hygiene, Service
-    description  NVARCHAR(1000) NOT NULL,
-    status       NVARCHAR(20) NOT NULL DEFAULT 'Open',   -- Open / Resolved
-    createdAt    DATETIME NOT NULL DEFAULT GETDATE(),
+    complaintId    INT IDENTITY(1,1) PRIMARY KEY,
+    stallId        INT NOT NULL,
+    userId         NVARCHAR(100) NOT NULL,
+    category       NVARCHAR(50) NULL,                      -- e.g. Hygiene, Service
+    description    NVARCHAR(1000) NOT NULL,
+    status         NVARCHAR(20) NOT NULL DEFAULT 'Open',   -- Open / Resolved
+    createdAt      DATETIME NOT NULL DEFAULT GETDATE(),
+    resolutionNote NVARCHAR(1000) NULL,                    -- note left when marked Resolved (NULL while Open)
+    resolvedAt     DATETIME NULL,                          -- when it was resolved (NULL while Open)
     CONSTRAINT FK_Complaints_Stall
         FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
 );
