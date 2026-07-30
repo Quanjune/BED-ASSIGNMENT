@@ -1,19 +1,23 @@
 // models/orderModel.js
 // MODEL layer: turns a user's cart into an order (checkout) and reads order history.
 // All money is calculated HERE on the server from real DB prices - the client
-// never sends totals, so it cannot fake a cheaper order.
+// never sends totals, so it cannot fake a cheaper order. The same is true of
+// promo codes: the client sends only the CODE, never the discount amount.
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 const cartModel = require("./cartModel");
+const promoModel = require("./promoModel");   // Timely's promo feature - reused, not duplicated
 
 // ---- Business rules (single source of truth) ----
 const DELIVERY_FEE   = 5.00;   // fixed delivery fee
 const MIN_ORDER      = 12.00;  // minimum spend for delivery
 const TAKEAWAY_FEE   = 0.00;   // takeaway has no fee
 
-// Work out the fees for a given subtotal + fulfillment type.
+// Work out the fees for a given subtotal + fulfillment type, minus any promo.
 // Exported so the controller (and tests) can reuse the exact same rules.
-function calculateFees(subtotal, fulfillment) {
+//
+// `promo` is a row from Timely's PromoCodes table, or null/undefined.
+function calculateFees(subtotal, fulfillment, promo) {
   let deliveryFee = 0;
   let minOrderFee = 0;
 
@@ -21,39 +25,114 @@ function calculateFees(subtotal, fulfillment) {
     deliveryFee = DELIVERY_FEE;
     // If the cart is under the minimum, charge the shortfall.
     // e.g. $5 cart -> min order fee of $7 to reach $12.
+    // Based on the pre-discount subtotal, so a promo code can never be used
+    // to dodge the delivery minimum.
     if (subtotal < MIN_ORDER) {
       minOrderFee = MIN_ORDER - subtotal;
     }
   }
 
-  const total = subtotal + deliveryFee + minOrderFee + (fulfillment === "takeaway" ? TAKEAWAY_FEE : 0);
+  // Promo discount applies to the FOOD subtotal only, never to delivery fees.
+  let discount = 0;
+  if (promo) {
+    const value = Number(promo.discountValue);
+    discount = promo.discountType === "percent" ? (subtotal * value) / 100 : value;
+    if (discount > subtotal) discount = subtotal;   // a $5 code on a $3 cart takes off $3, not $5
+  }
+
+  const total =
+    subtotal + deliveryFee + minOrderFee
+    + (fulfillment === "takeaway" ? TAKEAWAY_FEE : 0)
+    - discount;
+
   return {
     subtotal: Number(subtotal.toFixed(2)),
     deliveryFee: Number(deliveryFee.toFixed(2)),
     minOrderFee: Number(minOrderFee.toFixed(2)),
-    total: Number(total.toFixed(2)),
-    minOrder: MIN_ORDER
+    discount: Number(discount.toFixed(2)),
+    total: Number(Math.max(0, total).toFixed(2)),
+    minOrder: MIN_ORDER,
+    promoCode: promo ? promo.code : null
   };
+}
+
+// ---- Does the cart contain anything from this stall? ----
+// Stall-owned promo codes (PromoCodes.stallId) only apply to that stall's food.
+// Cart rows don't carry stallId, so look it up from the product ids.
+// The id list is parameterised (@p0, @p1, ...) - never string-concatenated.
+async function cartHasStall(items, stallId) {
+  const ids = items.map(i => i.productId).filter(id => id != null);
+  if (ids.length === 0) return false;
+
+  const pool = await sql.connect(dbConfig);
+  const request = pool.request();
+  request.input("stallId", sql.Int, stallId);
+  const placeholders = ids.map((id, i) => {
+    request.input(`p${i}`, sql.Int, id);
+    return `@p${i}`;
+  }).join(", ");
+
+  const result = await request.query(
+    `SELECT COUNT(*) AS matches FROM Products
+     WHERE stallId = @stallId AND productId IN (${placeholders})`
+  );
+  return result.recordset[0].matches > 0;
+}
+
+// ---- Promo code rules ----
+// Looks the code up through Timely's model, then applies the same four rules
+// their /api/promos/validate endpoint uses, plus a stall-ownership check.
+// Returns { promo } on success or { error: "..." } on failure.
+async function resolvePromo(code, items) {
+  if (!code || !String(code).trim()) return { promo: null };
+
+  const promo = await promoModel.getPromoByCode(String(code).trim());
+
+  if (!promo)                                return { error: "Invalid promo code." };
+  if (!promo.isActive)                       return { error: "That code is no longer active." };
+
+  // expiryDate is a DATE, so the code stays valid through the END of that day.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (new Date(promo.expiryDate) < today)    return { error: "That code has expired." };
+  if (promo.timesUsed >= promo.usageLimit)   return { error: "That code has reached its usage limit." };
+
+  // stallId null = platform-wide code. Otherwise the cart must contain
+  // something from that stall.
+  if (promo.stallId != null) {
+    const ok = await cartHasStall(items, promo.stallId);
+    if (!ok) {
+      return { error: `That code only applies to ${promo.stallName || "its own stall"}.` };
+    }
+  }
+
+  return { promo };
 }
 
 // ---- CHECKOUT: cart -> order ----
 // Reads the user's cart server-side, computes fees, writes Orders + OrderItems,
-// then clears the cart.
+// bumps the promo code's usage counter, then clears the cart.
 //
-// The three writes (order header, line items, empty the cart) all run inside a
-// TRANSACTION. A transaction groups statements so they either ALL succeed or
-// ALL get undone. Without one, a crash halfway through could leave an order
-// with no items in it, or a cart that never emptied after being paid for.
+// Every write runs inside a TRANSACTION. A transaction groups statements so
+// they either ALL succeed or ALL get undone. Without one, a crash halfway
+// through could leave an order with no items in it, a cart that never emptied
+// after being paid for, or a promo code counted as used on an order that
+// never actually existed.
 //   begin()    - open the transaction
 //   commit()   - make every change permanent
 //   rollback() - undo everything since begin()
-async function checkout(userId, paymentMethod, fulfillment) {
+async function checkout(userId, paymentMethod, fulfillment, promoCode) {
   const items = await cartModel.getCartByUser(userId);
   if (!items || items.length === 0) return { emptyCart: true };
 
+  // Validate the promo BEFORE opening the transaction - a bad code is a
+  // user error, not a database failure, so it shouldn't need a rollback.
+  const { promo, error } = await resolvePromo(promoCode, items);
+  if (error) return { promoError: error };
+
   // Subtotal from the REAL stored prices, not anything the client sent.
   const subtotal = items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
-  const fees = calculateFees(subtotal, fulfillment);
+  const fees = calculateFees(subtotal, fulfillment, promo);
 
   // All items in one cart come from the same centre, so take it from line 1.
   // centerId is nullable in the schema, so `?? null` keeps the insert safe.
@@ -74,9 +153,11 @@ async function checkout(userId, paymentMethod, fulfillment) {
     orderReq.input("total", sql.Decimal(10, 2), fees.total);
     orderReq.input("paymentMethod", sql.NVarChar, paymentMethod);
     orderReq.input("fulfillment", sql.NVarChar, fulfillment);
+    orderReq.input("promoCode", sql.NVarChar, promo ? promo.code : null);
+    orderReq.input("discount", sql.Decimal(10, 2), fees.discount);
     const orderRes = await orderReq.query(
-      "INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status) " +
-      "VALUES (@userId, @centerId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid'); " +
+      "INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status, promoCode, discount) " +
+      "VALUES (@userId, @centerId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid', @promoCode, @discount); " +
       "SELECT SCOPE_IDENTITY() AS orderId;"
     );
     const orderId = orderRes.recordset[0].orderId;
@@ -87,20 +168,36 @@ async function checkout(userId, paymentMethod, fulfillment) {
         ? " (" + item.addons.map(a => a.label).join(", ") + ")"
         : "";
       const itemReq = new sql.Request(transaction);
-itemReq.input("orderId", sql.Int, orderId);
-itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
-itemReq.input("quantity", sql.Int, item.quantity);
-itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
-itemReq.input("productId", sql.Int, item.productId);          // added
-itemReq.input("stallId", sql.Int, item.stallId ?? null);      // added
-await itemReq.query(
-  "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal, productId, stallId) " +
-  "VALUES (@orderId, @productName, @quantity, @itemTotal, @productId, " +
-  "        (SELECT stallId FROM Products WHERE productId = @productId))"  // added
-);
+      itemReq.input("orderId", sql.Int, orderId);
+      itemReq.input("productName", sql.NVarChar, (item.productName + addonText).slice(0, 100));
+      itemReq.input("quantity", sql.Int, item.quantity);
+      itemReq.input("itemTotal", sql.Decimal(10, 2), Number(item.lineTotal));
+      itemReq.input("productId", sql.Int, item.productId);
+      await itemReq.query(
+        "INSERT INTO OrderItems (orderId, productName, quantity, itemTotal, productId, stallId) " +
+        "VALUES (@orderId, @productName, @quantity, @itemTotal, @productId, " +
+        "        (SELECT stallId FROM Products WHERE productId = @productId))"
+      );
     }
 
-    // 3. Empty the cart now the order exists.
+    // 3. Count the promo code as redeemed.
+    // The `AND timesUsed < usageLimit` guard means two people checking out at
+    // the same moment can never push the counter past its limit.
+    if (promo) {
+      const promoReq = new sql.Request(transaction);
+      promoReq.input("promoId", sql.Int, promo.promoId);
+      const used = await promoReq.query(
+        "UPDATE PromoCodes SET timesUsed = timesUsed + 1 " +
+        "WHERE promoId = @promoId AND timesUsed < usageLimit"
+      );
+      if (used.rowsAffected[0] === 0) {
+        // Someone else took the last redemption between validation and here.
+        await transaction.rollback();
+        return { promoError: "That code has just reached its usage limit." };
+      }
+    }
+
+    // 4. Empty the cart now the order exists.
     // Done inline (not via cartModel.clearCart) because that helper builds its
     // request from the pool, which would sit OUTSIDE this transaction.
     const delAddons = new sql.Request(transaction);
@@ -137,7 +234,7 @@ async function getOrdersByUser(userId) {
   // have NULL - an inner join would hide them from the history page entirely.
   const orderRes = await orderReq.query(
     "SELECT o.orderId, o.subtotal, o.total, o.paymentMethod, o.fulfillment, " +
-    "       o.status, o.createdAt, h.name AS centerName " +
+    "       o.status, o.createdAt, o.promoCode, o.discount, h.name AS centerName " +
     "FROM Orders o " +
     "LEFT JOIN HawkerCenters h ON h.centerId = o.centerId " +
     "WHERE o.userId = @userId " +
@@ -160,15 +257,25 @@ async function getOrdersByUser(userId) {
   return orders.map(o => {
     const items = itemRes.recordset.filter(i => i.orderId === o.orderId);
     // Recompute the fee breakdown from the stored subtotal so history shows
-    // the same numbers the cart showed at checkout.
+    // the same numbers the cart showed at checkout. The discount is read
+    // from the order itself, not recalculated, in case the code has since
+    // been edited or deleted by the vendor.
     const fees = calculateFees(Number(o.subtotal), o.fulfillment);
     return {
       ...o,
       items,
+      discount: Number(o.discount || 0),
       deliveryFee: fees.deliveryFee,
       minOrderFee: fees.minOrderFee
     };
   });
 }
 
-module.exports = { checkout, getOrdersByUser, calculateFees, DELIVERY_FEE, MIN_ORDER };
+module.exports = {
+  checkout,
+  getOrdersByUser,
+  calculateFees,
+  resolvePromo,
+  DELIVERY_FEE,
+  MIN_ORDER
+};

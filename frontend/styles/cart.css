@@ -227,3 +227,96 @@
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* ============================================================
+   PROMO CODE BOX  (append to the bottom of styles/cart.css)
+   ============================================================ */
+.promo {
+  margin: 1.25rem 0 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.promo h4 {
+  margin: 0 0 0.6rem;
+}
+
+.promo-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#promo-input {
+  flex: 1;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  text-transform: uppercase;   /* codes read as SAVE5 even if typed lowercase */
+}
+
+#promo-input:focus {
+  outline: none;
+  border-color: #a11;
+}
+
+#promo-apply {
+  padding: 0.55rem 1.2rem;
+  border: 1px solid #a11;
+  border-radius: 8px;
+  background: #fff;
+  color: #a11;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+#promo-apply:hover {
+  background: #a11;
+  color: #fff;
+}
+
+.promo-msg {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  min-height: 1.1em;           /* reserves space so the layout doesn't jump */
+}
+.promo-msg.promo-ok  { color: #0a7d55; font-weight: 600; }
+.promo-msg.promo-bad { color: #a11; }
+
+/* Discount line in the totals block */
+.summary-line.discount-row {
+  color: #0a7d55;
+  font-weight: 600;
+}
+
+/* "No card saved" warning under the payment buttons */
+.pay-warning {
+  display: none;
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: #fdf3f3;
+  border: 1px solid #f0d5d5;
+  color: #a11;
+  font-size: 0.85rem;
+}
+
+/* Cancel button in the PayNow QR modal */
+.qr-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+#qr-cancel {
+  background: #fff;
+  color: #666;
+  border: 1px solid #ddd;
+}
+#qr-cancel:hover {
+  background: #f5f5f5;
+}
