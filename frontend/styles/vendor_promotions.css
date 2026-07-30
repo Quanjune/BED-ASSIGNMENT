@@ -68,7 +68,7 @@
    variants this page needs. */
 .vm-badge.live    { background: #e3f5ec; color: #0a7d55; }
 .vm-badge.off     { background: #eee;    color: #666; }
-.vm-badge.expired { background: #fdecec; color: #a11; }
+.vm-badge.expired { background: #E7EEF8; color: #1E4E86; }
 
 /* ---- Code tester ---- */
 .vm-validate { margin-top: 1.25rem; }
@@ -98,7 +98,7 @@
   border: 1px solid transparent;
 }
 .vm-validate-result.valid   { background: #e3f5ec; border-color: #b6e2cd; }
-.vm-validate-result.invalid { background: #fdecec; border-color: #f2c6c6; }
+.vm-validate-result.invalid { background: #E7EEF8; border-color: #B9CDE9; }
 
 .vm-validate-message {
   margin: 0 0 0.5rem;
