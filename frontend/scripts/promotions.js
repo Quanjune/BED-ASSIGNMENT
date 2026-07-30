@@ -24,11 +24,10 @@ function discountText(type, value) {
     return type === "percent" ? `${n}% off` : `$${n} off`;
 }
 
-// "Where can I use this?" - platform-wide codes have no stall attached.
+// "Where can I use this?" - every code belongs to a stall.
 function scopeText(promo) {
-    if (promo.stallId == null) return "Works at any stall";
     const centre = promo.centerName ? ` &middot; ${escapeHtml(promo.centerName)}` : "";
-    return `${escapeHtml(promo.stallName)}${centre}`;
+    return `${escapeHtml(promo.stallName || "")}${centre}`;
 }
 
 // How many uses are left, so people know when a code is nearly gone.
@@ -58,9 +57,7 @@ async function loadPromos() {
             card.innerHTML = `
                 <div class="promo-head">
                     <strong>${escapeHtml(promo.code)}</strong>
-                    <span class="badge ${promo.stallId == null ? "sitewide" : "stall"}">
-                        ${promo.stallId == null ? "Sitewide" : "Stall deal"}
-                    </span>
+                    <span class="badge stall">Stall deal</span>
                 </div>
                 <p class="promo-discount">${discountText(promo.discountType, promo.discountValue)}</p>
                 <p class="promo-meta">${scopeText(promo)}</p>

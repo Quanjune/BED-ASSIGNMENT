@@ -8,10 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./Template/template.css">
     <link rel="stylesheet" href="./styles/vendor.css">
-    <title>Vendor · Menu</title>
+    <!-- Small add-on sheet for the promo badges + code list. Kept separate from
+         vendor.css so this feature owns its own styling. -->
+    <link rel="stylesheet" href="./styles/vendor_promotions.css">
+    <title>Vendor · Feedback</title>
 </head>
-<body class="page-menu">
-    <!-- Header (same structure as index.html) -->
+<body class="page-feedback">
+    <!-- Header (same structure as the other vendor pages) -->
     <header>
         <div class="header-brand">
             <button id="hamburger">
@@ -60,80 +63,84 @@
             <ul>
                 <li><a href="./index.html">Home</a></li>
                 <li><a href="./vendor.html">Vendor</a></li>
-                <li><a href="./vendor.html">Menu</a></li>
+                <li><a href="./vendor_feedback.html">Feedback</a></li>
             </ul>
         </nav>
 
-       
+        <!-- ============ 1) VENDOR SIGN-IN (shown until logged in) ============ -->
+        <section id="login-section" class="vendor-menu" hidden>
+            <div class="vm-head">
+                <p class="vm-eyebrow">Stall Owner</p>
+                <h2 class="vm-title">Vendor sign in</h2>
+                <p class="vm-subtitle">Sign in with your stall owner account to read and reply to your reviews.</p>
+            </div>
 
-        <!-- ============ 2) MENU DASHBOARD (my stall only) ============ -->
+            <div class="vm-card vm-login">
+                <p id="login-status" class="vm-status err" hidden></p>
+                <label class="vm-field">
+                    <span>Email <em>*</em></span>
+                    <input id="login-email" type="email" placeholder="chickenrice@test.com" autocomplete="username">
+                </label>
+                <label class="vm-field">
+                    <span>Password <em>*</em></span>
+                    <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+                </label>
+                <div class="vm-form-actions">
+                    <button id="btn-login" class="vm-btn vm-btn-primary">Sign in</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 2) FEEDBACK DASHBOARD (your stall only) ============ -->
         <section id="dash-section" class="vendor-menu" hidden>
             <div class="vm-head vm-head-row">
-                <div class="vm-head-main">
-                    <img id="stall-photo" class="vm-head-photo" alt="" hidden>
-                    <div>
-                        <p class="vm-eyebrow">Stall Owner</p>
-                        <h2 class="vm-title" id="stall-name">My stall</h2>
-                        <p class="vm-subtitle" id="stall-center"></p>
-                    </div>
+                <div>
+                    <p class="vm-eyebrow">Customer feedback</p>
+                    <h2 class="vm-title" id="stall-name">Your stall</h2>
+                    <p class="vm-subtitle" id="stall-center"></p>
                 </div>
-                <button id="btn-add" type="button" class="vm-btn vm-btn-primary vm-btn-add">+ Add dish</button>
+                <button id="btn-logout" class="vm-btn vm-btn-ghost">Sign out</button>
             </div>
 
-            <!-- status line -->
             <p id="status" class="vm-status" hidden></p>
 
-            <!-- Menu list (full width) -->
-            <div class="vm-card vm-list">
-                <h3 class="vm-card-title">My menu</h3>
-                <div id="menu-list" class="vm-menu-list">
-                    <p class="vm-empty">Loading your menu…</p>
+            <div class="vm-stats">
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-rating">&mdash;</span>
+                    <span class="vm-stat-label">Average rating</span>
+                </div>
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-total">&mdash;</span>
+                    <span class="vm-stat-label">Reviews</span>
+                </div>
+                <div class="vm-stat">
+                    <span class="vm-stat-value" id="stat-unanswered">&mdash;</span>
+                    <span class="vm-stat-label">Awaiting reply</span>
                 </div>
             </div>
 
-            <!-- ============ Add / Edit dish pop-up ============ -->
-            <div id="form-modal" class="vm-modal-overlay" hidden>
-                <div class="vm-modal" role="dialog" aria-modal="true" aria-labelledby="form-title">
-                    <div class="vm-modal-head">
-                        <h3 id="form-title" class="vm-card-title">Add a dish</h3>
-                        <button id="btn-close" type="button" class="vm-modal-close" aria-label="Close">&times;</button>
+            <div class="vm-card vm-list">
+                <div class="vm-list-head">
+                    <h3 class="vm-card-title">Reviews of your stall</h3>
+                    <div class="vm-filters" id="filters">
+                        <button class="vm-chip is-active" data-filter="unanswered">Awaiting reply</button>
+                        <button class="vm-chip" data-filter="answered">Replied</button>
+                        <button class="vm-chip" data-filter="all">All</button>
                     </div>
-
-                    <div class="vm-modal-body">
-                        <input id="edit-id" type="hidden" value="">
-
-                        <label class="vm-field">
-                            <span>Dish name <em>*</em></span>
-                            <input id="in-name" type="text" placeholder="Chicken Rice">
-                        </label>
-                        <label class="vm-field">
-                            <span>Description</span>
-                            <textarea id="in-desc" rows="2" placeholder="Tender poached chicken with fragrant rice."></textarea>
-                        </label>
-                        <label class="vm-field">
-                            <span>Image URL</span>
-                            <input id="in-image" type="text" placeholder="https://… or /media/products/dish.jpg">
-                        </label>
-                        <!-- live preview of the picture above -->
-                        <div id="img-preview" class="vm-img-preview" hidden>
-                            <img id="img-preview-el" alt="Dish picture preview">
-                        </div>
-                        <label class="vm-field">
-                            <span>Base price (S$) <em>*</em></span>
-                            <input id="in-price" type="number" min="0" step="0.01" placeholder="4.50">
-                        </label>
-                    </div>
-
-                    <div class="vm-form-actions">
-                        <button id="btn-save" class="vm-btn vm-btn-primary">Save dish</button>
-                        <button id="btn-cancel" type="button" class="vm-btn vm-btn-ghost">Cancel</button>
-                    </div>
+                </div>
+                <p class="vm-subtitle vm-list-note">
+                    You cannot edit or delete a review &mdash; it is the customer&rsquo;s own words.
+                    Replying is the one thing you can do, and your reply is shown publicly
+                    underneath their review.
+                </p>
+                <div id="review-list" class="vm-menu-list">
+                    <p class="vm-empty">Loading reviews&hellip;</p>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Footer (same as index.html) -->
+    <!-- Footer (same as the other vendor pages) -->
     <footer>
         <div class="sub_footer">
             <div class="footer-branding">
@@ -154,18 +161,18 @@
                     <h3>Pages</h3>
                     <ul>
                         <li><a href="./index.html">Home</a></li>
-                        <li><a href="./hawker_centers.html">Order</a></li>
+                        <li><a href="./centers.html">Order</a></li>
                         <li><a href="./history.html">History</a></li>
                         <li><a href="./promotions.html">Promotions</a></li>
                     </ul>
                 </nav>
                 <nav>
-                    <h3>Order</h3>
+                    <h3>Vendor</h3>
                     <ul>
-                        <li><a href="./hawker_centers.html">Hawker Centers</a></li>
-                        <li><a href="./stalls.html">Stalls</a></li>
-                        <li><a href="./cart.html">Cart</a></li>
-                        <li><a href="./credit.html">Credit</a></li>
+                        <li><a href="./vendor.html">Menu</a></li>
+                        <li><a href="./vendor_agreements.html">Agreements &amp; Licences</a></li>
+                        <li><a href="./vendor_performance.html">Performance</a></li>
+                        <li><a href="./vendor_promotions.html">Promotions</a></li>
                     </ul>
                 </nav>
             </div>
@@ -183,7 +190,7 @@
     <script src="./Template/template.js"></script>
     <!-- Shared vendor login gate + authFetch -->
     <script src="./scripts/vendor_auth.js"></script>
-    <!-- Vendor menu logic -->
-    <script src="./scripts/vendor.js"></script>
+    <!-- Vendor feedback logic -->
+    <script src="./scripts/vendor_feedback.js"></script>
 </body>
 </html>

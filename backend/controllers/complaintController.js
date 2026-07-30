@@ -113,11 +113,7 @@ async function updateComplaintStatus(req, res) {
 
     // Optional note explaining what the stall did about it. Only meaningful
     // when resolving; the model discards it when re-opening.
-    const resolutionNote = typeof req.body.resolutionNote === "string"
-      ? req.body.resolutionNote.trim().slice(0, 1000)   // matches the column width
-      : null;
-
-    const rowsChanged = await complaintModel.updateComplaintStatus(id, status, resolutionNote);
+    const rowsChanged = await complaintModel.updateComplaintStatus(id, status);
     if (rowsChanged === 0) {
       return res.status(404).json({ error: "Complaint not found" });
     }

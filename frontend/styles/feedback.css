@@ -301,3 +301,30 @@ button.secondary {
     white-space: nowrap;
 }
 .locked-stall #change-stall:hover { color: #801; }
+
+/* ============================================================
+   Stall reply (Timely)
+   A vendor cannot change a review, only answer it - so the reply
+   renders as a clearly separate block underneath, never mixed in
+   with the customer's own words.
+   ============================================================ */
+.vendor-reply {
+    margin-top: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    background: #EBF2E9;
+    border-left: 3px solid #4F7A4A;
+    border-radius: 6px;
+}
+.vendor-reply-label {
+    margin: 0 0 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4F7A4A;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.vendor-reply-text {
+    margin: 0;
+    line-height: 1.45;
+    color: #474747;
+}
