@@ -20,7 +20,7 @@ NEA inspections.
 
 | Name | Role | Individual features |
 |------|------|---------------------|
-| **Aswin** | Administrator / User accounts | User account management (signup & login with bcrypt hashing and JWT); role-based access control (customer / vendor / admin); user profile CRUD; admin analytics *(in progress)* |
+| **Aswin** | Administrator / User accounts | User account management (signup & login with bcrypt hashing and JWT); role-based access control (customer / vendor / admin); user profile CRUD with saved-card payment; guest browsing; admin dashboards — analytics & reports, revenue & orders, and user management |
 | **Quan Jun** | Customer — browsing & ordering | Homepage browsing of hawker centres, stalls and menu items; cart, product customisation options and checkout; order history |
 | **Kishore** | Vendor — stall management | Menu management for the vendor's own stall; rental agreement tracking; stall performance dashboard |
 | **Timely** | Customer — engagement | Feedback submission (ratings + comments); complaint submission linked to a stall; store ratings & reviews; promotions / promo codes |
@@ -41,7 +41,8 @@ npm install
 
 ### 2. Set up environment variables
 
-Copy `.env.example` to `.env` in the project root and fill in your own values:
+Copy `.env.example` to **`backend/.env`** and fill in your own values. The app loads its
+environment from `backend/.env`, not the repo root:
 
 ```bash
 DB_USER=your_sql_login
@@ -49,6 +50,7 @@ DB_PASSWORD=your_sql_password
 DB_SERVER=localhost
 DB_DATABASE=HawkersDB
 ACCESS_TOKEN_SECRET=any_random_string
+REFRESH_TOKEN_SECRET=another_random_string
 PORT=3000
 ```
 
@@ -92,7 +94,8 @@ BED-ASSIGNMENT/
 
 | Route group | Owner | Purpose |
 |-------------|-------|---------|
-| `/api/auth` | Aswin | Signup, login, profile CRUD, admin user list |
+| `/api/auth` | Aswin | Signup, login, profile CRUD, saved-card payment |
+| `/api/admin` | Aswin | Admin-only analytics (complaints, ratings, revenue & orders) and user management |
 | `/api/centers`, `/api/stalls`, `/api/products` | Quan Jun | Browse hawker centres, stalls and menu items |
 | `/api/cart` | Quan Jun | Shopping cart |
 | `/api/orders` | Quan Jun | Checkout and order history |
@@ -112,10 +115,28 @@ BED-ASSIGNMENT/
 | `GET` | `/api/auth/me` | Bearer token | Get the logged-in user's profile |
 | `PUT` | `/api/auth/me` | Bearer token | Update own name and email |
 | `DELETE` | `/api/auth/me` | Bearer token | Delete own account |
+| `PUT` | `/api/auth/me/card` | Bearer token | Save the last 4 digits of a payment card |
+| `DELETE` | `/api/auth/me/card` | Bearer token | Remove the saved card |
 | `GET` | `/api/auth/users` | Bearer token (admin) | List all users |
 
 Protected routes return **401** if no token is supplied and **403** if the token is invalid
 or the user's role is not permitted.
+
+### Admin endpoints
+
+All routes below live under `/api/admin` and require a Bearer token for an **admin** user.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/summary` | Headline stats: users, complaints, average rating, best hawker centre |
+| `GET` | `/api/admin/complaints-by-centre`, `-by-category`, `-by-month` | Complaint breakdowns for the analytics charts |
+| `GET` | `/api/admin/top-stalls` | Top stalls by rating (with reviews & complaints) |
+| `GET` | `/api/admin/agreements-summary` | Rental agreement stats (active, expiring, monthly rent) |
+| `GET` | `/api/admin/revenue-summary` | Total revenue, total orders, average order value, best hawker by revenue |
+| `GET` | `/api/admin/revenue-by-month`, `orders-by-payment`, `revenue-by-centre` | Revenue & order breakdowns for the revenue charts |
+| `GET` | `/api/admin/top-stalls-by-revenue` | Top stalls ranked by revenue |
+| `GET` | `/api/admin/users` | List all users, each with the stall they own (if any) |
+| `DELETE` | `/api/admin/users/:id` | Delete a user |
 
 ## Test accounts
 
