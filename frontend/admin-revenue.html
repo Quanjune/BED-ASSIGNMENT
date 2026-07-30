@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hawkers | Revenue &amp; Orders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="Template/template.css">
+  <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="admin-page">
+    <h1>Revenue &amp; Orders</h1>
+    <p class="admin-subtitle">Sales performance across the platform (cancelled orders excluded).</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Revenue</h3>
+        <p class="stat-value" id="total-revenue">–</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Orders</h3>
+        <p class="stat-value" id="total-orders">–</p>
+      </div>
+      <div class="stat-card">
+        <h3>Avg Order Value</h3>
+        <p class="stat-value" id="avg-order-value">–</p>
+      </div>
+      <div class="stat-card">
+        <h3>Best Hawker Centre</h3>
+        <p class="stat-value" id="best-hawker" style="font-size:1.3rem;">–</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Revenue Over Time</h3>
+        <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Orders by Payment Method</h3>
+        <div class="chart-box"><canvas id="paymentChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Revenue by Hawker Centre</h3>
+      <div class="chart-box"><canvas id="centreRevChart"></canvas></div>
+    </div>
+
+    <div class="table-card">
+      <h3>Top Stalls by Revenue</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th><th>Stall</th><th>Centre</th><th>Orders</th><th>Revenue</th>
+          </tr>
+        </thead>
+        <tbody id="rev-stalls-body"><!-- filled by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="./Template/admin-template.js"></script>
+<script src="scripts/admin-revenue.js"></script>
+</body>
+</html>
