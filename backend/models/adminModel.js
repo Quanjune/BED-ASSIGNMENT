@@ -246,8 +246,17 @@ async function getOrdersByPayment() {
   let connection;
   try {
     connection = await sql.connect(dbConfig);
+    // Cash / PayNow / Visa / Mastercard, shown with tidy labels.
     const result = await connection.request().query(`
-      SELECT ISNULL(paymentMethod, 'unknown') AS method, COUNT(*) AS count
+      SELECT
+        CASE paymentMethod
+          WHEN 'cash'       THEN 'Cash'
+          WHEN 'paynow'     THEN 'PayNow'
+          WHEN 'visa'       THEN 'Visa'
+          WHEN 'mastercard' THEN 'Mastercard'
+          ELSE ISNULL(paymentMethod, 'Unknown')
+        END AS method,
+        COUNT(*) AS count
       FROM Orders
       WHERE status <> 'cancelled'
       GROUP BY paymentMethod
