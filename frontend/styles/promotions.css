@@ -374,8 +374,7 @@ button.secondary {
 
 .promo-card { display: flex; flex-direction: column; }
 
-/* Scope badges: sitewide codes work anywhere, stall deals don't. */
-.badge.sitewide { background: #e8eefc; color: #2b4fa2; }
+/* Every promo is a stall deal now (sitewide codes were removed). */
 .badge.stall    { background: #e3f5ec; color: #0a7d55; }
 
 .promo-card .promo-discount {
