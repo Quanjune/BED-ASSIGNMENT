@@ -1,25 +1,8 @@
 const hygieneGradeModel = require("../models/hygieneGradeModel");
  
-const VALID_GRADES = ["A", "B", "C", "D"];
- 
-function validateGradeInput(data) {
-  if (!data.stallId || isNaN(data.stallId)) {
-    return "stallId is required and must be a number.";
-  }
-  if (!data.grade || !VALID_GRADES.includes(data.grade.toUpperCase())) {
-    return `grade is required and must be one of: ${VALID_GRADES.join(", ")}`;
-  }
-  if (!data.validFrom || isNaN(Date.parse(data.validFrom))) {
-    return "validFrom is required and must be a valid date (YYYY-MM-DD).";
-  }
-  if (!data.validTo || isNaN(Date.parse(data.validTo))) {
-    return "validTo is required and must be a valid date (YYYY-MM-DD).";
-  }
-  if (new Date(data.validTo) <= new Date(data.validFrom)) {
-    return "validTo must be after validFrom.";
-  }
-  return null;
-}
+// Body format validation (grade A-D, date order, etc.) now lives in
+// validators/inspectionValidator.js and runs as validate(schema) middleware
+// in the routes. Joi also upper-cases the grade, so "a" arrives here as "A".
  
 // GET 
 async function getAllGrades(req, res) {
@@ -60,11 +43,6 @@ async function getGradeById(req, res) {
 // POST — manual/corrective grade entry
 async function createGrade(req, res) {
   try {
-    const validationError = validateGradeInput(req.body);
-    if (validationError) {
-      return res.status(400).json({ message: validationError });
-    }
- 
     const stallOk = await hygieneGradeModel.stallExists(req.body.stallId);
     if (!stallOk) {
       return res.status(400).json({ message: `Stall ${req.body.stallId} does not exist.` });
@@ -76,10 +54,7 @@ async function createGrade(req, res) {
       }
     }
  
-    const newGrade = await hygieneGradeModel.createGrade({
-      ...req.body,
-      grade: req.body.grade.toUpperCase(),
-    });
+    const newGrade = await hygieneGradeModel.createGrade(req.body);
     res.status(201).json(newGrade);
   } catch (err) {
     console.error("createGrade error:", err);
@@ -95,20 +70,12 @@ async function updateGrade(req, res) {
       return res.status(400).json({ message: "Grade id must be a number." });
     }
  
-    const validationError = validateGradeInput(req.body);
-    if (validationError) {
-      return res.status(400).json({ message: validationError });
-    }
- 
     const stallOk = await hygieneGradeModel.stallExists(req.body.stallId);
     if (!stallOk) {
       return res.status(400).json({ message: `Stall ${req.body.stallId} does not exist.` });
     }
  
-    const updated = await hygieneGradeModel.updateGrade(id, {
-      ...req.body,
-      grade: req.body.grade.toUpperCase(),
-    });
+    const updated = await hygieneGradeModel.updateGrade(id, req.body);
     if (!updated) {
       return res.status(404).json({ message: `Hygiene grade ${id} not found.` });
     }
@@ -147,4 +114,3 @@ module.exports = {
   updateGrade,
   deleteGrade,
 };
- 

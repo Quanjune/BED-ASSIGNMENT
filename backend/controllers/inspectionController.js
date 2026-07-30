@@ -11,18 +11,10 @@ function scoreToGrade(score) {
   return "D";
 }
  
-function validateScheduleInput(data) {
-  if (!data.stallId || isNaN(data.stallId)) {
-    return "stallId is required and must be a number.";
-  }
-  if (!data.officerName || typeof data.officerName !== "string" || !data.officerName.trim()) {
-    return "officerName is required.";
-  }
-  if (!data.scheduledDate || isNaN(Date.parse(data.scheduledDate))) {
-    return "scheduledDate is required and must be a valid date (YYYY-MM-DD).";
-  }
-  return null;
-}
+// Body format validation now lives in validators/inspectionValidator.js and
+// runs as validate(schema) middleware in the routes, BEFORE these handlers.
+// Controllers only keep the business rules Joi cannot know about
+// (does the stall exist? is the inspection already completed?).
  
 // GET 
 async function getAllInspections(req, res) {
@@ -67,11 +59,6 @@ async function getInspectionById(req, res) {
 // POST /api/inspections — schedule a new inspection
 async function createInspection(req, res) {
   try {
-    const validationError = validateScheduleInput(req.body);
-    if (validationError) {
-      return res.status(400).json({ message: validationError });
-    }
- 
     const stallOk = await inspectionModel.stallExists(req.body.stallId);
     if (!stallOk) {
       return res.status(400).json({ message: `Stall ${req.body.stallId} does not exist.` });
@@ -93,23 +80,13 @@ async function updateInspection(req, res) {
       return res.status(400).json({ message: "Inspection id must be a number." });
     }
  
-    const validationError = validateScheduleInput(req.body);
-    if (validationError) {
-      return res.status(400).json({ message: validationError });
-    }
-    if (req.body.status && !VALID_STATUSES.includes(req.body.status)) {
-      return res.status(400).json({ message: `status must be one of: ${VALID_STATUSES.join(", ")}` });
-    }
- 
     const stallOk = await inspectionModel.stallExists(req.body.stallId);
     if (!stallOk) {
       return res.status(400).json({ message: `Stall ${req.body.stallId} does not exist.` });
     }
  
-    const updated = await inspectionModel.updateInspection(id, {
-      ...req.body,
-      status: req.body.status || "Scheduled",
-    });
+    // Joi already defaulted a missing status to "Scheduled".
+    const updated = await inspectionModel.updateInspection(id, req.body);
     if (!updated) {
       return res.status(404).json({ message: `Inspection ${id} not found.` });
     }
@@ -130,9 +107,6 @@ async function completeInspection(req, res) {
     }
  
     const { score, remarks, completedDate } = req.body;
-    if (score === undefined || isNaN(score) || score < 0 || score > 100) {
-      return res.status(400).json({ message: "score is required and must be a number between 0 and 100." });
-    }
  
     const existing = await inspectionModel.getInspectionById(id);
     if (!existing) {

@@ -37,14 +37,39 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
 }
 
+// The customer session lives in localStorage ("token" + "user"), written by
+// auth.js at login - same storage the feedback/complaints pages read via
+// sessions.js. Writes on this page are admin-only, so the token is attached
+// to every request; reads still work fine without one (they are public).
+function getToken() {
+    return localStorage.getItem("token");
+}
+
 async function apiRequest(path, options = {}) {
+    const headers = { "Content-Type": "application/json" };
+    const token = getToken();
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_BASE}${path}`, {
-        headers: { "Content-Type": "application/json" },
+        headers,
         ...options,
     });
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+        // no/missing token - the server never saw a login
+        throw new Error("Please log in as an admin to do this.");
+    }
+    if (res.status === 403) {
+        // logged in, but wrong role - or the 1h token has expired
+        throw new Error(data.message || "Only admin accounts can manage this. If you are an admin, your session may have expired - please log in again.");
+    }
     if (!res.ok) {
-        throw new Error(data.message || `Request failed (${res.status})`);
+        // Kishore's validate() middleware replies { error, details: [...] }
+        // while the controllers reply { message } - surface whichever exists.
+        const detailText = Array.isArray(data.details) ? data.details.join(" ") : null;
+        throw new Error(data.message || detailText || `Request failed (${res.status})`);
     }
     return data;
 }
