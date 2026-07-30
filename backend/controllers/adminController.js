@@ -57,6 +57,53 @@ async function getAgreementsSummary(req, res) {
   }
 }
 
+// ---- Revenue & Orders analytics ----
+
+async function getRevenueSummary(req, res) {
+  try {
+    return res.status(200).json(await adminModel.getRevenueSummary());
+  } catch (err) {
+    console.error("Revenue summary error:", err);
+    return res.status(500).json({ message: "Failed to load revenue summary." });
+  }
+}
+
+async function getRevenueByMonth(req, res) {
+  try {
+    return res.status(200).json(await adminModel.getRevenueByMonth());
+  } catch (err) {
+    console.error("Revenue-by-month error:", err);
+    return res.status(500).json({ message: "Failed to load revenue by month." });
+  }
+}
+
+async function getOrdersByPayment(req, res) {
+  try {
+    return res.status(200).json(await adminModel.getOrdersByPayment());
+  } catch (err) {
+    console.error("Orders-by-payment error:", err);
+    return res.status(500).json({ message: "Failed to load orders by payment method." });
+  }
+}
+
+async function getRevenueByCentre(req, res) {
+  try {
+    return res.status(200).json(await adminModel.getRevenueByCentre());
+  } catch (err) {
+    console.error("Revenue-by-centre error:", err);
+    return res.status(500).json({ message: "Failed to load revenue by centre." });
+  }
+}
+
+async function getTopStallsByRevenue(req, res) {
+  try {
+    return res.status(200).json(await adminModel.getTopStallsByRevenue());
+  } catch (err) {
+    console.error("Top-stalls-by-revenue error:", err);
+    return res.status(500).json({ message: "Failed to load top stalls by revenue." });
+  }
+}
+
 // ---- User management (admin) ----
 
 async function getUsers(req, res) {
@@ -95,6 +142,11 @@ module.exports = {
   getComplaintsByMonth,
   getTopStalls,
   getAgreementsSummary,
+  getRevenueSummary,
+  getRevenueByMonth,
+  getOrdersByPayment,
+  getRevenueByCentre,
+  getTopStallsByRevenue,
   getUsers,
   deleteUser
 };
