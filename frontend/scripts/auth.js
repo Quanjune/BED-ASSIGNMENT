@@ -99,8 +99,25 @@ if (loginForm) {
 // ---------- SIGNUP ----------
 const signupForm = document.getElementById("signupForm");
 
+// Password rule (mirrors the server: 8+ chars, at least one letter and one number).
+function passwordError(pw) {
+  if (pw.length < 8) return "Password must be at least 8 characters.";
+  if (!/[A-Za-z]/.test(pw)) return "Password must include at least one letter.";
+  if (!/[0-9]/.test(pw)) return "Password must include at least one number.";
+  return "";
+}
+
 if (signupForm) {
   const errorBox = document.getElementById("errorBox");
+  const pwError = document.getElementById("pwError");
+  const pwInput = document.getElementById("password");
+
+  // Live red feedback under the password field as the user types.
+  if (pwInput && pwError) {
+    pwInput.addEventListener("input", () => {
+      pwError.textContent = pwInput.value ? passwordError(pwInput.value) : "";
+    });
+  }
 
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -116,8 +133,9 @@ if (signupForm) {
       errorBox.textContent = "Please fill in all fields.";
       return;
     }
-    if (password.length < 6) {
-      errorBox.textContent = "Password must be at least 6 characters.";
+    const pwErr = passwordError(password);
+    if (pwErr) {
+      if (pwError) pwError.textContent = pwErr;
       return;
     }
 

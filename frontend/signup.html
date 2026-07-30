@@ -15,13 +15,7 @@
       <section class="card">
         <div class="brand-row">
           <div class="brand-mark">
-            <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
-              <path d="M14 34c2 10 10 18 18 18s16-8 18-18H14z" fill="#e8e8e8" stroke="#1a1a1a" stroke-width="2"/>
-              <path d="M12 34h40" stroke="#1a1a1a" stroke-width="2" />
-              <path d="M22 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
-              <path d="M34 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
-              <path d="M46 18c0 5-4 5-4 10" stroke="#f08a24" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
+            <img src="/media/icons/hawker_icon.svg" alt="Hawkers logo" width="30" height="30">
           </div>
           <h1 class="brand-name">Hawkers</h1>
         </div>
@@ -37,7 +31,8 @@
           <input id="email" class="input" type="email" placeholder="Enter your email address" autocomplete="email" required>
 
           <label for="password">Password</label>
-          <input id="password" class="input" type="password" placeholder="Create a password (min 6 characters)" autocomplete="new-password" required>
+          <input id="password" class="input" type="password" placeholder="Create a password (8+ chars, with a letter and a number)" autocomplete="new-password" required>
+          <p id="pwError" style="color:#b23a43; font-size:12px; margin:4px 0 0; min-height:5px;"></p>
 
           <label for="role">I am a</label>
           <select id="role" class="input">
