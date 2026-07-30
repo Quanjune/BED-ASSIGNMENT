@@ -48,6 +48,66 @@ body.page-performance #nav-links li:nth-child(3) {
     }
 }
 
+/* ---- "Customer" dropdown (Complaints / Feedback) ----
+   The markup ships a hover/focus menu but had NO css anywhere, so the child
+   <ul> just rendered as a bare bulleted list sitting open in the header.
+   These rules hide it and pop it open on hover and keyboard focus
+   (:focus-within), so it still works with no JavaScript. */
+.nav-dropdown {
+    position: relative;
+}
+
+/* The other tabs are <a>, so "#nav-links li a" styles them. This toggle is a
+   <span>, so match that look here. */
+.nav-dropdown-toggle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+    cursor: pointer;
+}
+
+.nav-dropdown-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0;
+    min-width: 160px;
+
+    display: none;              /* hidden until hover / keyboard focus */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+    display: block;
+}
+
+/* "#nav-links li" is an ID selector, so it beats a plain class. Re-qualify
+   with #nav-links to win the padding/radius override on the menu items. */
+#nav-links .nav-dropdown-menu li {
+    padding: 0.4rem 1rem;
+    border-radius: 0;
+    white-space: nowrap;
+}
+
+/* On mobile the whole nav is a column inside the hamburger, so drop the
+   overlay behaviour and show the two links inline. */
+@media (max-width: 780px) {
+    .nav-dropdown-menu {
+        display: block;
+        position: static;
+        box-shadow: none;
+        min-width: 0;
+        padding: 0.2rem 0 0.2rem 1rem;
+    }
+}
+
 /* ---- "Exit to site" pill in the header (mirrors the #cart pill) ---- */
 #exit-site {
     height: 100%;
