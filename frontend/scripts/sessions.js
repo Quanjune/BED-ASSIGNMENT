@@ -3,9 +3,9 @@
    One small helper so the customer-facing pages all read the login
    state the same way, instead of each script re-implementing it.
 
-   NOTE: this file is still MISSING from the repo. feedback.html,
-   complaints.html and stalls.html all load it, and without it they
-   treat a signed-in customer as a guest.
+   complaints.html, feedback.html and stalls.html all load this file
+   BEFORE their own script. Without it, those pages fall back to a
+   guest view and their write actions fail - which is the 404 you saw.
 
    WHERE THE TOKEN LIVES
    login.html / auth.js stores the customer session in localStorage
@@ -16,13 +16,9 @@
    The backend signs tokens with { expiresIn: '1h' } and there is no
    refresh flow, so after an hour every write fails with 403
    "Invalid or expired token." A token also stops working if
-   ACCESS_TOKEN_SECRET changes, because the signature no longer
-   matches - the server reports that the same way.
-
-   Checking only "is there a token string?" is not enough: a stale
-   token still looks like a login, so the page shows the form and
-   every submit fails. isLoggedIn() therefore also reads the token's
-   own `exp` claim and treats an expired one as signed out.
+   ACCESS_TOKEN_SECRET changes. isLoggedIn() therefore reads the
+   token's own `exp` claim and treats an expired one as signed out,
+   so the UI never shows a form that is guaranteed to fail on submit.
    =================================================================== */
 
 (function () {
@@ -41,14 +37,14 @@
     }
   }
 
-  // Read the middle segment of the JWT. This is NOT verification - the
-  // signature is checked on the server. We only want the `exp` claim so the
-  // page can tell "signed in" from "holding a dead token".
+  // Read the middle segment of the JWT. NOT verification - the signature is
+  // checked on the server. We only want the `exp` claim so the page can tell
+  // "signed in" from "holding a dead token".
   function readPayload(token) {
     try {
       const part = token.split(".")[1];
       if (!part) return null;
-      let b64 = part.replace(/-/g, "+").replace(/_/g, "/");  // base64url -> base64
+      let b64 = part.replace(/-/g, "+").replace(/_/g, "/");
       while (b64.length % 4) b64 += "=";
       return JSON.parse(atob(b64));
     } catch {

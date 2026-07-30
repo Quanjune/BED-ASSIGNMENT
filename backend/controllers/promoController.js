@@ -13,7 +13,9 @@ const promoModel = require("../models/promoModel");
 // Shared guard. Returns true when the caller is allowed to touch this promo.
 function canManage(req, promo) {
   if (req.user.role === "admin") return true;         // admin: anything
-  if (promo.stallId === null) return false;           // vendor: not platform-wide codes
+  // Sitewide codes are gone; a NULL here could only be a legacy leftover, and
+  // a vendor must never be able to edit one.
+  if (promo.stallId === null) return false;
   return promo.stallId === req.stallId;               // vendor: only their own stall
 }
 
@@ -64,19 +66,21 @@ async function getPromoById(req, res) {
 async function createPromo(req, res) {
   try {
     // body already validated + cleaned by promoValidation middleware.
-    // The stall is taken from the TOKEN, never from the body: a vendor always
-    // creates for their own stall, and only an admin can create a
-    // platform-wide code (stallId null) or target a specific stall.
+    // Every code belongs to a stall - sitewide (NULL-stall) codes no longer
+    // exist. A vendor's code is stamped with their own stall from the token;
+    // an admin must name which stall the code is for. Neither can create a
+    // code with no stall.
     let stallId;
     if (req.user.role === "vendor") {
       stallId = req.stallId;
     } else {
-      // admin: honour an explicit stallId if supplied, else platform-wide
-      stallId = req.body.stallId === undefined || req.body.stallId === null || req.body.stallId === ""
-        ? null
-        : parseInt(req.body.stallId);
-      if (stallId !== null && isNaN(stallId)) {
-        return res.status(400).json({ message: "stallId must be a number or left empty.", field: "stallId" });
+      // admin: a stall is required (no sitewide codes any more)
+      if (req.body.stallId === undefined || req.body.stallId === null || req.body.stallId === "") {
+        return res.status(400).json({ message: "stallId is required - codes must belong to a stall.", field: "stallId" });
+      }
+      stallId = parseInt(req.body.stallId);
+      if (isNaN(stallId)) {
+        return res.status(400).json({ message: "stallId must be a number.", field: "stallId" });
       }
     }
 
