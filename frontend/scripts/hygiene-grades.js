@@ -1,260 +1,148 @@
+// hygiene-grades.js  (Kaden - PUBLIC hygiene grade lookup)
+// Read-only page for customers. It only calls the public GET endpoints, so
+// there is no token handling here at all - anything that changes data lives
+// in the officer portal (officer_grades.html) behind requireOfficer.
+//
+// Uses /api/hygiene-grades/current, which returns one row per stall worked
+// out by SQL. The browser no longer downloads the whole history just to find
+// the newest grade for each stall.
+
 const API_BASE = "/api";
 
-const currentGradesCards = document.getElementById("current-grades-cards");
-const currentGradesEmpty = document.getElementById("current-grades-empty");
+const cards = document.getElementById("current-grades-cards");
+const cardsEmpty = document.getElementById("current-grades-empty");
+const searchInput = document.getElementById("search-stall");
 
-const gradesBody = document.getElementById("grades-body");
-const gradesEmpty = document.getElementById("grades-empty");
+const historySelect = document.getElementById("history-stall");
+const historyOutput = document.getElementById("history-output");
+const historyEmpty = document.getElementById("history-empty");
+const historySummary = document.getElementById("history-summary");
+const historyBody = document.getElementById("history-body");
 
-const gradeForm = document.getElementById("grade-form");
-const gradeFeedback = document.getElementById("grade-feedback");
+let currentGrades = [];
 
-const filterStallInput = document.getElementById("filter-stallId");
-const applyFilterBtn = document.getElementById("apply-filter");
+// ---------- small helpers ----------
 
-const editModal = document.getElementById("edit-modal");
-const editForm = document.getElementById("edit-form");
-const editIdSpan = document.getElementById("edit-id");
-const editCancelBtn = document.getElementById("edit-cancel");
-
-let currentEditId = null;
-let lastLoadedGrades = [];
-
-// ---------- Helpers ----------
-
-function showFeedback(el, message, type) {
-    el.textContent = message;
-    el.className = `feedback feedback-${type}`;
-    el.hidden = false;
-}
-
-function gradeBadge(grade) {
-    return `<span class="grade-badge grade-${grade.toLowerCase()}">${grade}</span>`;
+async function getJson(path) {
+  const res = await fetch(API_BASE + path);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `Request failed (${res.status}).`);
+  return data;
 }
 
 function formatDate(value) {
-    if (!value) return "&mdash;";
-    return new Date(value).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
+  if (!value) return "&mdash;";
+  return new Date(value).toLocaleDateString("en-SG", { year: "numeric", month: "short", day: "numeric" });
 }
 
-// The customer session lives in localStorage ("token" + "user"), written by
-// auth.js at login - same storage the feedback/complaints pages read via
-// sessions.js. Writes on this page are admin-only, so the token is attached
-// to every request; reads still work fine without one (they are public).
-function getToken() {
-    return localStorage.getItem("token");
+function gradeBadge(grade) {
+  if (!grade) return `<span class="grade-badge grade-none">&ndash;</span>`;
+  return `<span class="grade-badge grade-${grade.toLowerCase()}">${grade}</span>`;
 }
 
-async function apiRequest(path, options = {}) {
-    const headers = { "Content-Type": "application/json" };
-    const token = getToken();
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${API_BASE}${path}`, {
-        headers,
-        ...options,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.status === 401) {
-        // no/missing token - the server never saw a login
-        throw new Error("Please log in as an admin to do this.");
-    }
-    if (res.status === 403) {
-        // logged in, but wrong role - or the 1h token has expired
-        throw new Error(data.message || "Only admin accounts can manage this. If you are an admin, your session may have expired - please log in again.");
-    }
-    if (!res.ok) {
-        // Kishore's validate() middleware replies { error, details: [...] }
-        // while the controllers reply { message } - surface whichever exists.
-        const detailText = Array.isArray(data.details) ? data.details.join(" ") : null;
-        throw new Error(data.message || detailText || `Request failed (${res.status})`);
-    }
-    return data;
+// Stall names come from the database, so escape them before building HTML.
+function escapeHtml(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-// ---------- Current grade summary (most recent grade per stall) ----------
+// ---------- current grades ----------
 
-function renderCurrentGrades(grades) {
-    const latestByStall = new Map();
-    for (const g of grades) {
-        const existing = latestByStall.get(g.stallId);
-        if (!existing || new Date(g.validFrom) > new Date(existing.validFrom)) {
-            latestByStall.set(g.stallId, g);
-        }
-    }
+function renderCards(list) {
+  cards.innerHTML = list
+    .map((g) => `
+      <div class="current-grade-card ${g.isCurrent ? "" : "grade-lapsed"}">
+        ${gradeBadge(g.grade)}
+        <div class="details">
+          <h4>${escapeHtml(g.stallName)}</h4>
+          <p>${escapeHtml(g.centerName)}</p>
+          <p>Valid ${formatDate(g.validFrom)} &ndash; ${formatDate(g.validTo)}</p>
+          ${g.isCurrent ? "" : `<p class="lapsed-note">Awaiting re-inspection</p>`}
+        </div>
+      </div>
+    `)
+    .join("");
 
-    currentGradesCards.innerHTML = "";
-    if (!latestByStall.size) {
-        currentGradesEmpty.hidden = false;
-        return;
-    }
-    currentGradesEmpty.hidden = true;
-
-    for (const g of latestByStall.values()) {
-        const card = document.createElement("div");
-        card.className = "current-grade-card";
-        card.innerHTML = `
-            ${gradeBadge(g.grade)}
-            <div class="details">
-                <h4>${g.stallName} (#${g.stallId})</h4>
-                <p>Valid ${formatDate(g.validFrom)} &ndash; ${formatDate(g.validTo)}</p>
-            </div>
-        `;
-        currentGradesCards.appendChild(card);
-    }
+  cardsEmpty.hidden = list.length > 0;
 }
 
-// ---------- Full history table ----------
+// Filter as the customer types. Case-insensitive on both stall and centre.
+searchInput.addEventListener("input", () => {
+  const term = searchInput.value.trim().toLowerCase();
+  if (!term) return renderCards(currentGrades);
 
-function renderGradesTable(grades) {
-    gradesBody.innerHTML = "";
+  renderCards(
+    currentGrades.filter(
+      (g) =>
+        g.stallName.toLowerCase().includes(term) ||
+        g.centerName.toLowerCase().includes(term)
+    )
+  );
+});
 
-    if (!grades.length) {
-        gradesEmpty.hidden = false;
-        return;
-    }
-    gradesEmpty.hidden = true;
+async function loadCurrent() {
+  try {
+    currentGrades = await getJson("/hygiene-grades/current");
+    renderCards(currentGrades);
 
-    for (const g of grades) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${g.gradeId}</td>
-            <td>${g.stallName} (#${g.stallId})</td>
+    historySelect.innerHTML =
+      `<option value="">Choose a stall…</option>` +
+      currentGrades
+        .map((g) => `<option value="${g.stallId}">${escapeHtml(g.stallName)} — ${escapeHtml(g.centerName)}</option>`)
+        .join("");
+  } catch (err) {
+    cardsEmpty.hidden = false;
+    cardsEmpty.textContent = `Could not load hygiene grades: ${err.message}`;
+  }
+}
+
+// ---------- history for one stall ----------
+
+historySelect.addEventListener("change", async () => {
+  const stallId = historySelect.value;
+  if (!stallId) {
+    historyOutput.hidden = true;
+    historyEmpty.hidden = false;
+    return;
+  }
+
+  try {
+    const data = await getJson(`/hygiene-grades/stall/${stallId}`);
+
+    historySummary.innerHTML = `
+      <h4>${escapeHtml(data.stallName)}</h4>
+      <p>
+        Currently showing ${gradeBadge(data.currentGrade ? data.currentGrade.grade : null)}
+        &middot; ${data.grades.length} grade(s) on record since this stall joined.
+      </p>
+    `;
+
+    historyBody.innerHTML =
+      data.grades
+        .map((g) => `
+          <tr>
             <td>${gradeBadge(g.grade)}</td>
             <td>${formatDate(g.validFrom)}</td>
             <td>${formatDate(g.validTo)}</td>
-            <td>${g.inspectionId ?? "&mdash;"}</td>
-            <td class="row-actions">
-                <button class="btn btn-small" data-action="edit" data-id="${g.gradeId}">Edit</button>
-                <button class="btn btn-small btn-text" data-action="delete" data-id="${g.gradeId}">Delete</button>
-            </td>
-        `;
-        gradesBody.appendChild(tr);
-    }
-}
+            <td>${g.inspectionScore === null ? "&mdash;" : `${g.inspectionScore} points`}</td>
+            <td>${g.isCurrent
+                  ? '<span class="badge badge-completed">Current</span>'
+                  : '<span class="badge badge-cancelled">Expired</span>'}</td>
+          </tr>
+        `)
+        .join("") || `<tr><td colspan="5">No grades recorded yet.</td></tr>`;
 
-// ---------- Data loading ----------
-
-async function loadGrades() {
-    const stallId = filterStallInput.value.trim();
-    const params = new URLSearchParams();
-    if (stallId) params.set("stallId", stallId);
-
-    try {
-        const grades = await apiRequest(`/hygiene-grades${params.toString() ? `?${params}` : ""}`);
-        lastLoadedGrades = grades;
-        renderGradesTable(grades);
-
-        // Current-grade summary should reflect all stalls, not the filtered view,
-        // unless the user has filtered to one stall (then just show that one).
-        if (stallId) {
-            renderCurrentGrades(grades);
-        } else {
-            renderCurrentGrades(grades);
-        }
-    } catch (err) {
-        gradesBody.innerHTML = "";
-        gradesEmpty.hidden = false;
-        gradesEmpty.textContent = `Could not load hygiene grades: ${err.message}`;
-    }
-}
-
-// ---------- Manual entry form ----------
-
-gradeForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    gradeFeedback.hidden = true;
-
-    const inspectionIdRaw = document.getElementById("grade-inspectionId").value.trim();
-    const payload = {
-        stallId: Number(document.getElementById("grade-stallId").value),
-        inspectionId: inspectionIdRaw ? Number(inspectionIdRaw) : null,
-        grade: document.getElementById("grade-grade").value,
-        validFrom: document.getElementById("grade-validFrom").value,
-        validTo: document.getElementById("grade-validTo").value,
-    };
-
-    try {
-        await apiRequest("/hygiene-grades", { method: "POST", body: JSON.stringify(payload) });
-        showFeedback(gradeFeedback, "Hygiene grade saved.", "success");
-        gradeForm.reset();
-        loadGrades();
-    } catch (err) {
-        showFeedback(gradeFeedback, err.message, "error");
-    }
+    historyOutput.hidden = false;
+    historyEmpty.hidden = true;
+  } catch (err) {
+    historyEmpty.hidden = false;
+    historyEmpty.textContent = `Could not load that stall's history: ${err.message}`;
+  }
 });
 
-// ---------- Filters ----------
-
-applyFilterBtn.addEventListener("click", loadGrades);
-
-// ---------- Row actions ----------
-
-gradesBody.addEventListener("click", (e) => {
-    const btn = e.target.closest("button[data-action]");
-    if (!btn) return;
-
-    const id = btn.dataset.id;
-    const action = btn.dataset.action;
-
-    if (action === "edit") openEditModal(id);
-    if (action === "delete") deleteGrade(id);
-});
-
-function openEditModal(id) {
-    const grade = lastLoadedGrades.find((g) => String(g.gradeId) === String(id));
-    if (!grade) return;
-
-    currentEditId = id;
-    editIdSpan.textContent = id;
-    document.getElementById("edit-stallId").value = grade.stallId;
-    document.getElementById("edit-inspectionId").value = grade.inspectionId ?? "";
-    document.getElementById("edit-grade").value = grade.grade;
-    document.getElementById("edit-validFrom").value = grade.validFrom.slice(0, 10);
-    document.getElementById("edit-validTo").value = grade.validTo.slice(0, 10);
-    editModal.hidden = false;
-}
-
-editCancelBtn.addEventListener("click", () => {
-    editModal.hidden = true;
-});
-
-editForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const inspectionIdRaw = document.getElementById("edit-inspectionId").value.trim();
-    const payload = {
-        stallId: Number(document.getElementById("edit-stallId").value),
-        inspectionId: inspectionIdRaw ? Number(inspectionIdRaw) : null,
-        grade: document.getElementById("edit-grade").value,
-        validFrom: document.getElementById("edit-validFrom").value,
-        validTo: document.getElementById("edit-validTo").value,
-    };
-
-    try {
-        await apiRequest(`/hygiene-grades/${currentEditId}`, { method: "PUT", body: JSON.stringify(payload) });
-        editModal.hidden = true;
-        loadGrades();
-    } catch (err) {
-        alert(`Could not save changes: ${err.message}`);
-    }
-});
-
-// ---------- Delete ----------
-
-async function deleteGrade(id) {
-    if (!confirm(`Delete hygiene grade #${id}? This cannot be undone.`)) return;
-
-    try {
-        await apiRequest(`/hygiene-grades/${id}`, { method: "DELETE" });
-        loadGrades();
-    } catch (err) {
-        alert(`Could not delete grade: ${err.message}`);
-    }
-}
-
-// ---------- Init ----------
-
-loadGrades();
+// ---------- start ----------
+loadCurrent();

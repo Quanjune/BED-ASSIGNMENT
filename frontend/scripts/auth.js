@@ -87,8 +87,10 @@ if (loginForm) {
         window.location.href = next;
       } else if (role === "admin") {
         window.location.href = "admin-analytics.html";   // admin landing
+      } else if (role === "officer") {
+        window.location.href = "officer.html";           // NEA officer landing
       } else {
-        window.location.href = "index.html";   // customer
+        window.location.href = "index.html";             // customer
       }
     } catch (err) {
       errorBox.textContent = "Cannot reach the server. Is it running?";

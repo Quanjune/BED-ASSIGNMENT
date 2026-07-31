@@ -1,31 +1,57 @@
-// routes/hygieneGradeRoutes.js  (Kaden - hygiene grades)
+// routes/hygieneGradeRoutes.js  (Kaden - hygiene grading)
 //
 // WHO CAN DO WHAT
-//   GET  /     public - all grades (?stallId= filter); customers check grades
-//   GET  /:id  public - one grade
-//   POST /     admin  - manual/corrective grade entry
-//   PUT  /:id  admin  - correct an issued grade
-//   DELETE /:id admin - remove a grade
+//   GET  /                  public  - the full register (?stallId= filter)
+//   GET  /current           public  - one current grade per stall
+//   GET  /stall/:stallId    public  - one stall's full compliance history
+//   GET  /expiring?days=30  officer - grades about to run out
+//   GET  /:id               public  - one grade
+//   POST /                  officer - manual / corrective grade entry
+//   PUT  /:id               officer - correct an issued grade
+//   DELETE /:id             officer - remove a grade
 //
-// Hygiene grades are public information (that is the whole point of the NEA
-// grading scheme), so reads need no login. Issuing or correcting a grade is
-// admin-only. Most grades are created automatically by
-// PUT /api/inspections/:id/complete - POST here is only the manual path.
+// Reads are public because a hygiene grade is public information - that is
+// the entire point of the NEA scheme, and it is what lets the customer-facing
+// stall pages show a grade badge without anyone logging in. "Expiring" is
+// officer-only because it is a work-planning list, not public information.
 const express = require("express");
 const router = express.Router();
 const hygieneGradeController = require("../controllers/hygieneGradeController");
-const { verifyToken, authorizeRoles } = require("../middlewares/authMiddleware"); // Aswin's
-const validate = require("../middlewares/validate");                              // Kishore's
+const { requireOfficer } = require("../middlewares/officerAuth");
+const validate = require("../middlewares/validate");             // Kishore's
 const { hygieneGradeSchema } = require("../validators/inspectionValidator");
 
-router.get("/", hygieneGradeController.getAllGrades);    // GET  /api/hygiene-grades
-router.get("/:id", hygieneGradeController.getGradeById); // GET  /api/hygiene-grades/5
+// ------------------------------------------------------------
+// FIXED PATHS FIRST - otherwise "/current" would be swallowed by "/:id"
+// and arrive at getGradeById with id = "current".
+// ------------------------------------------------------------
+router.get("/current", hygieneGradeController.getCurrentGrades);
+router.get("/expiring", requireOfficer, hygieneGradeController.getExpiringGrades);
+router.get("/stall/:stallId", hygieneGradeController.getStallCompliance);
 
-router.post("/", verifyToken, authorizeRoles("admin"),
-  validate(hygieneGradeSchema), hygieneGradeController.createGrade);   // POST /api/hygiene-grades
-router.put("/:id", verifyToken, authorizeRoles("admin"),
-  validate(hygieneGradeSchema), hygieneGradeController.updateGrade);   // PUT  /api/hygiene-grades/5
-router.delete("/:id", verifyToken, authorizeRoles("admin"),
-  hygieneGradeController.deleteGrade);                                 // DEL  /api/hygiene-grades/5
+// ------------------------------------------------------------
+// PUBLIC READS
+// ------------------------------------------------------------
+router.get("/", hygieneGradeController.getAllGrades);
+router.get("/:id", hygieneGradeController.getGradeById);
+
+// ------------------------------------------------------------
+// OFFICER-ONLY WRITES
+// ------------------------------------------------------------
+router.post(
+  "/",
+  requireOfficer,
+  validate(hygieneGradeSchema),
+  hygieneGradeController.createGrade
+);
+
+router.put(
+  "/:id",
+  requireOfficer,
+  validate(hygieneGradeSchema),
+  hygieneGradeController.updateGrade
+);
+
+router.delete("/:id", requireOfficer, hygieneGradeController.deleteGrade);
 
 module.exports = router;

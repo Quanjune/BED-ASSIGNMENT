@@ -19,7 +19,8 @@ const NAV_LINKS = [
   { label: "Home",       href: "./index.html" },
   { label: "Order",      href: "./centers.html" },
   { label: "History",    href: "./history.html" },
-  { label: "Promotions", href: "./promotions.html" }
+  { label: "Promotions", href: "./promotions.html" },
+  { label: "Hygiene Grades", href: "./hygiene-grades.html" }
 ];
 
 function buildHeader() {

@@ -1,46 +1,83 @@
 // routes/inspectionRoutes.js  (Kaden - NEA inspections)
+//
 // WHO CAN DO WHAT
-//   GET  /             public - list inspections (?stallId= & ?status= filters)
-//   GET  /:id          public - one inspection
-//   POST /             admin  - schedule a new inspection
-//   PUT  /:id          admin  - edit schedule details
-//   PUT  /:id/complete admin  - record score + remarks, auto-issue hygiene grade
-//   DELETE /:id        admin  - remove an inspection
+//   GET  /                public  - list inspections (?stallId= ?status= ?officerId=)
+//   GET  /:id             public  - one inspection
+//   GET  /mine            officer - the logged-in officer's own worklist
+//   GET  /overdue         officer - booked, date passed, no result recorded
+//   GET  /stalls-due      officer - every stall + last visit + current grade
+//   POST /                officer - schedule a visit
+//   PUT  /:id             officer - move or cancel a booked visit
+//   PUT  /:id/complete    officer - record score + remarks, issue the grade
+//   DELETE /:id           officer - remove a visit
 //
-// Reads stay public on purpose: guests browsing stalls can see inspection
-// history next to hygiene grades. Only NEA/admin staff may change anything,
-// so every write runs verifyToken (logged in?) then authorizeRoles("admin").
-// Format validation happens in validate(schema) BEFORE the controller runs,
-// so controllers only handle business rules (stall exists, already completed).
+// Reads are public on purpose: a customer looking at a stall should be able
+// to see its inspection history next to its hygiene grade, exactly like the
+// real NEA scheme. Everything that CHANGES data is officer-only.
 //
-// To test in Postman: POST /api/auth/login as the seeded admin, copy the
-// accessToken, then send writes with  Authorization: Bearer <accessToken>.
+// Middleware runs left to right:
+//   requireOfficer -> validate(schema) -> controller
+// requireOfficer is [verifyToken, authorizeRoles("officer"), attachOfficer],
+// so by the time the controller runs the caller is proven to be an officer
+// and req.officerId is set from the token.
+//
+// TESTING IN POSTMAN
+//   POST /api/auth/login with tan@nea.gov.sg / Password123, copy the token
+//   from the response, then send writes with:
+//   Authorization: Bearer <token>
 const express = require("express");
 const router = express.Router();
 const inspectionController = require("../controllers/inspectionController");
-const { verifyToken, authorizeRoles } = require("../middlewares/authMiddleware"); // Aswin's
-const validate = require("../middlewares/validate");                              // Kishore's
+const { requireOfficer } = require("../middlewares/officerAuth");
+const validate = require("../middlewares/validate");                    // Kishore's
 const {
   scheduleInspectionSchema,
   updateInspectionSchema,
   completeInspectionSchema,
 } = require("../validators/inspectionValidator");
 
-router.get("/", inspectionController.getAllInspections);    // GET  /api/inspections
-router.get("/:id", inspectionController.getInspectionById); // GET  /api/inspections/5
+// ------------------------------------------------------------
+// FIXED PATHS FIRST
+// ------------------------------------------------------------
+// Express matches routes in the order they are registered. If "/:id" were
+// registered above these, a request for "/mine" would be captured by it and
+// arrive at getInspectionById with id = "mine". Same trick Timely uses for
+// /complaints/stall/:stallId.
+router.get("/mine", requireOfficer, inspectionController.getMyWorklist);
+router.get("/overdue", requireOfficer, inspectionController.getOverdueInspections);
+router.get("/stalls-due", requireOfficer, inspectionController.getStallsDue);
 
-router.post("/", verifyToken, authorizeRoles("admin"),
-  validate(scheduleInspectionSchema), inspectionController.createInspection);      // POST /api/inspections
+// ------------------------------------------------------------
+// PUBLIC READS
+// ------------------------------------------------------------
+router.get("/", inspectionController.getAllInspections);
+router.get("/:id", inspectionController.getInspectionById);
 
-// A distinct path from PUT /:id (same trick as Timely's /:id/reply) so
-// completing an inspection can never be confused with editing its schedule.
-router.put("/:id/complete", verifyToken, authorizeRoles("admin"),
-  validate(completeInspectionSchema), inspectionController.completeInspection);    // PUT  /api/inspections/5/complete
+// ------------------------------------------------------------
+// OFFICER-ONLY WRITES
+// ------------------------------------------------------------
+router.post(
+  "/",
+  requireOfficer,
+  validate(scheduleInspectionSchema),
+  inspectionController.createInspection
+);
 
-router.put("/:id", verifyToken, authorizeRoles("admin"),
-  validate(updateInspectionSchema), inspectionController.updateInspection);        // PUT  /api/inspections/5
+// Registered before "/:id" for the same ordering reason as above.
+router.put(
+  "/:id/complete",
+  requireOfficer,
+  validate(completeInspectionSchema),
+  inspectionController.completeInspection
+);
 
-router.delete("/:id", verifyToken, authorizeRoles("admin"),
-  inspectionController.deleteInspection);                                          // DEL  /api/inspections/5
+router.put(
+  "/:id",
+  requireOfficer,
+  validate(updateInspectionSchema),
+  inspectionController.updateInspection
+);
+
+router.delete("/:id", requireOfficer, inspectionController.deleteInspection);
 
 module.exports = router;
