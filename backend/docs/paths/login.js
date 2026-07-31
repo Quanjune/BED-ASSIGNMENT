@@ -12,7 +12,7 @@
 const tag = {
   name: "Getting a token",
   description:
-    "Log in here first - every 🔒 endpoint on this page needs the token this returns.",
+    "Log in here first - every 🔒 endpoint on this page needs the token this returns. (Aswin)",
 };
 
 const paths = {

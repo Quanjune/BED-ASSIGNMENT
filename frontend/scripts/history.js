@@ -47,6 +47,10 @@ function buildCard(order) {
     ? `<div class="detail-item">Min Order Fee: $${Number(order.minOrderFee).toFixed(2)}</div>`
     : "";
 
+  const promoLine = order.promoCode
+    ? `<div class="detail-item promo-line">Promo (${order.promoCode}): -$${Number(order.discount || 0).toFixed(2)}</div>`
+    : "";
+
   card.innerHTML = `
     <div class="status">${order.status === "paid" ? "Delivered" : order.status}</div>
 
@@ -67,8 +71,10 @@ function buildCard(order) {
       <div class="detail-item">Subtotal: $${Number(order.subtotal).toFixed(2)}</div>
       ${feeLine}
       ${minFeeLine}
+      ${promoLine}
       <div class="detail-item">Payment Method: ${(order.paymentMethod || "unknown").toUpperCase()}</div>
       <div class="detail-total">Total: $${Number(order.total).toFixed(2)}</div>
+
     </div>
   `;
 

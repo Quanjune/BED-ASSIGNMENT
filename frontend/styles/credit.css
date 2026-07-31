@@ -1,0 +1,96 @@
+/* styles/credit.css
+   Credit / acknowledgements page.
+   Mirrors the look of history.css: 900px centred column, Playfair Display
+   headings, #474747 body text, sage-green (#DBDFD0) accents, soft cards. */
+
+.credit-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+/* Page title — same Playfair Display treatment as the other pages. */
+.credit-title {
+  font-family: "Playfair Display", serif;
+  font-size: 2rem;
+  color: #474747;
+  margin: 1rem 0 0.5rem;
+}
+
+.credit-intro {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.8rem;
+  max-width: 640px;
+}
+
+/* Each category sits in its own soft panel, echoing .history-list. */
+.credit-section {
+  background: #e9e6e6;
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.4rem;
+}
+
+/* Section heading — sage-green pill, matches the active-nav / stat pills. */
+.credit-heading {
+  font-family: "Playfair Display", serif;
+  font-size: 1.15rem;
+  color: #474747;
+  background: #DBDFD0;
+  display: inline-block;
+  padding: 0.35rem 0.9rem;
+  border-radius: 10px;
+  margin: 0 0 1rem;
+}
+
+/* Link list — two responsive columns so the long food list isn't a
+   never-ending single strip; collapses to one column on narrow screens. */
+.credit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 1.5rem;
+}
+
+.credit-list li {
+  break-inside: avoid;          /* don't split a link across columns */
+  margin-bottom: 0.55rem;
+  padding-left: 0.9rem;
+  position: relative;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Small sage dot as the bullet, tying it to the site palette. */
+.credit-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #DBDFD0;
+}
+
+.credit-list li a {
+  color: #474747;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.credit-list li a:hover {
+  color: #000;
+  border-bottom-color: #474747;
+}
+
+/* One column on phones/tablets. */
+@media (max-width: 640px) {
+  .credit-list {
+    columns: 1;
+  }
+}
