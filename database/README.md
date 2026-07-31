@@ -6,31 +6,24 @@ Database engine: **Microsoft SQL Server**  ·  Database name: **HawkersDB**
 
 | # | Script | What it creates |
 |---|--------|-----------------|
-| 1 | **`DB with Vendor logins.sql`** | **Master script.** Creates the database and all core tables (HawkerCenters, FoodStalls, Users, Products, CartItems, Orders, OrderItems, StallAgreements) with sample data — including 16 vendor accounts, each linked to their own stall. |
-| 2 | `ProductOptions.sql` | Product customisation options (add-ons). |
-| 3 | `promoCodes.sql` | Promotions / promo codes. |
-| 4 | `feedback_complaints.sql` | Feedback and Complaints tables with sample data. |
-| 5 | `Inspectionpage.sql` | Inspections and HygieneGrades tables (NEA officer feature). |
+| 1 | **`qj and kishore masterdata.sql`** | **Master script.** Creates the database and all core tables (HawkerCenters, FoodStalls, Users, Products, CartItems, Orders, OrderItems, StallAgreements) plus the add-on tables (AddonGroups, AddonOptions, CartItemAddons), with sample data — 64 products with images, 16 vendor accounts each linked to a stall, the `Users.cardLast4` column, and ~640 sample orders. Self-contained: creates the database if missing and drops all tables first, so it is safe to re-run. It never drops the database. |
+| 2 | `promoCodes.sql` | Promotions / promo codes. |
+| 3 | `feedback_complaints.sql` | Feedback and Complaints tables with sample data. |
+| 4 | `Inspectionpage.sql` | Inspections and HygieneGrades tables (NEA officer feature). |
 
-Scripts 2–5 are **additive** — they only add their own tables, so they are safe to run
+Scripts 2–4 are **additive** — they only add their own tables, so they are safe to run
 after the master.
 
-> **Note on step 5:** `Inspectionpage.sql` has no `USE HawkersDB;` line, so make sure the
+> **Note on step 4:** `Inspectionpage.sql` has no `USE HawkersDB;` line, so make sure the
 > query window in SSMS is connected to **HawkersDB** before running it, or the tables will
-> be created in the wrong database. It also has no DROP statements, so re-running it will
-> error with "table already exists" — drop the two tables first if you need to re-run.
+> be created in the wrong database. It also has no DROP statements of its own, so running it
+> a second time on its own errors with "table already exists" — a full rebuild from the
+> master (step 1) drops everything first, so re-running the whole set in order is fine.
 
-## 2. Do NOT run these after the master script
+> **Note:** `user_card.sql` is no longer needed — the `cardLast4` column is now built into
+> the master script's `Users` table.
 
-- `Homepage, add to cart, history & Product page.sql`
-- `RealStallData.sql`
-
-Both are **full-rebuild** scripts: they DROP and recreate the core tables, which wipes the
-stall data and the vendor-to-stall links created by the master script. They are kept for
-reference only. (The Feedback/Complaints tables they contained have been moved into
-`feedback_complaints.sql`, which is safe to run.)
-
-## 3. Test login accounts
+## 2. Test login accounts
 
 | Email | Password | Role |
 |-------|----------|------|
@@ -38,9 +31,10 @@ reference only. (The Feedback/Complaints tables they contained have been moved i
 | `siti@test.com` | `Password123` | customer |
 | `chickenrice@test.com` | `Password123` | vendor (owns stall 1) |
 
-## 4. Before running the app
+## 3. Before running the app
 
-1. Copy `.env.example` (in the project root) to `.env` and fill in your SQL Server details.
+1. Copy `.env.example` (in the project root) to **`backend/.env`** and fill in your SQL
+   Server details. (The app loads its environment from `backend/.env`, not the repo root.)
 2. Install dependencies: `npm install`
 3. Start the server: `node backend/app.js`
 

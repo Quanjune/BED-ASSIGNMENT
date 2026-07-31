@@ -13,6 +13,7 @@ const currentPage = window.location.pathname.split("/").pop() || "admin-analytic
 // One source of truth for the admin nav links.
 const ADMIN_NAV = [
   { label: "Analytics & Reports", href: "./admin-analytics.html" },
+  { label: "Revenue & Orders",    href: "./admin-revenue.html" },
   { label: "User Management",     href: "./admin-users.html" }
 ];
 

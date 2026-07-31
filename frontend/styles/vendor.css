@@ -3,15 +3,16 @@
    The header, footer, breadcrumbs, background and responsive/hamburger
    behaviour all come from Template/template.css (loaded before this).
    Everything here is just for the vendor screens + the active nav link.
-   Team tokens reused: ink #474747, sage #DBDFD0.
+   Team tokens reused: ink #474747, blue #CFE0F4.
    =================================================================== */
 
 /* ---- Active nav link (highlight the current page) ----
    Each vendor page sets a body class; that picks which link lights up. */
 body.page-menu        #nav-links li:nth-child(1),
 body.page-agreements  #nav-links li:nth-child(2),
-body.page-performance #nav-links li:nth-child(3) {
-    background-color: #DBDFD0;
+body.page-performance #nav-links li:nth-child(3),
+body.page-promotions  #nav-links li:nth-child(4) {
+    background-color: #CFE0F4;
 }
 
 /* ---- Nav item count ----
@@ -45,6 +46,66 @@ body.page-performance #nav-links li:nth-child(3) {
 @media (max-width: 460px) {
     #nav-links > :nth-last-child(-n + 3) {
         display: flex;
+    }
+}
+
+/* ---- "Customer" dropdown (Complaints / Feedback) ----
+   The markup ships a hover/focus menu but had NO css anywhere, so the child
+   <ul> just rendered as a bare bulleted list sitting open in the header.
+   These rules hide it and pop it open on hover and keyboard focus
+   (:focus-within), so it still works with no JavaScript. */
+.nav-dropdown {
+    position: relative;
+}
+
+/* The other tabs are <a>, so "#nav-links li a" styles them. This toggle is a
+   <span>, so match that look here. */
+.nav-dropdown-toggle {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+    cursor: pointer;
+}
+
+.nav-dropdown-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem 0;
+    min-width: 160px;
+
+    display: none;              /* hidden until hover / keyboard focus */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown:focus-within .nav-dropdown-menu {
+    display: block;
+}
+
+/* "#nav-links li" is an ID selector, so it beats a plain class. Re-qualify
+   with #nav-links to win the padding/radius override on the menu items. */
+#nav-links .nav-dropdown-menu li {
+    padding: 0.4rem 1rem;
+    border-radius: 0;
+    white-space: nowrap;
+}
+
+/* On mobile the whole nav is a column inside the hamburger, so drop the
+   overlay behaviour and show the two links inline. */
+@media (max-width: 780px) {
+    .nav-dropdown-menu {
+        display: block;
+        position: static;
+        box-shadow: none;
+        min-width: 0;
+        padding: 0.2rem 0 0.2rem 1rem;
     }
 }
 
@@ -105,7 +166,7 @@ body.page-performance #nav-links li:nth-child(3) {
     font-weight: 600;
     color: #474747;
 }
-.vm-field em { color: #B4483C; font-style: normal; }
+.vm-field em { color: #245A9E; font-style: normal; }
 .vm-field input {
     font: inherit;
     color: #474747;
@@ -117,7 +178,7 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vm-field input:focus {
     outline: none;
-    border-color: #C7CDB6;
+    border-color: #AFC9EC;
     box-shadow: 0 0 0 3px rgba(219, 223, 208, 0.7);
 }
 
@@ -140,22 +201,22 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vm-btn-ghost:hover { background: #F6F5EF; }
 .vm-btn-mini {
-    background: #DBDFD0;
+    background: #CFE0F4;
     color: #474747;
     padding: 0.35rem 0.75rem;
     font-size: 0.85rem;
     border-radius: 8px;
 }
-.vm-btn-mini:hover { background: #C7CDB6; }
+.vm-btn-mini:hover { background: #AFC9EC; }
 .vm-btn-danger {
     background: transparent;
-    color: #B4483C;
-    border-color: rgba(180, 72, 60, 0.35);
+    color: #245A9E;
+    border-color: rgba(36, 90, 158, 0.35);
     padding: 0.35rem 0.75rem;
     font-size: 0.85rem;
     border-radius: 8px;
 }
-.vm-btn-danger:hover { background: rgba(180, 72, 60, 0.08); }
+.vm-btn-danger:hover { background: rgba(36, 90, 158, 0.08); }
 
 /* ---- Status line ---- */
 .vm-status {
@@ -165,7 +226,7 @@ body.page-performance #nav-links li:nth-child(3) {
     font-size: 0.9rem;
 }
 .vm-status.ok  { background: #EBF2E9; color: #4F7A4A; }
-.vm-status.err { background: #F7E9E7; color: #B4483C; }
+.vm-status.err { background: #E7EEF8; color: #245A9E; }
 
 /* ---- Layout: form + list ---- */
 .vm-layout {
@@ -247,7 +308,7 @@ body.page-performance #nav-links li:nth-child(3) {
 .vm-field select:focus,
 .vm-field textarea:focus {
     outline: none;
-    border-color: #C7CDB6;
+    border-color: #AFC9EC;
     box-shadow: 0 0 0 3px rgba(219, 223, 208, 0.7);
 }
 .vm-field input:disabled,
@@ -287,7 +348,7 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vm-badge.ok     { background: #EBF2E9; color: #4F7A4A; }
 .vm-badge.warn   { background: #F7F0DF; color: #8A6D2B; }
-.vm-badge.danger { background: #F7E9E7; color: #B4483C; }
+.vm-badge.danger { background: #E7EEF8; color: #245A9E; }
 .vm-badge.muted  { background: #EFEFEA; color: rgba(71, 71, 71, 0.55); }
 
 /* Date range line under a document's name */
@@ -301,7 +362,7 @@ body.page-performance #nav-links li:nth-child(3) {
 /* ===================================================================
    PASTE EVERYTHING BELOW AT THE END OF frontend/styles/vendor.css
    Sprint 3 - Stall Performance dashboard (Kishore)
-   Same tokens as the rest of the vendor pages: ink #474747, sage #DBDFD0.
+   Same tokens as the rest of the vendor pages: ink #474747, blue #CFE0F4.
    =================================================================== */
 
 /* The dashboard needs more room than the menu/agreements screens. */
@@ -342,7 +403,7 @@ body.page-performance #nav-links li:nth-child(3) {
 }
 .vp-kpi-delta { margin: 0; font-size: 0.76rem; font-weight: 600; }
 .vp-kpi-delta.up   { color: #4F7A4A; }
-.vp-kpi-delta.down { color: #B4483C; }
+.vp-kpi-delta.down { color: #245A9E; }
 .vp-kpi-delta.flat { color: rgba(71, 71, 71, 0.5); }
 
 /* ---- Charts ---- */
@@ -381,7 +442,7 @@ body.page-performance #nav-links li:nth-child(3) {
     width: 1.6rem;
     height: 1.6rem;
     border-radius: 50%;
-    background: #DBDFD0;
+    background: #CFE0F4;
     color: #474747;
     font-size: 0.8rem;
     font-weight: 700;
@@ -577,98 +638,21 @@ body.page-performance #nav-links li:nth-child(3) {
     .vm-form-actions { flex-direction: column-reverse; }
     .vm-form-actions .vm-btn { width: 100%; }
 }
-/* ============================================================
-   "Customer" dropdown in the vendor nav (Complaints / Feedback)
-   Pure CSS - no JavaScript. It opens on hover and on keyboard
-   focus, so tabbing to it works too.
 
-   NOTE the child combinators (>) throughout. Without them these
-   rules would also hit the nested <li>s inside the submenu, and
-   template.css's positional #nav-links :nth-child(...) rules
-   already reach descendants - mixing the two caused the earlier
-   disappearing-tab bug.
-   ============================================================ */
-.nav-dropdown {
-    position: relative;
-}
+/* ===================================================================
+   BLUE THEME  (vendor pages only)                     — QJ's request
+   The vendor pages now use a blue accent (#245A9E / #CFE0F4) instead of
+   the old red + sage. Most of that recolour happened inline above; the
+   two rules below finish off elements whose colour is set in the SHARED
+   Template/template.css. They live HERE in vendor.css on purpose: the
+   customer side never loads this file, so it keeps the original
+   red/white brand and only the vendor screens turn blue.
+   =================================================================== */
 
-/* The toggle is a <span>, not a link, because it goes nowhere on its
-   own. These rules make it look and sit exactly like a nav link. */
-.nav-dropdown-toggle {
-    cursor: default;
-    user-select: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-.nav-dropdown-toggle::after {
-    content: "";
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid currentColor;
-    transition: transform 0.15s ease;
-}
-.nav-dropdown:hover > .nav-dropdown-toggle::after,
-.nav-dropdown:focus-within > .nav-dropdown-toggle::after {
-    transform: rotate(180deg);
-}
+/* Active nav-tab text (template.css sets this to red #a11). */
+#nav-links a.active-link { color: #1E4E86; }
 
-/* The panel. left:50%/translateX centres it under the toggle.
-   padding-top on the wrapper keeps a hover bridge so the menu
-   doesn't close while the pointer travels down to it. */
-.nav-dropdown > .nav-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 50;
-
-    margin: 0;
-    padding: 0.35rem;
-    min-width: 11rem;
-
-    list-style: none;
-    background: #fff;
-    border: 1px solid #DBDFD0;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
-.nav-dropdown:hover > .nav-dropdown-menu,
-.nav-dropdown:focus-within > .nav-dropdown-menu {
-    display: block;
-}
-
-.nav-dropdown > .nav-dropdown-menu > li {
-    padding: 0;
-    border-radius: 8px;
-}
-.nav-dropdown > .nav-dropdown-menu > li > a {
-    display: block;
-    padding: 0.45rem 0.75rem;
-    border-radius: 8px;
-    white-space: nowrap;
-}
-.nav-dropdown > .nav-dropdown-menu > li > a:hover {
-    background-color: #DBDFD0;
-}
-
-/* Mobile: the hamburger panel is a vertical list, so a floating
-   dropdown makes no sense. Show both child links inline, indented
-   under "Customer". */
-@media (max-width: 460px) {
-    .nav-dropdown > .nav-dropdown-menu {
-        display: block;
-        position: static;
-        transform: none;
-        min-width: 0;
-        margin-top: 0.2rem;
-        padding: 0 0 0 0.9rem;
-        border: none;
-        box-shadow: none;
-        background: transparent;
-    }
-    .nav-dropdown-toggle::after { display: none; }
-}
+/* Tint the shared red logo bowl towards blue on vendor pages only. It's an
+   image asset, so we shift its hue with a CSS filter instead of editing the
+   artwork. Delete this one line to keep the original red logo in the header. */
+.logo img { filter: hue-rotate(200deg) saturate(1.15); }

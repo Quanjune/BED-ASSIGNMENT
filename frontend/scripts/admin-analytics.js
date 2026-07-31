@@ -1,6 +1,6 @@
 // admin-analytics.js  (Aswin - Analytics & Reports)
 // Reads the /api/admin analytics endpoints and renders the stat cards,
-// four compact charts and the top-stalls table. Admin-only page.
+// four compact charts. Admin-only page.
 
 const API = "/api/admin";
 const token = localStorage.getItem("token");
@@ -84,23 +84,6 @@ async function loadCharts() {
       datasets: [{ label: "Complaints", data: month.map(r => r.count), borderColor: ORANGE, backgroundColor: ORANGE, tension: 0.3, fill: false }]
     },
     options: { ...common, plugins: { legend: { display: false } } }
-  });
-
-  // Top stalls table.
-  const tbody = document.getElementById("top-stalls-body");
-  tbody.innerHTML = "";
-  stalls.forEach((s, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      `<td>${i + 1}</td>` +
-      `<td>${s.stallName}</td>` +
-      `<td>${s.centre}</td>` +
-      `<td>${Number(s.avgRating).toFixed(1)}</td>` +
-      `<td>${s.reviewCount}</td>` +
-      `<td>${s.complaintCount}</td>` +
-      `<td>${Number(s.orderCount || 0).toLocaleString()}</td>` +
-      `<td>$${Number(s.revenue || 0).toLocaleString()}</td>`;
-    tbody.appendChild(tr);
   });
 }
 

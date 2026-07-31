@@ -16,6 +16,13 @@ router.get("/complaints-by-month", controller.getComplaintsByMonth);
 router.get("/top-stalls", controller.getTopStalls);
 router.get("/agreements-summary", controller.getAgreementsSummary);
 
+// Revenue & Orders analytics
+router.get("/revenue-summary", controller.getRevenueSummary);
+router.get("/revenue-by-month", controller.getRevenueByMonth);
+router.get("/orders-by-payment", controller.getOrdersByPayment);
+router.get("/revenue-by-centre", controller.getRevenueByCentre);
+router.get("/top-stalls-by-revenue", controller.getTopStallsByRevenue);
+
 // User management (admin: list + delete)
 router.get("/users", controller.getUsers);
 router.delete("/users/:id", controller.deleteUser);

@@ -50,7 +50,8 @@ async function getSummary() {
 
     return { ...core, totalOrders, totalRevenue, bestHawker };
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -69,7 +70,8 @@ async function getComplaintsByCentre() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -86,7 +88,8 @@ async function getComplaintsByCategory() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -103,7 +106,8 @@ async function getComplaintsByMonth() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -127,17 +131,17 @@ async function getTopStalls() {
       ORDER BY avgRating DESC, reviewCount DESC
     `)).recordset;
 
-    // Per-stall orders + revenue. OrderItems store the product by name, so we
-    // map them back to a stall via Products.name -> Products.stallId.
+    // Per-stall orders + revenue. OrderItems now carries stallId directly,
+    // so we group on it (reliable even when the line name has add-on text).
     // Wrapped because Orders/OrderItems may not exist in every DB copy.
     try {
       const rev = (await connection.request().query(`
-        SELECT p.stallId,
+        SELECT oi.stallId,
                COUNT(DISTINCT oi.orderId) AS orderCount,
                ISNULL(SUM(oi.itemTotal), 0) AS revenue
         FROM OrderItems oi
-        JOIN Products p ON oi.productName = p.name
-        GROUP BY p.stallId
+        WHERE oi.stallId IS NOT NULL
+        GROUP BY oi.stallId
       `)).recordset;
 
       const map = {};
@@ -153,7 +157,8 @@ async function getTopStalls() {
 
     return stalls;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -174,7 +179,135 @@ async function getAgreementsSummary() {
     `);
     return result.recordset[0];
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
+  }
+}
+
+// ---- Revenue & Orders analytics (read-only over Orders/OrderItems) ----
+// 'cancelled' orders are excluded from revenue everywhere.
+
+// Headline revenue numbers for the top cards.
+async function getRevenueSummary() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+
+    const totals = (await connection.request().query(`
+      SELECT
+        (SELECT ISNULL(SUM(total), 0) FROM Orders WHERE status <> 'cancelled') AS totalRevenue,
+        (SELECT COUNT(*) FROM Orders WHERE status <> 'cancelled')              AS totalOrders
+    `)).recordset[0];
+
+    const best = (await connection.request().query(`
+      SELECT TOP 1 hc.name AS centreName
+      FROM Orders o
+      JOIN HawkerCenters hc ON o.centerId = hc.centerId
+      WHERE o.status <> 'cancelled'
+      GROUP BY hc.name
+      ORDER BY SUM(o.total) DESC
+    `)).recordset[0];
+
+    const avgOrderValue = totals.totalOrders > 0
+      ? totals.totalRevenue / totals.totalOrders
+      : 0;
+
+    return {
+      totalRevenue: totals.totalRevenue,
+      totalOrders: totals.totalOrders,
+      avgOrderValue,
+      bestHawker: best ? best.centreName : "N/A"
+    };
+  } finally {
+    /* keep the shared global pool open */
+  }
+}
+
+// Revenue per month (line chart).
+async function getRevenueByMonth() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request().query(`
+      SELECT FORMAT(createdAt, 'yyyy-MM') AS month, ISNULL(SUM(total), 0) AS revenue
+      FROM Orders
+      WHERE status <> 'cancelled'
+      GROUP BY FORMAT(createdAt, 'yyyy-MM')
+      ORDER BY month
+    `);
+    return result.recordset;
+  } finally {
+    /* keep the shared global pool open */
+  }
+}
+
+// Order counts per payment method (doughnut chart).
+async function getOrdersByPayment() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    // Cash / PayNow / Visa / Mastercard, shown with tidy labels.
+    const result = await connection.request().query(`
+      SELECT
+        CASE paymentMethod
+          WHEN 'cash'       THEN 'Cash'
+          WHEN 'paynow'     THEN 'PayNow'
+          WHEN 'visa'       THEN 'Visa'
+          WHEN 'mastercard' THEN 'Mastercard'
+          ELSE ISNULL(paymentMethod, 'Unknown')
+        END AS method,
+        COUNT(*) AS count
+      FROM Orders
+      WHERE status <> 'cancelled'
+      GROUP BY paymentMethod
+      ORDER BY count DESC
+    `);
+    return result.recordset;
+  } finally {
+    /* keep the shared global pool open */
+  }
+}
+
+// Revenue per hawker centre (bar chart).
+async function getRevenueByCentre() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request().query(`
+      SELECT hc.name AS centre, ISNULL(SUM(o.total), 0) AS revenue
+      FROM Orders o
+      JOIN HawkerCenters hc ON o.centerId = hc.centerId
+      WHERE o.status <> 'cancelled'
+      GROUP BY hc.name
+      ORDER BY revenue DESC
+    `);
+    return result.recordset;
+  } finally {
+    /* keep the shared global pool open */
+  }
+}
+
+// Top stalls ranked by revenue (table). Uses OrderItems.stallId directly.
+async function getTopStallsByRevenue() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const result = await connection.request().query(`
+      SELECT TOP 10
+        fs.name AS stallName,
+        hc.name AS centre,
+        COUNT(DISTINCT oi.orderId) AS orderCount,
+        ISNULL(SUM(oi.itemTotal), 0) AS revenue
+      FROM OrderItems oi
+      JOIN FoodStalls fs    ON fs.stallId = oi.stallId
+      JOIN HawkerCenters hc ON hc.centerId = fs.centerId
+      WHERE oi.stallId IS NOT NULL
+      GROUP BY fs.name, hc.name
+      ORDER BY revenue DESC
+    `);
+    return result.recordset;
+  } finally {
+    /* keep the shared global pool open */
   }
 }
 
@@ -193,7 +326,8 @@ async function listUsers() {
     `);
     return result.recordset;
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -207,7 +341,8 @@ async function deleteUserById(userId) {
       .query(`DELETE FROM Users WHERE userId = @userId`);
     return result.rowsAffected[0];
   } finally {
-    if (connection) await connection.close();
+    /* keep the shared global pool open - closing it per request kills
+       the other concurrent admin queries ("Connection is closed") */
   }
 }
 
@@ -218,6 +353,11 @@ module.exports = {
   getComplaintsByMonth,
   getTopStalls,
   getAgreementsSummary,
+  getRevenueSummary,
+  getRevenueByMonth,
+  getOrdersByPayment,
+  getRevenueByCentre,
+  getTopStallsByRevenue,
   listUsers,
   deleteUserById
 };

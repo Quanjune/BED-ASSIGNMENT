@@ -128,6 +128,12 @@ document.getElementById("pfPaymentBtn")?.addEventListener("click", async () => {
         return;
       }
       await loadProfile();
+
+      // Came here from the cart because no card was saved? Go straight back.
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && /^[a-zA-Z0-9._-]+\.html$/.test(next)) {
+        window.location.href = next;
+      }
     } catch (err) {
       alert("Couldn't reach the server. Is it running?");
     }
