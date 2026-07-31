@@ -167,3 +167,5 @@
 
 .signed-out-actions .btn-secondary { border: 1px solid #a11; color: #a11; }
 .signed-out-actions .btn-secondary:hover { background: #a11; color: #fff; }
+
+.promo-line { color: #2e7d32; font-weight: 600; }
