@@ -30,6 +30,8 @@ after the master.
 | `admin@hawkers.sg` | `Admin123` | admin |
 | `siti@test.com` | `Password123` | customer |
 | `chickenrice@test.com` | `Password123` | vendor (owns stall 1) |
+| `tan@nea.gov.sg` | `Password123` | officer (NEA) |
+| `nurul@nea.gov.sg` | `Password123` | officer (NEA) |
 
 ## 3. Before running the app
 
