@@ -17,11 +17,12 @@
 --   1) qj and kishore masterdata.sql   (master - FoodStalls + Users)
 --   2) masterdata_timely.sql
 --   3) orders_promo_columns.sql
---   4) officer_role.sql                (adds the 'officer' role + accounts)
---   5) Inspectionpage.sql              (this file)
+--   4) Inspectionpage.sql              (this file)
 --
--- officer_role.sql MUST run first: officerId below is a foreign key to
--- Users, and the sample data looks the officers up by their email address.
+-- The master script MUST have been run first: officerId below is a foreign key
+-- to Users, and the sample data looks the officers up by their email address.
+-- The NEA officer accounts live in the master script alongside the admin and
+-- vendor accounts, so there is no separate officer script any more.
 -- ============================================================
 USE HawkersDB;
 GO
@@ -43,7 +44,7 @@ GO
 
 IF NOT EXISTS (SELECT 1 FROM Users WHERE role = 'officer')
 BEGIN
-    RAISERROR('No officer accounts found. Run "officer_role.sql" first - Inspections.officerId references Users.', 16, 1);
+    RAISERROR('No officer accounts found. Re-run "qj and kishore masterdata.sql" - it seeds the NEA officer accounts that Inspections.officerId points at.', 16, 1);
     SET NOEXEC ON;
 END
 GO
@@ -150,9 +151,16 @@ GO
 -- All of section 4 is a single batch (no GO in the middle) because the
 -- @officer variables would be forgotten at a batch boundary.
 -- ------------------------------------------------------------
+-- The officer accounts are seeded by the MASTER script (Aswin added them to
+-- "qj and kishore masterdata.sql"), so they are looked up by email here rather
+-- than hard-coded by id. If a third officer is ever added, @raj picks them up
+-- automatically; until then it falls back to Officer Nurul so this script still
+-- runs against exactly the two accounts that exist today.
 DECLARE @tan   INT = (SELECT userId FROM Users WHERE email = N'tan@nea.gov.sg');
 DECLARE @nurul INT = (SELECT userId FROM Users WHERE email = N'nurul@nea.gov.sg');
-DECLARE @raj   INT = (SELECT userId FROM Users WHERE email = N'raj@nea.gov.sg');
+DECLARE @raj   INT = COALESCE(
+    (SELECT userId FROM Users WHERE email = N'raj@nea.gov.sg'),
+    @nurul);
 
 DECLARE @today DATE = CAST(GETDATE() AS DATE);
 
@@ -176,7 +184,8 @@ INSERT INTO Inspections (stallId, officerId, scheduledDate, status, completedDat
 (12, @tan,   DATEADD(MONTH,  -2, @today), 'Completed', DATEADD(MONTH,  -2, @today), 93, N'Exemplary. Used as a good practice example.');
 
 -- ---------- OPEN VISITS (this is what fills the officer worklist) ----------
-INSERT INTO Inspections (stallId, officerId, scheduledDate, status) VALUES
+-- status is left out on purpose: the column defaults to 'Scheduled'.
+INSERT INTO Inspections (stallId, officerId, scheduledDate) VALUES
 (13, @tan,   DATEADD(DAY,  -9, @today)),   -- OVERDUE  - date passed, still open
 ( 7, @raj,   DATEADD(DAY,  -3, @today)),   -- OVERDUE  - the stall 7 re-inspection
 ( 3, @tan,             @today        ),    -- DUE TODAY
@@ -214,8 +223,8 @@ PRINT 'Inspections + HygieneGrades ready.';
 GO
 
 -- Quick check - handy when demonstrating that the data actually landed.
-SELECT status, COUNT(*) AS rowCount FROM Inspections   GROUP BY status;
-SELECT grade,  COUNT(*) AS rowCount FROM HygieneGrades GROUP BY grade;
+SELECT status, COUNT(*) AS total FROM Inspections   GROUP BY status;
+SELECT grade,  COUNT(*) AS total FROM HygieneGrades GROUP BY grade;
 GO
 
 -- Turn execution back on (paired with the SET NOEXEC ON guards in step 0).
