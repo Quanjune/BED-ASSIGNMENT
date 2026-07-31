@@ -4,6 +4,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/cartController");
 const { validateAddToCart, validateUpdateQuantity } = require("../middlewares/cartValidation");
+const { validateIdParam } = require("../middlewares/idValidation");
 
 // Authentication (Aswin's auth middleware, Week 11).
 // The cart belongs to a specific logged-in user, so EVERY cart route
@@ -26,11 +27,19 @@ router.post(
 router.put(
   "/:cartItemId",
   verifyToken,
+  validateIdParam("cartItemId"),
   validateUpdateQuantity,
   controller.updateQuantity // change a line's quantity
 );
 
-router.delete("/:cartItemId", verifyToken, controller.removeCartItem); // remove one line
+// remove one line
+router.delete(
+  "/:cartItemId",
+  verifyToken,
+  validateIdParam("cartItemId"),
+  controller.removeCartItem
+);
+
 router.delete("/", verifyToken, controller.clearCart); // empty the whole cart
 
 module.exports = router;
