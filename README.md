@@ -69,6 +69,44 @@ node backend/app.js
 
 The app runs at <http://localhost:3000/>.
 
+## API documentation (Swagger)
+
+Interactive docs are served by the app itself:
+
+| URL | What it is |
+|-----|------------|
+| <http://localhost:3000/api-docs> | Swagger UI — browse and call endpoints from the browser |
+| <http://localhost:3000/api-docs.json> | The raw OpenAPI document, for importing into Postman or Insomnia |
+
+### Calling a protected endpoint from the docs page
+
+1. Run **POST /api/auth/login** with one of the [test accounts](#test-accounts).
+2. Copy the `accessToken` out of the response.
+3. Click **Authorize** at the top right, paste the token, press Authorize.
+4. Every endpoint marked 🔒 now works from the page.
+
+### Documenting your own routes
+
+Each feature owner adds **one file** to `backend/docs/paths/`. It is picked up
+automatically — you never edit a shared file, so branches don't conflict.
+
+```
+backend/docs/
+├── index.js       # merges everything in paths/ — don't edit
+├── components.js  # shared error shapes + JWT scheme — don't edit
+├── README.md      # how to add yours, with a copy-paste template
+└── paths/
+    ├── login.js   # token helper, so the Authorize button has something to use
+    └── vendors.js # Kishore — a full worked example
+```
+
+**See [backend/docs/README.md](backend/docs/README.md)** for the template and the
+rules. Short version: create `paths/<yourfeature>.js`, export `{ tag, schemas,
+paths }`, restart the server. Your group appears on the page.
+
+Currently documented: **Vendor Management**. The other features are still to be
+added by their owners.
+
 ## Project structure
 
 ```
@@ -76,6 +114,7 @@ BED-ASSIGNMENT/
 ├── backend/
 │   ├── app.js              # entry point — middleware, route mounting, server start
 │   ├── config/             # database connection config (reads .env)
+│   ├── docs/               # OpenAPI/Swagger definition served at /api-docs
 │   ├── controllers/        # request handling and business logic
 │   ├── models/             # SQL queries
 │   ├── routes/             # API endpoint definitions
