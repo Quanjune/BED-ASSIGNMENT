@@ -16,7 +16,7 @@
 // real NEA scheme. Everything that CHANGES data is officer-only.
 //
 // Middleware runs left to right:
-//   requireOfficer -> validate(schema) -> controller
+//   validateIdParam -> requireOfficer -> validate(schema) -> controller
 // requireOfficer is [verifyToken, authorizeRoles("officer"), attachOfficer],
 // so by the time the controller runs the caller is proven to be an officer
 // and req.officerId is set from the token.
@@ -30,6 +30,7 @@ const router = express.Router();
 const inspectionController = require("../controllers/inspectionController");
 const { requireOfficer } = require("../middlewares/officerAuth");
 const validate = require("../middlewares/validate");                    // Kishore's
+const { validateIdParam } = require("../middlewares/idValidation");     // Quan Jun's
 const {
   scheduleInspectionSchema,
   updateInspectionSchema,
@@ -51,7 +52,7 @@ router.get("/stalls-due", requireOfficer, inspectionController.getStallsDue);
 // PUBLIC READS
 // ------------------------------------------------------------
 router.get("/", inspectionController.getAllInspections);
-router.get("/:id", inspectionController.getInspectionById);
+router.get("/:id", validateIdParam("id"), inspectionController.getInspectionById);
 
 // ------------------------------------------------------------
 // OFFICER-ONLY WRITES
@@ -66,6 +67,7 @@ router.post(
 // Registered before "/:id" for the same ordering reason as above.
 router.put(
   "/:id/complete",
+  validateIdParam("id"),
   requireOfficer,
   validate(completeInspectionSchema),
   inspectionController.completeInspection
@@ -73,11 +75,12 @@ router.put(
 
 router.put(
   "/:id",
+  validateIdParam("id"),
   requireOfficer,
   validate(updateInspectionSchema),
   inspectionController.updateInspection
 );
 
-router.delete("/:id", requireOfficer, inspectionController.deleteInspection);
+router.delete("/:id", validateIdParam("id"), requireOfficer, inspectionController.deleteInspection);
 
 module.exports = router;

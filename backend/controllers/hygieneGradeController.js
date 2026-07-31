@@ -59,10 +59,8 @@ async function getExpiringGrades(req, res) {
 // three, so the history page loads in one go.
 async function getStallCompliance(req, res) {
   try {
+    // validateIdParam("stallId") in the routes file has already checked this.
     const { stallId } = req.params;
-    if (isNaN(stallId)) {
-      return res.status(400).json({ message: "stallId must be a number." });
-    }
     if (!(await hygieneGradeModel.stallExists(stallId))) {
       return res.status(404).json({ message: `Stall ${stallId} was not found.` });
     }
@@ -92,10 +90,8 @@ async function getStallCompliance(req, res) {
 // GET /api/hygiene-grades/:id
 async function getGradeById(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Grade id must be a number." });
-    }
 
     const grade = await hygieneGradeModel.getGradeById(id);
     if (!grade) {
@@ -137,10 +133,8 @@ async function createGrade(req, res) {
 // PUT /api/hygiene-grades/:id
 async function updateGrade(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Grade id must be a number." });
-    }
     if (!(await hygieneGradeModel.stallExists(req.body.stallId))) {
       return res.status(400).json({ message: `Stall ${req.body.stallId} does not exist.` });
     }
@@ -160,10 +154,8 @@ async function updateGrade(req, res) {
 // DELETE /api/hygiene-grades/:id
 async function deleteGrade(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Grade id must be a number." });
-    }
 
     const deleted = await hygieneGradeModel.deleteGrade(id);
     if (!deleted) {

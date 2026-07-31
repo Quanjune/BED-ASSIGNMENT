@@ -82,10 +82,9 @@ async function getAllInspections(req, res) {
 // GET /api/inspections/:id
 async function getInspectionById(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this is a
+    // positive whole number, so the controller can trust it.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Inspection id must be a number." });
-    }
 
     const inspection = await inspectionModel.getInspectionById(id);
     if (!inspection) {
@@ -249,10 +248,9 @@ async function createInspection(req, res) {
 // PUT /api/inspections/:id  - move the date, move the stall, or cancel
 async function updateInspection(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this is a
+    // positive whole number, so the controller can trust it.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Inspection id must be a number." });
-    }
 
     const existing = await inspectionModel.getInspectionById(id);
     if (!existing) {
@@ -292,10 +290,9 @@ async function updateInspection(req, res) {
 // issues the hygiene grade and, if the stall failed, books the re-inspection.
 async function completeInspection(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this is a
+    // positive whole number, so the controller can trust it.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Inspection id must be a number." });
-    }
 
     const existing = await inspectionModel.getInspectionById(id);
     if (!existing) {
@@ -368,10 +365,9 @@ async function completeInspection(req, res) {
 // DELETE /api/inspections/:id
 async function deleteInspection(req, res) {
   try {
+    // validateIdParam("id") in the routes file has already checked this is a
+    // positive whole number, so the controller can trust it.
     const { id } = req.params;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Inspection id must be a number." });
-    }
 
     const deleted = await inspectionModel.deleteInspection(id);
     if (!deleted) {

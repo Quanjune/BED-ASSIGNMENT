@@ -19,6 +19,7 @@ const router = express.Router();
 const hygieneGradeController = require("../controllers/hygieneGradeController");
 const { requireOfficer } = require("../middlewares/officerAuth");
 const validate = require("../middlewares/validate");             // Kishore's
+const { validateIdParam } = require("../middlewares/idValidation");  // Quan Jun's
 const { hygieneGradeSchema } = require("../validators/inspectionValidator");
 
 // ------------------------------------------------------------
@@ -27,13 +28,13 @@ const { hygieneGradeSchema } = require("../validators/inspectionValidator");
 // ------------------------------------------------------------
 router.get("/current", hygieneGradeController.getCurrentGrades);
 router.get("/expiring", requireOfficer, hygieneGradeController.getExpiringGrades);
-router.get("/stall/:stallId", hygieneGradeController.getStallCompliance);
+router.get("/stall/:stallId", validateIdParam("stallId"), hygieneGradeController.getStallCompliance);
 
 // ------------------------------------------------------------
 // PUBLIC READS
 // ------------------------------------------------------------
 router.get("/", hygieneGradeController.getAllGrades);
-router.get("/:id", hygieneGradeController.getGradeById);
+router.get("/:id", validateIdParam("id"), hygieneGradeController.getGradeById);
 
 // ------------------------------------------------------------
 // OFFICER-ONLY WRITES
@@ -47,11 +48,12 @@ router.post(
 
 router.put(
   "/:id",
+  validateIdParam("id"),
   requireOfficer,
   validate(hygieneGradeSchema),
   hygieneGradeController.updateGrade
 );
 
-router.delete("/:id", requireOfficer, hygieneGradeController.deleteGrade);
+router.delete("/:id", validateIdParam("id"), requireOfficer, hygieneGradeController.deleteGrade);
 
 module.exports = router;
