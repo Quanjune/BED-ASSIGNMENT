@@ -3,9 +3,11 @@ require("dotenv").config({ path: require("path").join(__dirname, ".env") });
  
 const express = require("express");
 const path = require("path");
-const sql = require("mssql"); 
+const sql = require("mssql");
 const dbConfig = require("./config/dbConfig");
- 
+const swaggerUi = require("swagger-ui-express");
+const openApiDocument = require("./docs");   // backend/docs/index.js
+
 const app = express();
 const PORT = process.env.PORT || 3000;
  
@@ -24,6 +26,30 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "frontend", "login.html"));
 });
  
+// ============================================================
+// API documentation (Swagger UI)
+// Browse and try every endpoint at http://localhost:3000/api-docs
+// The raw OpenAPI document is at /api-docs.json, which is what you
+// import into Postman or Insomnia.
+//
+// Mounted BEFORE the routes so it is never shadowed by them. "/api-docs"
+// is a separate path segment from "/api", so the JSON 404 handler further
+// down does not swallow it.
+// ============================================================
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiDocument, {
+    customSiteTitle: "Hawkers API docs",
+    swaggerOptions: {
+      persistAuthorization: true, // keep the pasted token across page reloads
+      docExpansion: "none",       // start with the groups collapsed
+    },
+  })
+);
+
+app.get("/api-docs.json", (req, res) => res.json(openApiDocument));
+
 // ============================================================
 // Routes (mounted under /api)
 // NOTE: only mount a route once its file actually exists in
