@@ -23,6 +23,9 @@ router.get("/orders-by-payment", controller.getOrdersByPayment);
 router.get("/revenue-by-centre", controller.getRevenueByCentre);
 router.get("/top-stalls-by-revenue", controller.getTopStallsByRevenue);
 
+// Third-party API: live NEA hawker-centre data from data.gov.sg
+router.get("/nea/hawker-centres", controller.getNeaHawkerCentres);
+
 // User management (admin: list + delete)
 router.get("/users", controller.getUsers);
 router.delete("/users/:id", controller.deleteUser);

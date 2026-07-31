@@ -73,6 +73,24 @@ const paths = {
     "Array of stall, centre, orderCount and revenue."
   ),
 
+  // --- Third-party API (data.gov.sg) ---
+  "/api/admin/nea/hawker-centres": {
+    get: {
+      tags: ["Admin"],
+      summary: "Live NEA hawker-centre data (third-party API via data.gov.sg)",
+      description:
+        "The back-end fetches the official NEA 'Hawker Centres' dataset from " +
+        "data.gov.sg, trims it to the fields we need, and returns it with a " +
+        "summary. Cached ~10 minutes so we don't call the government API on every load.",
+      responses: {
+        200: { description: "Hawker-centre list plus a summary (totalCentres, totalStalls...)." },
+        401: { $ref: "#/components/responses/Unauthorized" },
+        403: { $ref: "#/components/responses/Forbidden" },
+        502: { description: "Could not reach data.gov.sg (upstream error or timeout)." },
+      },
+    },
+  },
+
   // --- User management ---
   "/api/admin/users": adminGet(
     "List all users, each with the stall they own (if any)",
