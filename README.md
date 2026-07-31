@@ -184,6 +184,22 @@ All routes below live under `/api/admin` and require a Bearer token for an **adm
 | `admin@hawkers.sg` | `Admin123` | admin |
 | `siti@test.com` | `Password123` | customer |
 | `chickenrice@test.com` | `Password123` | vendor (owns stall 1) |
+| `tan@nea.gov.sg` | `Password123` | officer (NEA) |
+| `nurul@nea.gov.sg` | `Password123` | officer (NEA) |
+
+## Roles & access
+
+**Admin and officer accounts are seeded, not self-registered** — the signup form and
+`signupSchema` only accept `customer` or `vendor`, so no admin or NEA-officer account can be
+created through the API. The roles are kept deliberately non-overlapping (uniqueness rule):
+
+- **customer** — browse, order, submit feedback and complaints.
+- **vendor** — manage their own stall, menu and rental agreements.
+- **admin** *(Aswin)* — user management and platform analytics (complaints, ratings, revenue). Does **not** manage inspections.
+- **officer / NEA** *(Kaden)* — inspections and hygiene grades (full CRUD). No user-management or analytics access.
+
+Role checks are enforced by the shared `authorizeRoles(...)` middleware, which takes the
+allowed roles per route — so adding the `officer` role needed no middleware changes.
 
 ## Known limitations
 
