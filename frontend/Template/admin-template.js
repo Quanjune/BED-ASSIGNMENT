@@ -14,6 +14,7 @@ const currentPage = window.location.pathname.split("/").pop() || "admin-analytic
 const ADMIN_NAV = [
   { label: "Analytics & Reports", href: "./admin-analytics.html" },
   { label: "Revenue & Orders",    href: "./admin-revenue.html" },
+  { label: "NEA Centres",         href: "./admin-nea.html" },
   { label: "User Management",     href: "./admin-users.html" }
 ];
 

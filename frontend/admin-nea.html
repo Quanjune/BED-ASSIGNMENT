@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hawkers | NEA Hawker Centres</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Template/template.css">
+  <link rel="stylesheet" href="styles/admin.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+  <div class="admin-page">
+    <h1>NEA Hawker Centres</h1>
+    <p class="admin-subtitle">
+      Live data from <a href="https://data.gov.sg" target="_blank" rel="noopener">data.gov.sg</a>
+      (National Environment Agency), fetched through the back-end.
+      <span id="freshness" class="muted"></span>
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat-card"><h3>Hawker Centres</h3><p class="stat-value" id="total-centres">–</p></div>
+      <div class="stat-card"><h3>Total Stalls</h3><p class="stat-value" id="total-stalls">–</p></div>
+      <div class="stat-card"><h3>Cooked-Food Stalls</h3><p class="stat-value" id="total-cooked">–</p></div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="Search by centre name or location…">
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th><th>Location</th><th>Type</th><th>Owner</th><th>Stalls</th><th>Cooked-Food</th>
+          </tr>
+        </thead>
+        <tbody id="nea-body"><!-- filled by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="./Template/admin-template.js"></script>
+<script src="scripts/admin-nea.js"></script>
+</body>
+</html>

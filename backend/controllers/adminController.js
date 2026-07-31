@@ -2,6 +2,7 @@
 // Thin controllers - each calls one aggregation query and returns JSON.
 // All error handling funnels a 500 with a clear message.
 const adminModel = require("../models/adminModel");
+const neaService = require("../services/neaService");
 
 async function getSummary(req, res) {
   try {
@@ -135,6 +136,20 @@ async function deleteUser(req, res) {
   }
 }
 
+// ---- Third-party API: live NEA hawker-centre data from data.gov.sg ----
+async function getNeaHawkerCentres(req, res) {
+  try {
+    const data = await neaService.fetchHawkerCentres();
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("NEA hawker centres fetch error:", err.message);
+    // 502 = we (the gateway) failed to get a good response from the upstream API.
+    return res.status(502).json({
+      message: "Could not reach the NEA data service (data.gov.sg). Please try again shortly.",
+    });
+  }
+}
+
 module.exports = {
   getSummary,
   getComplaintsByCentre,
@@ -147,6 +162,7 @@ module.exports = {
   getOrdersByPayment,
   getRevenueByCentre,
   getTopStallsByRevenue,
+  getNeaHawkerCentres,
   getUsers,
   deleteUser
 };
