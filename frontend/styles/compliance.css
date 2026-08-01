@@ -550,3 +550,9 @@ tbody tr.priority-medium {
         max-width: none;
     }
 }
+
+#breadcrumbs li + li::before {
+    content: "/";
+    margin: 0 0.4rem;
+    color: rgba(71, 71, 71, 0.4);
+}
