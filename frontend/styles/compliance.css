@@ -564,3 +564,27 @@ tbody tr.priority-medium {
         max-width: none;
     }
 }
+/* ---------- Weather note on the scheduling page ---------- */
+.weather-note {
+    grid-column: 1 / -1;
+    margin: 0.25rem 0 0;
+    padding: 0.6rem 0.9rem;
+
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--color-text);
+
+    background: rgba(124, 139, 153, 0.12);
+    border-left: 4px solid var(--color-priority-booked);
+    border-radius: 6px;
+}
+
+.weather-note.weather-wet {
+    background: rgba(217, 142, 59, 0.14);
+    border-left-color: var(--color-priority-medium);
+}
+
+.weather-note.weather-fine {
+    background: rgba(60, 122, 84, 0.12);
+    border-left-color: var(--color-priority-ok);
+}

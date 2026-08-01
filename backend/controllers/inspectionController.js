@@ -4,6 +4,7 @@
 // (validators/inspectionValidator.js), so anything that arrives here is the
 // right SHAPE - what is left to check is whether it makes SENSE.
 const inspectionModel = require("../models/inspectionModel");
+const weatherService = require("../services/weatherService");   // third-party API
 
 // ============================================================
 // Business rules, kept together at the top so they are easy to find
@@ -202,6 +203,45 @@ async function getStallsDue(req, res) {
   }
 }
 
+// GET /api/inspections/weather?date=YYYY-MM-DD
+// Third-party API (data.gov.sg 4-day outlook). Hawker centres are open-air,
+// so an officer picking a visit date wants to know if storms are forecast.
+//
+// This deliberately NEVER returns an error status. The weather is a helpful
+// extra, not something the scheduling page depends on - if data.gov.sg is
+// down, the officer must still be able to book an inspection. So every
+// failure comes back as 200 with available:false and a reason the page can
+// show, instead of a 500 the page has to catch.
+async function getWeatherForDate(req, res) {
+  const { date } = req.query;
+
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res.status(400).json({ message: "date is required in YYYY-MM-DD format." });
+  }
+
+  try {
+    const forecast = await weatherService.getForecastForDate(date);
+
+    if (!forecast) {
+      // Not a failure: the outlook only runs four days ahead, and most
+      // inspections are booked further out than that.
+      return res.status(200).json({
+        available: false,
+        reason: "No forecast yet - data.gov.sg only publishes four days ahead.",
+      });
+    }
+
+    return res.status(200).json({ available: true, ...forecast });
+  } catch (err) {
+    // Log it for us, but tell the officer something calm and carry on.
+    console.error("getWeatherForDate error:", err.message);
+    return res.status(200).json({
+      available: false,
+      reason: "Weather service unavailable right now.",
+    });
+  }
+}
+
 // ============================================================
 // CREATE  (officer only)
 // ============================================================
@@ -392,6 +432,7 @@ module.exports = {
   getMyWorklist,
   getOverdueInspections,
   getStallsDue,
+  getWeatherForDate,
   createInspection,
   updateInspection,
   completeInspection,
