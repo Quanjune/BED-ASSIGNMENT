@@ -90,7 +90,7 @@ CREATE TABLE Users (
     stallId       INT            NULL,
     cardLast4     CHAR(4)        NULL,          -- last 4 digits only, never the full number
     createdAt     DATETIME       NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT CHK_Users_Role CHECK (role IN ('customer','vendor','admin')),
+    CONSTRAINT CHK_Users_Role CHECK (role IN ('customer','vendor','admin','officer')),
     CONSTRAINT FK_Users_Stall FOREIGN KEY (stallId) REFERENCES FoodStalls(stallId)
 );
 GO
@@ -227,7 +227,10 @@ INSERT INTO Users (userId, name, email, passwordHash, role, stallId) VALUES
 (16, N'Lor Mee 178', N'vendor14@hawkers.sg', '$2b$10$SNQhoaeqSourb5P6E1z9c.SRXdqq8ewvmgvEzVIJwm5Jkbehh0vo.', 'vendor', 14),
 (17, N'Jian Bo Shui Kueh', N'vendor15@hawkers.sg', '$2b$10$SNQhoaeqSourb5P6E1z9c.SRXdqq8ewvmgvEzVIJwm5Jkbehh0vo.', 'vendor', 15),
 (18, N'Western Stall', N'vendor16@hawkers.sg', '$2b$10$SNQhoaeqSourb5P6E1z9c.SRXdqq8ewvmgvEzVIJwm5Jkbehh0vo.', 'vendor', 16),
-(19, N'Kishore', N'grkishore07@gmail.com', '$2b$10$XizY0BkLRYOBGPucmgmK9uGVxomN.3KTOHtYKBhfu7LRuDMpWpOEe', 'customer', NULL);
+(19, N'Kishore', N'grkishore07@gmail.com', '$2b$10$XizY0BkLRYOBGPucmgmK9uGVxomN.3KTOHtYKBhfu7LRuDMpWpOEe', 'customer', NULL),
+-- NEA officer accounts (Aswin, for Kaden's inspection feature). Password: Password123
+(20, N'Officer Tan Wei Ming', N'tan@nea.gov.sg', '$2b$10$Ba/QQTqV0Gsl6aw9OBxQcewdSe6l3wX.8fOeMb/VT1/vnSG3wc6ri', 'officer', NULL),
+(21, N'Officer Nurul Huda',   N'nurul@nea.gov.sg', '$2b$10$Ba/QQTqV0Gsl6aw9OBxQcewdSe6l3wX.8fOeMb/VT1/vnSG3wc6ri', 'officer', NULL);
 SET IDENTITY_INSERT Users OFF;
 GO
 

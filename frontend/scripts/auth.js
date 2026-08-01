@@ -87,6 +87,8 @@ if (loginForm) {
         window.location.href = next;
       } else if (role === "admin") {
         window.location.href = "admin-analytics.html";   // admin landing
+      } else if (role === "officer") {
+        window.location.href = "officer.html";           // NEA officer (Kaden's feature)
       } else {
         window.location.href = "index.html";   // customer
       }

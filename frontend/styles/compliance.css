@@ -347,3 +347,206 @@ tbody tr:last-child td {
     }
 }
  
+/* ============================================================
+   OFFICER PORTAL ADDITIONS                    (Kaden)
+   Everything above this line is the original compliance.css and is
+   still used by the public hygiene-grades page. Everything below is
+   new styling for officer.html, officer_schedule.html and
+   officer_grades.html. Colours reuse the variables declared at the
+   top of this file so the portal matches the rest of the site.
+   ============================================================ */
+
+:root {
+    --color-priority-high: #AD343E;
+    --color-priority-medium: #D98E3B;
+    --color-priority-booked: #7C8B99;
+    --color-priority-ok: #3C7A54;
+}
+
+/* ---------- Summary cards across the top of the worklist ---------- */
+.stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+    max-width: 1200px;
+}
+
+.stat-card {
+    padding: 1.25rem 1.5rem;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 5px solid var(--color-border);
+    border-radius: 10px;
+}
+
+.stat-card h3 {
+    margin: 0 0 0.35rem;
+
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    opacity: 0.7;
+}
+
+.stat-value {
+    margin: 0;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.stat-card.stat-danger  { border-left-color: var(--color-priority-high); }
+.stat-card.stat-warning { border-left-color: var(--color-priority-medium); }
+.stat-card.stat-good    { border-left-color: var(--color-priority-ok); }
+
+/* ---------- Panel accents ---------- */
+.panel-danger  { border-left: 5px solid var(--color-priority-high); }
+.panel-warning { border-left: 5px solid var(--color-priority-medium); }
+
+/* ---------- Header tag + logout button in the officer header ---------- */
+.portal-tag {
+    margin-right: 0.75rem;
+    padding: 0.3rem 0.7rem;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+
+    background: var(--color-sage);
+    border-radius: 999px;
+
+    white-space: nowrap;
+}
+
+/* ---------- Small text helpers ---------- */
+.muted {
+    font-size: 0.85em;
+    color: var(--color-text);
+    opacity: 0.6;
+}
+
+.sub-heading {
+    margin: 1.75rem 0 0.5rem;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.modal-hint {
+    margin: 0 0 1rem;
+
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    opacity: 0.75;
+}
+
+/* Remarks can be a full paragraph - stop one long cell stretching the table. */
+.remarks-cell {
+    max-width: 320px;
+
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+/* A textarea inside .form-grid should span the whole row. */
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+/* ---------- Priority badges on the schedule page ---------- */
+.badge-priority-high   { background: var(--color-priority-high); }
+.badge-priority-medium { background: var(--color-priority-medium); }
+.badge-priority-booked { background: var(--color-priority-booked); }
+.badge-priority-ok     { background: var(--color-priority-ok); }
+
+/* Tint the whole row for anything urgent so it is visible at a glance. */
+tbody tr.priority-high {
+    background: rgba(173, 52, 62, 0.06);
+}
+
+tbody tr.priority-medium {
+    background: rgba(217, 142, 59, 0.06);
+}
+
+/* ---------- Grade extras ---------- */
+/* A stall with no grade at all yet. */
+.grade-badge.grade-none {
+    background: var(--color-priority-booked);
+}
+
+/* A grade whose validity window has passed. */
+.current-grade-card.grade-lapsed {
+    opacity: 0.75;
+    border-style: dashed;
+}
+
+.lapsed-note {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-red);
+}
+
+/* ---------- Stall history block ---------- */
+.history-summary {
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+
+    background: var(--color-sage);
+    border-radius: 10px;
+}
+
+.history-summary h4 {
+    margin: 0 0 0.35rem;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 1.1rem;
+    color: var(--color-text);
+}
+
+.history-summary p {
+    margin: 0;
+
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+/* ---------- The automatic re-inspection note in the result banner ---------- */
+.follow-up-note {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-text);
+
+    background: rgba(217, 142, 59, 0.14);
+    border-left: 4px solid var(--color-priority-medium);
+    border-radius: 6px;
+}
+
+/* ---------- Read-only inputs (the officer name on the schedule form) ---------- */
+.form-grid input[readonly] {
+    background: var(--color-sage);
+    cursor: not-allowed;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 700px) {
+    .stat-row {
+        padding: 0 1rem;
+    }
+
+    .remarks-cell {
+        max-width: none;
+    }
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>NEA Officer &middot; Schedule</title>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+    <nav id="breadcrumbs">
+        <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="./officer.html">Officer Portal</a></li>
+            <li>Schedule</li>
+        </ul>
+    </nav>
+
+    <section id="page-intro">
+        <h2>Schedule an Inspection</h2>
+        <p>Every stall on the platform, ordered by how badly it needs a visit &mdash; never inspected first, then whichever grades run out soonest.</p>
+    </section>
+
+    <!-- Booking form -->
+    <section class="panel panel-card">
+        <h3>Book a visit</h3>
+        <form id="schedule-form" class="form-grid">
+            <label>Stall
+                <select id="schedule-stallId" required>
+                    <option value="">Loading stalls…</option>
+                </select>
+            </label>
+            <label>Date
+                <input type="date" id="schedule-date" required>
+            </label>
+            <label>Inspecting officer
+                <!-- Read-only on purpose. The back end takes the officer from
+                     the login token, so a visit can never be filed under
+                     somebody else's name. -->
+                <input type="text" id="schedule-officer" value="Loading…" readonly>
+            </label>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Schedule inspection</button>
+            </div>
+        </form>
+        <p id="schedule-feedback" class="feedback" hidden></p>
+    </section>
+
+    <!-- Stalls needing attention -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Stalls by priority</h3>
+            <div class="filters">
+                <label>Show
+                    <select id="filter-priority">
+                        <option value="needs">Needs attention</option>
+                        <option value="all">All stalls</option>
+                        <option value="high">Urgent only</option>
+                        <option value="booked">Already booked</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stall</th>
+                        <th>Hawker centre</th>
+                        <th>Current grade</th>
+                        <th>Last inspected</th>
+                        <th>Last score</th>
+                        <th>Why</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="stalls-body"></tbody>
+            </table>
+        </div>
+        <p id="stalls-empty" class="empty-state" hidden>Nothing to show for this filter.</p>
+    </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="./scripts/sessions.js"></script>
+<script src="./scripts/officer_auth.js"></script>
+<script src="./Template/officer-template.js"></script>
+<script src="./scripts/officer_schedule.js"></script>
+</body>
+</html>
