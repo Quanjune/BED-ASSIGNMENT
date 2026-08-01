@@ -19,8 +19,7 @@ const NAV_LINKS = [
   { label: "Home",       href: "./index.html" },
   { label: "Order",      href: "./centers.html" },
   { label: "History",    href: "./history.html" },
-  { label: "Promotions", href: "./promotions.html" },
-  { label: "Hygiene Grades", href: "./hygiene-grades.html" }
+  { label: "Promotions", href: "./promotions.html" }
 ];
 
 function buildHeader() {
@@ -44,9 +43,19 @@ function buildHeader() {
       <nav class="header-nav">
         <ul id="nav-links">
           ${links}
-          <li><div class="divider"></div></li>
-          <li><a href="./cart.html">Cart</a></li>
-          <li><a href="./user.html">User</a></li>
+          <!-- These three only appear inside the hamburger menu on small
+               screens. On desktop the Cart pill and profile icon in
+               .header-actions do the same job, so they are hidden by the
+               .mobile-only rule in template.css.
+
+               They used to be hidden with :nth-child(5,6,7), which broke the
+               moment a fifth link was added to NAV_LINKS: the numbering
+               shifted, so "Hygiene Grades" was hidden instead and "User"
+               leaked onto the desktop navbar. A class does not care how many
+               links come before it. -->
+          <li class="mobile-only"><div class="divider"></div></li>
+          <li class="mobile-only"><a href="./cart.html">Cart</a></li>
+          <li class="mobile-only"><a href="./user.html">User</a></li>
         </ul>
       </nav>
       <div class="header-actions">
@@ -97,6 +106,13 @@ function buildFooter() {
               <li><a href="./centers.html">Hawker Centers</a></li>
               <li><a href="./centers.html">Stalls</a></li>
               <li><a href="./cart.html">Cart</a></li>
+            </ul>
+          </nav>
+          <nav>
+            <h3>Compliance</h3>
+            <ul>
+              <li><a href="./hygiene-grades.html">Hygiene Grades</a></li>
+              <li><a href="./credit.html">Credits</a></li>
             </ul>
           </nav>
         </div>
