@@ -1,14 +1,15 @@
 // scripts/stalls.js — lists stalls in a centre
 //
-// Each card now carries three extra things on top of the photo + name:
-//   * a star rating   (GET /api/feedback/stall-ratings)
-//   * a promo tag     (GET /api/promos/active, counted per stall)
+// Each card carries four extra things on top of the photo + name:
+//   * an NEA hygiene grade badge (GET /api/hygiene-grades/current)
+//   * a star rating              (GET /api/feedback/stall-ratings)
+//   * a promo tag                (GET /api/promos/active, counted per stall)
 //   * Review / Report buttons that jump to the right page with the stall
 //     already chosen, so nobody has to re-pick it from a dropdown
 //
-// Both extra fetches happen ONCE for the whole page, not once per card.
-// If either fails the cards still render - the stall list is the important
-// part, the badges are a bonus.
+// All three extra fetches happen ONCE for the whole page, not once per card.
+// If any of them fails the cards still render - the stall list is the
+// important part, the badges are a bonus.
 
 function imgSrc(path) {
   return path ? encodeURI(path) : "";
@@ -26,6 +27,25 @@ function escapeHtml(text) {
 }
 
 // ---------- extra data for the cards ----------
+
+// -> Map of stallId : { grade, validTo, isCurrent, daysUntilExpiry }
+//
+// Kaden's endpoint already returns ONE row per stall (the newest grade), and
+// it is deliberately public - a hygiene grade is public information under the
+// NEA scheme - so no Authorization header is needed here.
+async function loadHygieneGrades() {
+  try {
+    const res = await fetch("/api/hygiene-grades/current");
+    if (!res.ok) throw new Error("hygiene grades unavailable");
+    const rows = await res.json();
+    const map = new Map();
+    rows.forEach((g) => map.set(g.stallId, g));
+    return map;
+  } catch (err) {
+    console.error(err);
+    return new Map();   // no badges shown, page still works
+  }
+}
 
 // -> Map of stallId : { avgRating, reviewCount }
 async function loadRatings() {
@@ -61,6 +81,31 @@ async function loadPromoCounts() {
   }
 }
 
+// Build the NEA grade badge, e.g. a green "A".
+//
+// A stall with no grade row at all gets nothing rather than an empty box -
+// a missing grade is not the same as a bad one, and inventing a placeholder
+// would be misleading on a page about food hygiene.
+//
+// isCurrent comes back from SQL as 1/0. When it is 0 the grade has expired,
+// so the badge is greyed out and labelled instead of being shown as if it
+// were still valid.
+function gradeHtml(entry) {
+  if (!entry || !entry.grade) return "";
+
+  const grade = escapeHtml(entry.grade);
+  const expired = !entry.isCurrent;
+  const cssClass = expired ? "grade-expired" : `grade-${grade.toLowerCase()}`;
+  const title = expired
+    ? `Hygiene grade ${grade} (expired)`
+    : `NEA hygiene grade ${grade}`;
+
+  return `<p class="item-grade">
+            <span class="grade-badge ${cssClass}" title="${title}">${grade}</span>
+            <span class="grade-label">${expired ? "Grade expired" : "Hygiene grade"}</span>
+          </p>`;
+}
+
 // Build the "★ 4.5 (12)" line, or an invitation when nobody has reviewed yet.
 function ratingHtml(entry) {
   if (!entry || !entry.reviewCount) {
@@ -79,9 +124,10 @@ function ratingHtml(entry) {
 async function loadStalls() {
   const container = document.getElementById("stalls-container");
   try {
-    // Kick off all three requests together rather than one after another.
-    const [res, ratings, promoCounts] = await Promise.all([
+    // Kick off all four requests together rather than one after another.
+    const [res, grades, ratings, promoCounts] = await Promise.all([
       fetch(`/api/centers/${centerId}/stalls`),
+      loadHygieneGrades(),
       loadRatings(),
       loadPromoCounts(),
     ]);
@@ -97,6 +143,7 @@ async function loadStalls() {
              onerror="this.onerror=null;this.src='${PLACEHOLDER}';">
         <div class="item-body">
           <p class="item-title">${escapeHtml(s.name)}</p>
+          ${gradeHtml(grades.get(s.stallId))}
           ${ratingHtml(ratings.get(s.stallId))}
           ${promoCount ? `<p class="item-promo">🏷 ${promoCount} promo${promoCount > 1 ? "s" : ""}</p>` : ""}
           <div class="item-actions">
