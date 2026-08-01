@@ -24,7 +24,7 @@ NEA inspections.
 | **Quan Jun** | Customer — browsing & ordering | Homepage browsing of hawker centres, stalls and menu items; cart, product customisation options and checkout; order history |
 | **Kishore** | Vendor — stall management | Menu management for the vendor's own stall; rental agreement tracking; stall performance dashboard |
 | **Timely** | Customer — engagement | Feedback submission (ratings + comments); complaint submission linked to a stall; store ratings & reviews; promotions / promo codes |
-| **Kadon** | NEA officer — compliance | Inspection scheduling; recording inspection scores, remarks and hygiene grades; historical hygiene grade tracking |
+| **Kaden** | NEA officer — compliance | Inspection scheduling; recording inspection scores, remarks and hygiene grades; historical hygiene grade tracking |
 
 ## Getting started
 
@@ -144,6 +144,8 @@ BED-ASSIGNMENT/
 | `/api/vendors/menu` | Kishore | Vendor menu CRUD |
 | `/api/vendors/agreements` | Kishore | Rental agreements |
 | `/api/vendors/stall` | Kishore | The logged-in vendor's own stall |
+| `/api/inspections` | Kaden | NEA inspection scheduling, results and officer worklist |
+| `/api/hygiene-grades` | Kaden | Hygiene grades, current grade per stall and grade history |
 
 ### Authentication endpoints
 
