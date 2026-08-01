@@ -40,10 +40,23 @@ async function loadProfile() {
     document.getElementById("pfRole").textContent = current.role || "-";
     document.getElementById("pfEmail").textContent = current.email || "-";
 
-    // Payment card (only the last 4 digits are stored)
+    // Payment card (only the last 4 digits are stored).
+    //
+    // Only customers ever pay for anything, so the whole Payment row is hidden
+    // for NEA officers and admins rather than sitting there saying "Not set"
+    // forever with an Add button that makes no sense for them.
+    //
+    // .closest(".profile-row") walks up from the value span to the row that
+    // contains it, so the label, the value and the button all disappear
+    // together. Doing it this way means user.html does not have to change.
     const cardEl = document.getElementById("pfPayment");
     const cardBtn = document.getElementById("pfPaymentBtn");
-    if (cardEl && cardBtn) {
+
+    const canPay = current.role === "customer";
+    const paymentRow = cardEl && cardEl.closest(".profile-row");
+    if (paymentRow) paymentRow.style.display = canPay ? "" : "none";
+
+    if (canPay && cardEl && cardBtn) {
       if (current.cardLast4) {
         cardEl.textContent = "•••• " + current.cardLast4;
         cardBtn.textContent = "Remove";

@@ -411,19 +411,33 @@ tbody tr:last-child td {
 .panel-danger  { border-left: 5px solid var(--color-priority-high); }
 .panel-warning { border-left: 5px solid var(--color-priority-medium); }
 
-/* ---------- Header tag + logout button in the officer header ---------- */
-.portal-tag {
-    margin-right: 0.75rem;
-    padding: 0.3rem 0.7rem;
+/* ---------- Officer name pill in the header ---------- */
+/* Deliberately a copy of #cart in Template/template.css. The customer header
+   has an outlined "Cart" pill next to the round profile icon; the officer
+   header has the officer's name in the same slot, so the two headers line up
+   visually. #cart is styled by id, so it cannot be reused directly - this
+   mirrors its rules instead. */
+.portal-pill {
+    padding: 0.6rem 1.2rem;
+    border: 0.10rem solid #474747;
+    border-radius: 25px;
 
-    font-size: 0.8rem;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    font-size: 1rem;
     font-weight: 600;
-    color: var(--color-text);
-
-    background: var(--color-sage);
-    border-radius: 999px;
-
+    color: #474747;
+    text-decoration: none;
+    text-align: center;
     white-space: nowrap;
+}
+
+.portal-pill:hover {
+    background: var(--color-sage);
 }
 
 /* ---------- Small text helpers ---------- */
@@ -549,10 +563,4 @@ tbody tr.priority-medium {
     .remarks-cell {
         max-width: none;
     }
-}
-
-#breadcrumbs li + li::before {
-    content: "/";
-    margin: 0 0.4rem;
-    color: rgba(71, 71, 71, 0.4);
 }
