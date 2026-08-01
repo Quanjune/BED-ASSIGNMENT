@@ -166,8 +166,11 @@ header {
     background-color: #DBDFD0;
 } */
 
-/* Divider, Cart & User */
-#nav-links :nth-child(5), #nav-links :nth-child(6), #nav-links :nth-child(7) {
+/* Divider, Cart & User - hamburger menu only.
+   Hidden by class rather than by position: the old
+   :nth-child(5), (6), (7) rule assumed exactly four links in NAV_LINKS, so
+   adding a fifth shifted the numbering and hid the wrong items. */
+#nav-links .mobile-only {
     display: none;
 }
 
@@ -353,7 +356,7 @@ footer p, footer h3 {
         display: none;
     }
 
-    #nav-links :nth-child(5), #nav-links :nth-child(6), #nav-links :nth-child(7) {
+    #nav-links .mobile-only {
         display: flex;
     }
 }
