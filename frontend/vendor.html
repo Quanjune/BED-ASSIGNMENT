@@ -1,4 +1,27 @@
 <!DOCTYPE html>
+<!--
+    vendor.html  (Kishore - Vendor Management)
+    "My Menu" - where a stall owner adds, edits and deletes their dishes.
+
+    How the page is put together:
+      header / breadcrumbs / footer   copied from index.html on purpose, so
+                                      the shared Template/template.css styles
+                                      them and the site looks consistent.
+      #dash-section                   the dashboard itself. Starts hidden and
+                                      is only revealed by vendor_auth.js once
+                                      the token has been checked, so stall
+                                      data never flashes up for a signed-out
+                                      visitor.
+      #form-modal                     the Add / Edit dish pop-up.
+
+    Note there is deliberately no "Stall ID" box anywhere on this page. The
+    backend works out which stall you own from your login token, so a vendor
+    can only ever see and edit their OWN menu.
+
+    The three scripts at the bottom must stay in this order: template.js
+    (hamburger) -> vendor_auth.js (defines VendorAuth) -> vendor.js, because
+    vendor.js calls VendorAuth.initVendorGate() as soon as it loads.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">

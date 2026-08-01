@@ -67,7 +67,10 @@
     try {
       const res = await authFetch("/api/vendors/stall");
       if (!res.ok) {
-        // The no-stall case is now caught by login.html before a vendor ever reaches this page, so this just sends bad/expired sessions back to the central login.
+        // A vendor with no stall is already stopped by login.html, so by the
+        // time we get here the only realistic cause is a bad or expired
+        // token. Nothing on this page can fix that - drop the dead session
+        // and send them back to the central login.
         clearSession();
         window.location.href = "login.html";
         return;

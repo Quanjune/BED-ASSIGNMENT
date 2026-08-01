@@ -1,4 +1,29 @@
 <!DOCTYPE html>
+<!--
+    vendor_agreements.html  (Kishore - Vendor Management)
+    "Agreements & Licences" - the paperwork a stall has to keep valid, e.g.
+    the rental agreement, the SFA food licence and the fire safety cert.
+    One row on this page = one document.
+
+    How the page is put together:
+      header / breadcrumbs / footer   copied from index.html on purpose, so
+                                      the shared Template/template.css styles
+                                      them and the site looks consistent.
+      #dash-section                   the document list. Starts hidden and is
+                                      only revealed by vendor_auth.js once the
+                                      token has been checked.
+      #form-modal                     the Add / Edit document pop-up.
+
+    The Active / Expiring Soon / Expired badge is NOT worked out here. The
+    backend calculates it in SQL and sends it down ready-made, so the same
+    rule is applied everywhere instead of being duplicated in the page.
+
+    Same as the menu page: no "Stall ID" box, because the backend reads the
+    stall off the login token.
+
+    Scripts at the bottom must stay in this order: template.js (hamburger)
+    -> vendor_auth.js (defines VendorAuth) -> vendor_agreements.js.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
