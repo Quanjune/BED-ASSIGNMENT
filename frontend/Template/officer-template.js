@@ -52,9 +52,9 @@
              icon. Logging out happens on user.html, the same place every
              other role does it - one logout button in the whole app. -->
         <div class="header-actions">
-          <a href="./user.html" id="officer-name" class="portal-pill">NEA Officer</a>
+          <a href="./officer_profile.html" id="officer-name" class="portal-pill">NEA Officer</a>
           <div id="user">
-            <a href="./user.html" title="Profile">
+            <a href="./officer_profile.html" title="Profile">
               <img src="../media/icons/user.svg" alt="Profile">
             </a>
           </div>
