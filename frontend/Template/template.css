@@ -166,11 +166,23 @@ header {
     background-color: #DBDFD0;
 } */
 
-/* Divider, Cart & User - hamburger menu only.
-   Hidden by class rather than by position: the old
-   :nth-child(5), (6), (7) rule assumed exactly four links in NAV_LINKS, so
-   adding a fifth shifted the numbering and hid the wrong items. */
-#nav-links .mobile-only {
+/* Divider, Cart & User - these belong to the hamburger menu only. On desktop
+   the Cart pill and profile icon in .header-actions already do that job.
+ 
+   This used to be :nth-child(5), (6), (7), which assumed every page had
+   exactly four nav links. Adding a fifth shifted the numbering and hid the
+   wrong items. Two selectors replace it, so it no longer depends on counting:
+ 
+     .mobile-only        - the class template.js puts on those three <li>s
+     li:has(.divider)    - the divider itself, plus every <li> AFTER it,
+     + the ~ sibling rule  which is the real rule: everything past the divider
+                           is menu-only. This one also covers the pages that
+                           still hand-write their own <header> instead of
+                           using the template (promotions, complaints,
+                           feedback and the vendor pages). */
+#nav-links .mobile-only,
+#nav-links li:has(.divider),
+#nav-links li:has(.divider) ~ li {
     display: none;
 }
 
@@ -356,7 +368,9 @@ footer p, footer h3 {
         display: none;
     }
 
-    #nav-links .mobile-only {
+    #nav-links .mobile-only,
+    #nav-links li:has(.divider),
+    #nav-links li:has(.divider) ~ li {
         display: flex;
     }
 }
