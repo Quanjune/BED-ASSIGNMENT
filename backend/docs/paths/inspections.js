@@ -151,6 +151,36 @@ const schemas = {
     },
   },
 
+  WeatherOutlook: {
+    type: "object",
+    description:
+      "One day of Singapore's 4-day outlook from data.gov.sg. Always returned " +
+      "with HTTP 200 - if the service is down or the date is outside the " +
+      "window, available is false and reason explains why, so the scheduling " +
+      "page can carry on working.",
+    properties: {
+      available: { type: "boolean", example: true },
+      reason: {
+        type: "string",
+        nullable: true,
+        example: "No forecast yet - data.gov.sg only publishes four days ahead.",
+      },
+      date: { type: "string", format: "date", example: "2026-08-03" },
+      day: { type: "string", example: "Sunday" },
+      forecast: { type: "string", example: "Thundery Showers" },
+      summary: { type: "string", example: "Afternoon thundery showers" },
+      code: { type: "string", example: "TL" },
+      tempLow: { type: "integer", example: 26 },
+      tempHigh: { type: "integer", example: 34 },
+      humidityHigh: { type: "integer", nullable: true, example: 90 },
+      wet: {
+        type: "boolean",
+        example: true,
+        description: "True for rain or thundery forecast codes - worked out on the server.",
+      },
+    },
+  },
+
   StallDue: {
     type: "object",
     description:
@@ -332,6 +362,41 @@ const paths = {
         401: { $ref: "#/components/responses/Unauthorized" },
         403: { $ref: "#/components/responses/Forbidden" },
         500: { $ref: "#/components/responses/ServerError" },
+      },
+    },
+  },
+
+  "/api/inspections/weather": {
+    get: {
+      tags: ["Inspections"],
+      summary: "Weather outlook for a date (third-party API)",
+      description:
+        "Officer only. Calls data.gov.sg's 4-day outlook from the BACK END and " +
+        "returns just the fields the scheduling page needs.\n\n" +
+        "Hawker centres are open-air, so an officer booking a site visit wants " +
+        "to know if storms are forecast.\n\n" +
+        "Never returns 5xx: the weather is a helpful extra, not something " +
+        "scheduling depends on, so an outage comes back as 200 with " +
+        "available:false.",
+      parameters: [
+        {
+          name: "date",
+          in: "query",
+          required: true,
+          schema: { type: "string", format: "date" },
+          example: "2026-08-03",
+        },
+      ],
+      responses: {
+        200: {
+          description: "The forecast, or available:false with a reason.",
+          content: {
+            "application/json": { schema: { $ref: "#/components/schemas/WeatherOutlook" } },
+          },
+        },
+        400: { $ref: "#/components/responses/BadRequest" },
+        401: { $ref: "#/components/responses/Unauthorized" },
+        403: { $ref: "#/components/responses/Forbidden" },
       },
     },
   },

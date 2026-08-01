@@ -31,6 +31,44 @@ officerInput.value = user && user.name ? user.name : "Signed-in officer";
 dateInput.min = Officer.todayInput();
 dateInput.value = Officer.todayInput();
 
+// ---------- weather (third-party API, via our own back end) ----------
+
+// Shown under the date picker whenever the officer changes the date.
+// Deliberately advisory: it never blocks the booking. A wet forecast is a
+// reason to think, not a reason for the system to refuse.
+const weatherNote = document.getElementById("weather-note");
+
+async function showWeatherFor(date) {
+  if (!date) {
+    weatherNote.hidden = true;
+    return;
+  }
+
+  // The call goes to OUR server, which then calls data.gov.sg. That keeps the
+  // third-party call on the back end, and the browser only ever talks to one
+  // origin.
+  try {
+    const w = await Officer.api(`/inspections/weather?date=${encodeURIComponent(date)}`);
+
+    if (!w.available) {
+      weatherNote.className = "weather-note";
+      weatherNote.textContent = w.reason;
+    } else {
+      weatherNote.className = `weather-note ${w.wet ? "weather-wet" : "weather-fine"}`;
+      weatherNote.textContent =
+        `${w.day}: ${w.summary}. ${w.tempLow}\u2013${w.tempHigh}\u00B0C.` +
+        (w.wet ? " Consider another day for an outdoor visit." : "");
+    }
+    weatherNote.hidden = false;
+  } catch (err) {
+    // Even an unexpected failure must not stop the officer booking.
+    weatherNote.hidden = true;
+    console.error("weather lookup failed:", err.message);
+  }
+}
+
+dateInput.addEventListener("change", () => showWeatherFor(dateInput.value));
+
 // ---------- rendering ----------
 
 function stallRow(stall) {
@@ -100,6 +138,7 @@ stallsBody.addEventListener("click", (e) => {
   stallSelect.value = btn.dataset.stall;
   scheduleForm.scrollIntoView({ behavior: "smooth", block: "center" });
   dateInput.focus();
+  showWeatherFor(dateInput.value);
 });
 
 // ---------- booking ----------
@@ -138,3 +177,4 @@ scheduleForm.addEventListener("submit", async (e) => {
 
 // ---------- start ----------
 loadStalls();
+showWeatherFor(dateInput.value);   // the box starts on today
