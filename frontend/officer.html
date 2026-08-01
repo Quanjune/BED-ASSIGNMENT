@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>NEA Officer &middot; My Worklist</title>
+</head>
+<body>
+
+<!-- Header is injected by Template/officer-template.js, the same way every
+     other page on the site gets its header. -->
+<div id="site-header"></div>
+
+<main>
+    <nav id="breadcrumbs">
+        <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li>Officer Portal</li>
+            <li>My Worklist</li>
+        </ul>
+    </nav>
+
+    <section id="page-intro">
+        <h2>My Worklist</h2>
+        <p>Inspections assigned to you. Record the result of a visit and the hygiene grade is issued automatically.</p>
+    </section>
+
+    <!-- Summary cards -->
+    <section class="stat-row">
+        <div class="stat-card stat-danger">
+            <h3>Overdue</h3>
+            <p class="stat-value" id="stat-overdue">&ndash;</p>
+        </div>
+        <div class="stat-card stat-warning">
+            <h3>Due today</h3>
+            <p class="stat-value" id="stat-today">&ndash;</p>
+        </div>
+        <div class="stat-card">
+            <h3>Upcoming</h3>
+            <p class="stat-value" id="stat-upcoming">&ndash;</p>
+        </div>
+        <div class="stat-card stat-good">
+            <h3>Completed (30 days)</h3>
+            <p class="stat-value" id="stat-completed">&ndash;</p>
+        </div>
+    </section>
+
+    <p id="page-error" class="feedback feedback-error" hidden></p>
+
+    <!-- Overdue -->
+    <section class="panel panel-card panel-danger">
+        <div class="panel-header">
+            <h3>Overdue &mdash; the date has passed and no result was recorded</h3>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Stall</th><th>Hawker centre</th>
+                        <th>Was due</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="overdue-body"></tbody>
+            </table>
+        </div>
+        <p id="overdue-empty" class="empty-state" hidden>Nothing overdue. Well done.</p>
+    </section>
+
+    <!-- Due today -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Due today</h3>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Stall</th><th>Hawker centre</th>
+                        <th>Scheduled</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="today-body"></tbody>
+            </table>
+        </div>
+        <p id="today-empty" class="empty-state" hidden>No visits booked for today.</p>
+    </section>
+
+    <!-- Upcoming -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Upcoming</h3>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Stall</th><th>Hawker centre</th>
+                        <th>Scheduled</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="upcoming-body"></tbody>
+            </table>
+        </div>
+        <p id="upcoming-empty" class="empty-state" hidden>
+            Nothing booked yet &mdash; <a href="./officer_schedule.html">schedule an inspection</a>.
+        </p>
+    </section>
+
+    <!-- Recently completed -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Recently completed</h3>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Stall</th><th>Completed</th>
+                        <th>Score</th><th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="completed-body"></tbody>
+            </table>
+        </div>
+        <p id="completed-empty" class="empty-state" hidden>No inspections completed in the last 30 days.</p>
+    </section>
+</main>
+
+<!-- ============ Record Result modal ============ -->
+<div id="complete-modal" class="modal" hidden>
+    <div class="modal-content">
+        <h3>Record result &mdash; <span id="complete-stall"></span></h3>
+        <p class="modal-hint">
+            The hygiene grade is worked out from the score: 85+ is an A, 70+ a B, 55+ a C,
+            below 55 a D. A score under 55 also books a re-inspection automatically.
+        </p>
+        <form id="complete-form" class="form-grid">
+            <label>Score (0&ndash;100)
+                <input type="number" id="complete-score" min="0" max="100" required>
+            </label>
+            <label>Completed date
+                <input type="date" id="complete-date">
+            </label>
+            <label class="full-width">Remarks
+                <textarea id="complete-remarks" maxlength="500"
+                          placeholder="Cleanliness, food handling, storage temperatures, follow-up notes..."></textarea>
+            </label>
+            <p id="complete-error" class="feedback feedback-error" hidden></p>
+            <div class="modal-actions">
+                <button type="button" id="complete-cancel" class="btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Record result &amp; issue grade</button>
+            </div>
+        </form>
+        <div id="complete-result" class="result-banner" hidden></div>
+    </div>
+</div>
+
+<!-- ============ Reschedule / cancel modal ============ -->
+<div id="edit-modal" class="modal" hidden>
+    <div class="modal-content">
+        <h3>Reschedule inspection #<span id="edit-id"></span></h3>
+        <form id="edit-form" class="form-grid">
+            <label>Stall
+                <select id="edit-stallId" required></select>
+            </label>
+            <label>Scheduled date
+                <input type="date" id="edit-date" required>
+            </label>
+            <label>Status
+                <select id="edit-status">
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </label>
+            <p id="edit-error" class="feedback feedback-error" hidden></p>
+            <div class="modal-actions">
+                <button type="button" id="edit-cancel" class="btn">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="site-footer"></div>
+
+<!-- Load order matters: shared session -> officer helpers -> page script. -->
+<script src="./scripts/sessions.js"></script>
+<script src="./scripts/officer_auth.js"></script>
+<script src="./Template/officer-template.js"></script>
+<script src="./scripts/officer.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>NEA Officer &middot; Grade Register</title>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<main>
+    <nav id="breadcrumbs">
+        <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="./officer.html">Officer Portal</a></li>
+            <li>Grade Register</li>
+        </ul>
+    </nav>
+
+    <section id="page-intro">
+        <h2>Hygiene Grade Register</h2>
+        <p>Every grade ever issued. Grades are never overwritten &mdash; each new one is added, so a stall keeps a full history.</p>
+    </section>
+
+    <p id="page-error" class="feedback feedback-error" hidden></p>
+
+    <!-- Current grade per stall -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Current grade by stall</h3>
+        </div>
+        <div id="current-grades-cards"></div>
+        <p id="current-grades-empty" class="empty-state" hidden>No grades have been issued yet.</p>
+    </section>
+
+    <!-- Expiring soon -->
+    <section class="panel panel-card panel-warning">
+        <div class="panel-header">
+            <h3>Expiring within 30 days</h3>
+            <div class="filters">
+                <label>Window (days)
+                    <input type="number" id="expiring-days" min="0" max="365" value="30">
+                </label>
+                <button type="button" id="expiring-apply" class="btn btn-small">Apply</button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Stall</th><th>Hawker centre</th><th>Grade</th><th>Expires</th><th>Days left</th><th>Action</th></tr>
+                </thead>
+                <tbody id="expiring-body"></tbody>
+            </table>
+        </div>
+        <p id="expiring-empty" class="empty-state" hidden>No grades expiring in this window.</p>
+    </section>
+
+    <!-- One stall's full history -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>Stall history</h3>
+            <div class="filters">
+                <label>Stall
+                    <select id="history-stall">
+                        <option value="">Choose a stall…</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div id="history-output" hidden>
+            <div id="history-summary" class="history-summary"></div>
+            <h4 class="sub-heading">Grades held</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Grade</th><th>Valid from</th><th>Valid to</th><th>Score</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="history-grades-body"></tbody>
+                </table>
+            </div>
+            <h4 class="sub-heading">Inspections behind them</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Officer</th><th>Scheduled</th><th>Status</th><th>Score</th><th>Remarks</th></tr>
+                    </thead>
+                    <tbody id="history-inspections-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <p id="history-empty" class="empty-state">Choose a stall to see its full compliance record.</p>
+    </section>
+
+    <!-- Manual / corrective entry -->
+    <section class="panel panel-card">
+        <h3>Issue a grade manually</h3>
+        <p class="modal-hint">
+            Grades are normally issued automatically when an inspection result is recorded.
+            Use this only to correct a mistake or to enter a historical record.
+        </p>
+        <form id="grade-form" class="form-grid">
+            <label>Stall
+                <select id="grade-stallId" required>
+                    <option value="">Choose a stall…</option>
+                </select>
+            </label>
+            <label>Grade
+                <select id="grade-letter" required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </label>
+            <label>Linked inspection ID (optional)
+                <input type="number" id="grade-inspectionId" min="1" placeholder="e.g. 12">
+            </label>
+            <label>Valid from
+                <input type="date" id="grade-validFrom" required>
+            </label>
+            <label>Valid to
+                <input type="date" id="grade-validTo" required>
+            </label>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Issue grade</button>
+            </div>
+        </form>
+        <p id="grade-feedback" class="feedback" hidden></p>
+    </section>
+
+    <!-- The full register -->
+    <section class="panel panel-card">
+        <div class="panel-header">
+            <h3>All grades issued</h3>
+            <div class="filters">
+                <label>Stall ID
+                    <input type="number" id="filter-stallId" min="1" placeholder="All stalls">
+                </label>
+                <button type="button" id="apply-filter" class="btn btn-small">Apply</button>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Stall</th><th>Grade</th><th>Valid from</th><th>Valid to</th><th>Inspection</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="grades-body"></tbody>
+            </table>
+        </div>
+        <p id="grades-empty" class="empty-state" hidden>No grades match this filter.</p>
+    </section>
+</main>
+
+<!-- ============ Edit grade modal ============ -->
+<div id="edit-modal" class="modal" hidden>
+    <div class="modal-content">
+        <h3>Correct grade #<span id="edit-id"></span></h3>
+        <form id="edit-form" class="form-grid">
+            <label>Stall ID
+                <input type="number" id="edit-stallId" min="1" required>
+            </label>
+            <label>Grade
+                <select id="edit-grade">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </label>
+            <label>Valid from
+                <input type="date" id="edit-validFrom" required>
+            </label>
+            <label>Valid to
+                <input type="date" id="edit-validTo" required>
+            </label>
+            <p id="edit-error" class="feedback feedback-error" hidden></p>
+            <div class="modal-actions">
+                <button type="button" id="edit-cancel" class="btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save correction</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="./scripts/sessions.js"></script>
+<script src="./scripts/officer_auth.js"></script>
+<script src="./Template/officer-template.js"></script>
+<script src="./scripts/officer_grades.js"></script>
+</body>
+</html>
