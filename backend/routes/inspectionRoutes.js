@@ -12,20 +12,6 @@
 //   PUT  /:id/complete    officer - record score + remarks, issue the grade
 //   DELETE /:id           officer - remove a visit
 //
-// Reads are public on purpose: a customer looking at a stall should be able
-// to see its inspection history next to its hygiene grade, exactly like the
-// real NEA scheme. Everything that CHANGES data is officer-only.
-//
-// Middleware runs left to right:
-//   validateIdParam -> requireOfficer -> validate(schema) -> controller
-// requireOfficer is [verifyToken, authorizeRoles("officer"), attachOfficer],
-// so by the time the controller runs the caller is proven to be an officer
-// and req.officerId is set from the token.
-//
-// TESTING IN POSTMAN
-//   POST /api/auth/login with tan@nea.gov.sg / Password123, copy the token
-//   from the response, then send writes with:
-//   Authorization: Bearer <token>
 const express = require("express");
 const router = express.Router();
 const inspectionController = require("../controllers/inspectionController");
@@ -41,16 +27,11 @@ const {
 // ------------------------------------------------------------
 // FIXED PATHS FIRST
 // ------------------------------------------------------------
-// Express matches routes in the order they are registered. If "/:id" were
-// registered above these, a request for "/mine" would be captured by it and
-// arrive at getInspectionById with id = "mine". Same trick Timely uses for
-// /complaints/stall/:stallId.
 router.get("/mine", requireOfficer, inspectionController.getMyWorklist);
 router.get("/overdue", requireOfficer, inspectionController.getOverdueInspections);
 router.get("/stalls-due", requireOfficer, inspectionController.getStallsDue);
 
-// Third-party API (data.gov.sg weather). Officer-only because it is a
-// work-planning aid, and a fixed path so it is not swallowed by "/:id".
+// Third-party API (data.gov.sg weather). 
 router.get("/weather", requireOfficer, inspectionController.getWeatherForDate);
 
 // ------------------------------------------------------------

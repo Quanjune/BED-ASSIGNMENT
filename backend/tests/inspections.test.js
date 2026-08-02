@@ -2,9 +2,6 @@
 // Tests the NEA inspection routes: that reads are public, that every write is
 // locked to the officer role, that the officer is taken from the JWT rather
 // than the request body, and that the grade banding is right.
-//
-// The SQL model and the weather service are mocked, so no database and no
-// network call is needed - same approach as Aswin's admin.test.js.
 
 process.env.ACCESS_TOKEN_SECRET = "test-secret-key";
 
@@ -59,8 +56,7 @@ beforeEach(() => jest.clearAllMocks());
 // Grade banding - a pure function, so no mocking involved
 // ============================================================
 describe("scoreToGrade", () => {
-  // The band edges are where an off-by-one would hide, so those are the
-  // numbers worth testing rather than an obvious 90.
+
   test("85 and above is an A", () => {
     expect(scoreToGrade(85)).toBe("A");
     expect(scoreToGrade(100)).toBe("A");
@@ -334,9 +330,8 @@ describe("GET /api/inspections/weather (third-party API)", () => {
     expect(res.body.wet).toBe(true);
   });
 
-  // The weather is a helpful extra, not something scheduling depends on. If the
-  // third party is down the officer must still be able to book, so this comes
-  // back 200 with available:false rather than an error the page has to handle.
+ 
+  // comes back 200 with available:false rather than an error the page has to handle.
   test("200 with available:false when the third-party API fails", async () => {
     weatherService.getForecastForDate.mockRejectedValue(new Error("network down"));
     const res = await request(app).get("/api/inspections/weather?date=" + iso(1))

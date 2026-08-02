@@ -5,17 +5,7 @@
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
-// ------------------------------------------------------------
-// WHY THIS HELPER EXISTS  (read before changing it)
-// ------------------------------------------------------------
-// `(await db())` uses mssql's GLOBAL connection. That works right up
-// until something else closes it - and several models in this project do
-// exactly that:
-//
-//     connection = await sql.connect(dbConfig);   // this IS the global one
-//     ...
-//     finally { await connection.close(); }       // ...and this kills it
-//
+
 // userModel.js does it on every login, and feedback/complaint/promo/admin
 // do it on every call. So the moment anyone logs in, the global connection
 // is gone and any later `(await db())` throws
@@ -72,7 +62,7 @@ async function stallExists(stallId) {
   return result.recordset.length > 0;
 }
 
-// Is this stall already booked for a visit on this day?
+// checked whether this stall already booked for a visit on this day
 // Only 'Scheduled' rows count - a cancelled or completed visit on the same
 // date is history and must not block a new booking. excludeId lets the edit
 // screen ignore the row currently being edited.
@@ -171,11 +161,8 @@ async function getOverdue(officerId = null) {
 // Every stall on the platform with the state an officer needs in order to
 // decide who to visit next: when it was last inspected, what grade it holds
 // and whether a visit is already booked.
-//
-// OUTER APPLY runs a small "TOP 1" query per stall. It is the SQL Server way
-// of saying "the most recent one", and unlike a JOIN it still returns the
-// stall when there is nothing to find - which is exactly the case we care
-// about most here (never inspected).
+
+// OUTER APPLY runs a small "TOP 1" query per stall.
 async function getStallsDue() {
   const result = await (await db()).query(`
     SELECT f.stallId,
@@ -265,18 +252,14 @@ async function updateInspection(inspectionId, data) {
 }
 
 // ------------------------------------------------------------
-// COMPLETE - the important one
+// COMPLETE 
 // ------------------------------------------------------------
 // Recording a result does up to three writes:
 //   1. mark the inspection Completed and store score + remarks
 //   2. issue the hygiene grade those points earned
 //   3. if the stall failed, book the re-inspection
-//
-// They run inside ONE TRANSACTION. Without it, a failure on write 2 would
-// leave an inspection marked "Completed" with no grade behind it - the data
-// would be lying. With it, either all three land or none of them do.
 async function completeInspection(inspectionId, data) {
-  const pool = await sql.connect(dbConfig); // same reasoning as db() above
+  const pool = await sql.connect(dbConfig);
   const transaction = new sql.Transaction(pool);
 
   await transaction.begin();
@@ -340,8 +323,8 @@ async function completeInspection(inspectionId, data) {
   }
 }
 
-// Is there already an open visit booked on this date? Used when picking a
-// date for the automatic re-inspection so it cannot collide with the unique
+// Used when picking a date for the automatic 
+// re-inspection so it cannot collide with the unique
 // index on (stallId, scheduledDate) for open visits.
 async function findFreeFollowUpDate(stallId, startDate) {
   const date = new Date(startDate);
@@ -352,7 +335,7 @@ async function findFreeFollowUpDate(stallId, startDate) {
     if (!(await hasOpenSlot(stallId, iso))) return iso;
     date.setDate(date.getDate() + 1);
   }
-  return null; // give up rather than loop forever
+  return null; 
 }
 
 // ------------------------------------------------------------

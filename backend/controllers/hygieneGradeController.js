@@ -4,11 +4,6 @@
 const hygieneGradeModel = require("../models/hygieneGradeModel");
 const inspectionModel = require("../models/inspectionModel");
 
-// ============================================================
-// READ  (public - a hygiene grade is public information, that is the
-//        whole point of the NEA grading scheme)
-// ============================================================
-
 // GET /api/hygiene-grades?stallId=
 async function getAllGrades(req, res) {
   try {
