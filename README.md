@@ -24,7 +24,7 @@ NEA inspections.
 | **Quan Jun** | Customer — browsing & ordering | Homepage browsing of hawker centres, stalls and menu items; cart, product customisation options and checkout; order history |
 | **Kishore** | Vendor — stall management | Menu management for the vendor's own stall; rental agreement tracking; stall performance dashboard |
 | **Timely** | Customer — engagement | Feedback submission (ratings + comments); complaint submission linked to a stall; store ratings & reviews; promotions / promo codes |
-| **Kaden** | NEA officer — compliance | Inspection scheduling; recording inspection scores, remarks and hygiene grades; historical hygiene grade tracking |
+| **Kaden** | NEA officer — compliance | Inspection scheduling with a data.gov.sg weather forecast; recording inspection scores and remarks; automatic hygiene grading with re-inspection booked on a failing score; historical hygiene grade tracking; public grade lookup |
 
 ## Getting started
 
