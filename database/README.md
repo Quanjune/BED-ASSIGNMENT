@@ -2,26 +2,25 @@
 
 Database engine: **Microsoft SQL Server**  ·  Database name: **HawkersDB**
 
-## 1. Run these scripts in SSMS, in this order
+## 1. Run the one setup script in SSMS
 
-| # | Script | What it creates |
-|---|--------|-----------------|
-| 1 | **`qj and kishore masterdata.sql`** | **Master script.** Creates the database and all core tables (HawkerCenters, FoodStalls, Users, Products, CartItems, Orders, OrderItems, StallAgreements) plus the add-on tables (AddonGroups, AddonOptions, CartItemAddons), with sample data — 64 products with images, 16 vendor accounts each linked to a stall, the `Users.cardLast4` column, and ~640 sample orders. Self-contained: creates the database if missing and drops all tables first, so it is safe to re-run. It never drops the database. |
-| 2 | `promoCodes.sql` | Promotions / promo codes. |
-| 3 | `feedback_complaints.sql` | Feedback and Complaints tables with sample data. |
-| 4 | `Inspectionpage.sql` | Inspections and HygieneGrades tables (NEA officer feature). |
+Open **`FULL_SETUP.sql`** in SQL Server Management Studio and run the whole file (F5).
 
-Scripts 2–4 are **additive** — they only add their own tables, so they are safe to run
-after the master.
+That single file rebuilds the entire database from scratch — every table and all sample
+data — so there is nothing else to run and no order to get right. It:
 
-> **Note on step 4:** `Inspectionpage.sql` has no `USE HawkersDB;` line, so make sure the
-> query window in SSMS is connected to **HawkersDB** before running it, or the tables will
-> be created in the wrong database. It also has no DROP statements of its own, so running it
-> a second time on its own errors with "table already exists" — a full rebuild from the
-> master (step 1) drops everything first, so re-running the whole set in order is fine.
+- creates the `HawkersDB` database if it does not exist (it **never** drops the database),
+- drops and recreates all tables, so it is safe to re-run any time,
+- seeds the core data: 4 hawker centres, 16 food stalls, 64 products with images,
+  the admin account, 16 vendor accounts (each linked to a stall), two NEA officer
+  accounts, and the `Users.cardLast4` column,
+- seeds the add-on menu options, promo codes, feedback (with vendor replies) and
+  complaints,
+- seeds 48 sample orders (3 per stall) so the order history and vendor performance
+  pages have data,
+- creates the inspections and hygiene-grade tables for the NEA officer feature.
 
-> **Note:** `user_card.sql` is no longer needed — the `cardLast4` column is now built into
-> the master script's `Users` table.
+At the end it runs a `SELECT *` on every table so you can eyeball the seeded data.
 
 ## 2. Test login accounts
 

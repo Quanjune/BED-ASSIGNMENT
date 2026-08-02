@@ -58,8 +58,9 @@ PORT=3000
 
 ### 3. Set up the database
 
-See **[database/README.md](database/README.md)** for the SQL scripts and the order to run
-them in. Running them out of order can wipe data, so follow that guide.
+Open **`database/FULL_SETUP.sql`** in SSMS and run the whole file (F5) — it rebuilds the
+entire database in one go and is safe to re-run. See **[database/README.md](database/README.md)**
+for details and the test login accounts.
 
 ### 4. Start the server
 
@@ -104,8 +105,9 @@ backend/docs/
 rules. Short version: create `paths/<yourfeature>.js`, export `{ tag, schemas,
 paths }`, restart the server. Your group appears on the page.
 
-Currently documented: **Vendor Management**. The other features are still to be
-added by their owners.
+All feature groups are documented: **Accounts**, **Admin**, **Cart**, **Menu**,
+**Orders**, **Vendor Management**, **Inspections**, **Hygiene Grades** and the login
+token helper.
 
 ## Project structure
 
@@ -123,7 +125,7 @@ BED-ASSIGNMENT/
 ├── frontend/               # HTML pages, served statically
 │   ├── scripts/            # page JavaScript (calls the APIs)
 │   └── styles/             # CSS
-├── database/               # SQL setup scripts + setup guide
+├── database/               # FULL_SETUP.sql (one-file DB rebuild) + setup guide
 ├── media/                  # images and icons
 ├── .env.example            # template for your local .env
 └── README.md
