@@ -6,6 +6,32 @@ const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
 // ------------------------------------------------------------
+// WHY THIS HELPER EXISTS  (read before changing it)
+// ------------------------------------------------------------
+// `(await db())` uses mssql's GLOBAL connection. That works right up
+// until something else closes it - and several models in this project do
+// exactly that:
+//
+//     connection = await sql.connect(dbConfig);   // this IS the global one
+//     ...
+//     finally { await connection.close(); }       // ...and this kills it
+//
+// userModel.js does it on every login, and feedback/complaint/promo/admin
+// do it on every call. So the moment anyone logs in, the global connection
+// is gone and any later `(await db())` throws
+//     "No connection is specified for that request."
+//
+// Asking sql.connect() for the pool each time fixes it: mssql hands back the
+// existing pool if it is open, and quietly re-opens it if somebody closed it.
+// This is the same pattern productModel.js and cartModel.js use, which is why
+// the browse pages kept working while these ones did not.
+async function db() {
+  const pool = await sql.connect(dbConfig);
+  return pool.request();
+}
+
+
+// ------------------------------------------------------------
 // One SELECT list used by every read, so the shape of an inspection object
 // is identical no matter which endpoint returned it.
 //
@@ -40,7 +66,7 @@ const SELECT_INSPECTION = `
 // Does this stall actually exist? Checked before insert/update so the user
 // gets a readable message instead of a raw foreign key error.
 async function stallExists(stallId) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("stallId", sql.Int, stallId)
     .query("SELECT stallId FROM FoodStalls WHERE stallId = @stallId");
   return result.recordset.length > 0;
@@ -51,7 +77,7 @@ async function stallExists(stallId) {
 // date is history and must not block a new booking. excludeId lets the edit
 // screen ignore the row currently being edited.
 async function hasOpenSlot(stallId, scheduledDate, excludeId = null) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("stallId", sql.Int, stallId)
     .input("scheduledDate", sql.Date, scheduledDate)
     .input("excludeId", sql.Int, excludeId)
@@ -73,7 +99,7 @@ async function hasOpenSlot(stallId, scheduledDate, excludeId = null) {
 // Public list with optional filters. Built up piece by piece so an absent
 // filter simply adds nothing to the WHERE clause.
 async function getAllInspections(filters = {}) {
-  const request = new sql.Request();
+  const request = (await db());
   let query = SELECT_INSPECTION + " WHERE 1 = 1";
 
   if (filters.stallId) {
@@ -96,7 +122,7 @@ async function getAllInspections(filters = {}) {
 }
 
 async function getInspectionById(inspectionId) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("inspectionId", sql.Int, inspectionId)
     .query(SELECT_INSPECTION + " WHERE i.inspectionId = @inspectionId");
   return result.recordset[0]; // undefined when the id does not exist
@@ -105,7 +131,7 @@ async function getInspectionById(inspectionId) {
 // The logged-in officer's own open worklist: everything still 'Scheduled',
 // soonest first, so the page can split it into overdue / today / upcoming.
 async function getOpenByOfficer(officerId) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("officerId", sql.Int, officerId)
     .query(SELECT_INSPECTION + `
       WHERE i.officerId = @officerId
@@ -118,7 +144,7 @@ async function getOpenByOfficer(officerId) {
 // Everything this officer has already carried out - the "what have I done"
 // half of the worklist page.
 async function getCompletedByOfficer(officerId) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("officerId", sql.Int, officerId)
     .query(SELECT_INSPECTION + `
       WHERE i.officerId = @officerId
@@ -131,7 +157,7 @@ async function getCompletedByOfficer(officerId) {
 // Booked, the date has passed, and still nobody has recorded a result.
 // officerId is optional: leave it out for a whole-agency view.
 async function getOverdue(officerId = null) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("officerId", sql.Int, officerId)
     .query(SELECT_INSPECTION + `
       WHERE i.status = 'Scheduled'
@@ -151,7 +177,7 @@ async function getOverdue(officerId = null) {
 // stall when there is nothing to find - which is exactly the case we care
 // about most here (never inspected).
 async function getStallsDue() {
-  const result = await new sql.Request().query(`
+  const result = await (await db()).query(`
     SELECT f.stallId,
            f.name  AS stallName,
            c.name  AS centerName,
@@ -198,7 +224,7 @@ async function getStallsDue() {
 // officerId is supplied by the controller from the JWT, never from the body.
 // followUpOf is only set when the back end books a re-inspection itself.
 async function createInspection(data) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("stallId", sql.Int, data.stallId)
     .input("officerId", sql.Int, data.officerId)
     .input("scheduledDate", sql.Date, data.scheduledDate)
@@ -220,7 +246,7 @@ async function createInspection(data) {
 // The officer is not updatable: an inspection stays attached to whoever
 // booked it.
 async function updateInspection(inspectionId, data) {
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("inspectionId", sql.Int, inspectionId)
     .input("stallId", sql.Int, data.stallId)
     .input("scheduledDate", sql.Date, data.scheduledDate)
@@ -250,7 +276,7 @@ async function updateInspection(inspectionId, data) {
 // leave an inspection marked "Completed" with no grade behind it - the data
 // would be lying. With it, either all three land or none of them do.
 async function completeInspection(inspectionId, data) {
-  const pool = await sql.connect(dbConfig); // reuses the pool app.js opened
+  const pool = await sql.connect(dbConfig); // same reasoning as db() above
   const transaction = new sql.Transaction(pool);
 
   await transaction.begin();
@@ -337,13 +363,13 @@ async function findFreeFollowUpDate(stallId, startDate) {
 // grade history. Any follow-up pointing back at this row has to be
 // unhooked first, otherwise the self-referencing foreign key blocks it.
 async function deleteInspection(inspectionId) {
-  const request = new sql.Request().input("inspectionId", sql.Int, inspectionId);
+  const request = (await db()).input("inspectionId", sql.Int, inspectionId);
 
   await request.query(`
     UPDATE Inspections SET followUpOf = NULL WHERE followUpOf = @inspectionId
   `);
 
-  const result = await new sql.Request()
+  const result = await (await db())
     .input("inspectionId", sql.Int, inspectionId)
     .query("DELETE FROM Inspections OUTPUT DELETED.* WHERE inspectionId = @inspectionId");
 

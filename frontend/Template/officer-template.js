@@ -47,9 +47,17 @@
             <li><a href="./index.html">Exit to site</a></li>
           </ul>
         </nav>
+        <!-- Same structure as the customer and admin headers: an outlined
+             name pill where the customer has "Cart", and the round profile
+             icon. Logging out happens on user.html, the same place every
+             other role does it - one logout button in the whole app. -->
         <div class="header-actions">
-          <span id="officer-name" class="portal-tag">NEA Officer</span>
-          <button type="button" id="officer-logout" class="btn btn-small">Log out</button>
+          <a href="./officer_profile.html" id="officer-name" class="portal-pill">NEA Officer</a>
+          <div id="user">
+            <a href="./officer_profile.html" title="Profile">
+              <img src="../media/icons/user.svg" alt="Profile">
+            </a>
+          </div>
         </div>
       </header>
     `;
@@ -115,13 +123,7 @@
     const user = window.Session ? Session.getUser() : null;
     if (nameTag && user && user.name) nameTag.textContent = user.name;
 
-    const logout = document.getElementById("officer-logout");
-    if (logout) {
-      logout.addEventListener("click", () => {
-        if (window.Session) Session.logout();
-        window.location.href = "login.html";
-      });
-    }
+
   }
 
   document.addEventListener("DOMContentLoaded", loadOfficerTemplate);

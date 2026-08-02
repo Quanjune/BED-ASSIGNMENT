@@ -6,6 +6,7 @@
 //   GET  /mine            officer - the logged-in officer's own worklist
 //   GET  /overdue         officer - booked, date passed, no result recorded
 //   GET  /stalls-due      officer - every stall + last visit + current grade
+//   GET  /weather         officer - data.gov.sg 4-day outlook for one date
 //   POST /                officer - schedule a visit
 //   PUT  /:id             officer - move or cancel a booked visit
 //   PUT  /:id/complete    officer - record score + remarks, issue the grade
@@ -47,6 +48,10 @@ const {
 router.get("/mine", requireOfficer, inspectionController.getMyWorklist);
 router.get("/overdue", requireOfficer, inspectionController.getOverdueInspections);
 router.get("/stalls-due", requireOfficer, inspectionController.getStallsDue);
+
+// Third-party API (data.gov.sg weather). Officer-only because it is a
+// work-planning aid, and a fixed path so it is not swallowed by "/:id".
+router.get("/weather", requireOfficer, inspectionController.getWeatherForDate);
 
 // ------------------------------------------------------------
 // PUBLIC READS

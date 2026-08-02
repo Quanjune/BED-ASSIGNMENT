@@ -185,6 +185,45 @@ main {
   color: #0a7d55;
 }
 
+/* ---- NEA hygiene grade badge ----
+   Sits between the stall name and the star rating. Colours follow the
+   NEA scheme so the badge reads the same way as the sticker on the stall
+   itself; the letter is kept as text (not an image) so it stays readable
+   for screen readers. */
+.item-grade {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0;
+}
+
+.grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.grade-a { background-color: #0a7d55; }  /* excellent */
+.grade-b { background-color: #6a9c2f; }  /* good      */
+.grade-c { background-color: #d18c14; }  /* average   */
+.grade-d { background-color: #b3261e; }  /* poor      */
+
+/* Grade past its validTo date - shown, but clearly not current. */
+.grade-expired {
+  background-color: #9a9a9a;
+}
+
+.grade-label {
+  font-size: 0.75rem;
+  color: #666;
+}
+
 /* ---- Card action buttons ----
    margin-top:auto pushes this row to the bottom of the card, so the buttons
    line up across cards even when stall names wrap onto two lines. */

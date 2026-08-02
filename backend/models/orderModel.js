@@ -17,7 +17,12 @@ const TAKEAWAY_FEE   = 0.00;   // takeaway has no fee
 // Exported so the controller (and tests) can reuse the exact same rules.
 //
 // `promo` is a row from Timely's PromoCodes table, or null/undefined.
-function calculateFees(subtotal, fulfillment, promo) {
+// `discountBase` is the slice of the subtotal the promo is actually allowed
+// to discount: the whole cart for a platform-wide code, or just one stall's
+// lines for a stall-owned code (see resolvePromo). Defaults to the full
+// subtotal so existing callers that never pass it (e.g. order history,
+// which recalculates fees without re-applying a promo) are unaffected.
+function calculateFees(subtotal, fulfillment, promo, discountBase = subtotal) {
   let deliveryFee = 0;
   let minOrderFee = 0;
 
@@ -32,12 +37,14 @@ function calculateFees(subtotal, fulfillment, promo) {
     }
   }
 
-  // Promo discount applies to the FOOD subtotal only, never to delivery fees.
+  // Promo discount applies to the FOOD subtotal of the stall it belongs to
+  // only, never to delivery fees or to a different stall's items in the
+  // same cart.
   let discount = 0;
   if (promo) {
     const value = Number(promo.discountValue);
-    discount = promo.discountType === "percent" ? (subtotal * value) / 100 : value;
-    if (discount > subtotal) discount = subtotal;   // a $5 code on a $3 cart takes off $3, not $5
+    discount = promo.discountType === "percent" ? (discountBase * value) / 100 : value;
+    if (discount > discountBase) discount = discountBase;   // a $5 code on a $3 stall subtotal takes off $3, not $5
   }
 
   const total =
@@ -56,13 +63,14 @@ function calculateFees(subtotal, fulfillment, promo) {
   };
 }
 
-// ---- Does the cart contain anything from this stall? ----
-// Stall-owned promo codes (PromoCodes.stallId) only apply to that stall's food.
+// ---- Subtotal of just the cart lines that belong to one stall ----
+// Stall-owned promo codes (PromoCodes.stallId) must only discount that
+// stall's food - not a separate stall's items sitting in the same cart.
 // Cart rows don't carry stallId, so look it up from the product ids.
 // The id list is parameterised (@p0, @p1, ...) - never string-concatenated.
-async function cartHasStall(items, stallId) {
+async function stallSubtotal(items, stallId) {
   const ids = items.map(i => i.productId).filter(id => id != null);
-  if (ids.length === 0) return false;
+  if (ids.length === 0) return 0;
 
   const pool = await sql.connect(dbConfig);
   const request = pool.request();
@@ -73,18 +81,24 @@ async function cartHasStall(items, stallId) {
   }).join(", ");
 
   const result = await request.query(
-    `SELECT COUNT(*) AS matches FROM Products
+    `SELECT productId FROM Products
      WHERE stallId = @stallId AND productId IN (${placeholders})`
   );
-  return result.recordset[0].matches > 0;
+  const stallProductIds = new Set(result.recordset.map(r => r.productId));
+  return items
+    .filter(i => stallProductIds.has(i.productId))
+    .reduce((sum, i) => sum + Number(i.lineTotal), 0);
 }
 
 // ---- Promo code rules ----
 // Looks the code up through Timely's model, then applies the same four rules
 // their /api/promos/validate endpoint uses, plus a stall-ownership check.
-// Returns { promo } on success or { error: "..." } on failure.
+// Returns { promo, discountBase } on success or { error: "..." } on failure.
+// `discountBase` is how much of the cart the code is allowed to discount:
+// the full subtotal for a platform-wide code, or just that stall's lines
+// for a stall-owned code - see calculateFees.
 async function resolvePromo(code, items) {
-  if (!code || !String(code).trim()) return { promo: null };
+  if (!code || !String(code).trim()) return { promo: null, discountBase: 0 };
 
   const promo = await promoModel.getPromoByCode(String(code).trim());
 
@@ -97,16 +111,20 @@ async function resolvePromo(code, items) {
   if (new Date(promo.expiryDate) < today)    return { error: "That code has expired." };
   if (promo.timesUsed >= promo.usageLimit)   return { error: "That code has reached its usage limit." };
 
-  // stallId null = platform-wide code. Otherwise the cart must contain
-  // something from that stall.
+  // stallId null = platform-wide code, discounts the whole cart. Otherwise
+  // the cart must contain something from that stall, and only that stall's
+  // lines count toward the discount.
+  let discountBase;
   if (promo.stallId != null) {
-    const ok = await cartHasStall(items, promo.stallId);
-    if (!ok) {
+    discountBase = await stallSubtotal(items, promo.stallId);
+    if (discountBase <= 0) {
       return { error: `That code only applies to ${promo.stallName || "its own stall"}.` };
     }
+  } else {
+    discountBase = items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
   }
 
-  return { promo };
+  return { promo, discountBase };
 }
 
 // ---- CHECKOUT: cart -> order ----
@@ -127,12 +145,12 @@ async function checkout(userId, paymentMethod, fulfillment, promoCode) {
 
   // Validate the promo BEFORE opening the transaction - a bad code is a
   // user error, not a database failure, so it shouldn't need a rollback.
-  const { promo, error } = await resolvePromo(promoCode, items);
+  const { promo, error, discountBase } = await resolvePromo(promoCode, items);
   if (error) return { promoError: error };
 
   // Subtotal from the REAL stored prices, not anything the client sent.
   const subtotal = items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
-  const fees = calculateFees(subtotal, fulfillment, promo);
+  const fees = calculateFees(subtotal, fulfillment, promo, discountBase);
 
   // All items in one cart come from the same centre, so take it from line 1.
   // centerId is nullable in the schema, so `?? null` keeps the insert safe.
