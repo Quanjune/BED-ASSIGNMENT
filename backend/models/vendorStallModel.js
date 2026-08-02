@@ -21,16 +21,10 @@ async function getStallIdForUser(userId) {
 
 // Stall + its hawker centre, for the dashboard header.
 async function getStallProfile(stallId) {
-  console.log("1. Entered getStallProfile");
-
   const pool = await getPool();
-  console.log("2. Pool acquired");
-
   const request = pool.request();
 
   request.input("stallId", sql.Int, stallId);
-
-  console.log("3. About to execute query");
 
   const r = await request.query(`
     SELECT s.stallId,
@@ -43,8 +37,6 @@ async function getStallProfile(stallId) {
       ON c.centerId = s.centerId
     WHERE s.stallId = @stallId
   `);
-
-  console.log("4. Query finished");
 
   return r.recordset[0];
 }

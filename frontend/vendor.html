@@ -1,4 +1,27 @@
 <!DOCTYPE html>
+<!--
+    vendor.html  (Kishore - Vendor Management)
+    "My Menu" - where a stall owner adds, edits and deletes their dishes.
+
+    How the page is put together:
+      header / breadcrumbs / footer   copied from index.html on purpose, so
+                                      the shared Template/template.css styles
+                                      them and the site looks consistent.
+      #dash-section                   the dashboard itself. Starts hidden and
+                                      is only revealed by vendor_auth.js once
+                                      the token has been checked, so stall
+                                      data never flashes up for a signed-out
+                                      visitor.
+      #form-modal                     the Add / Edit dish pop-up.
+
+    Note there is deliberately no "Stall ID" box anywhere on this page. The
+    backend works out which stall you own from your login token, so a vendor
+    can only ever see and edit their OWN menu.
+
+    The three scripts at the bottom must stay in this order: template.js
+    (hamburger) -> vendor_auth.js (defines VendorAuth) -> vendor.js, because
+    vendor.js calls VendorAuth.initVendorGate() as soon as it loads.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -75,6 +98,21 @@
                         <p class="vm-eyebrow">Stall Owner</p>
                         <h2 class="vm-title" id="stall-name">My stall</h2>
                         <p class="vm-subtitle" id="stall-center"></p>
+                    </div>
+
+                    <!-- My stall's hygiene grade, sitting right beside the name
+                         and centre. The letter and the dates come from Kaden's
+                         grading module (GET /api/hygiene-grades/stall/:stallId),
+                         filled in by vendor_auth.js once the gate knows which
+                         stall this login owns. Starts hidden and is only
+                         revealed once that lookup answers, so a half-drawn
+                         badge never flashes up while the page is loading. -->
+                    <div id="stall-grade" class="vm-grade" hidden>
+                        <span id="stall-grade-letter" class="vm-grade-letter"></span>
+                        <div>
+                            <p class="vm-grade-label">Hygiene grade</p>
+                            <p class="vm-grade-note" id="stall-grade-note"></p>
+                        </div>
                     </div>
                 </div>
                 <button id="btn-add" type="button" class="vm-btn vm-btn-primary vm-btn-add">+ Add dish</button>
