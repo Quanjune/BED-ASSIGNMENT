@@ -18,10 +18,10 @@ async function getQuote(req, res) {
     const items = await cartModel.getCartByUser(req.user.userId);
     const subtotal = items.reduce((sum, i) => sum + Number(i.lineTotal), 0);
 
-    const { promo, error } = await orderModel.resolvePromo(req.query.promoCode, items);
+    const { promo, error, discountBase } = await orderModel.resolvePromo(req.query.promoCode, items);
 
     res.status(200).json({
-      ...orderModel.calculateFees(subtotal, fulfillment, promo),
+      ...orderModel.calculateFees(subtotal, fulfillment, promo, discountBase),
       promoError: error || null
     });
   } catch (err) {

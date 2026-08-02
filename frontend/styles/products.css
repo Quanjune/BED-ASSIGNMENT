@@ -185,6 +185,45 @@ main {
   color: #0a7d55;
 }
 
+/* ---- NEA hygiene grade badge ----
+   Sits between the stall name and the star rating. Colours follow the
+   NEA scheme so the badge reads the same way as the sticker on the stall
+   itself; the letter is kept as text (not an image) so it stays readable
+   for screen readers. */
+.item-grade {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0;
+}
+
+.grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.grade-a { background-color: #0a7d55; }  /* excellent */
+.grade-b { background-color: #6a9c2f; }  /* good      */
+.grade-c { background-color: #d18c14; }  /* average   */
+.grade-d { background-color: #b3261e; }  /* poor      */
+
+/* Grade past its validTo date - shown, but clearly not current. */
+.grade-expired {
+  background-color: #9a9a9a;
+}
+
+.grade-label {
+  font-size: 0.75rem;
+  color: #666;
+}
+
 /* ---- Card action buttons ----
    margin-top:auto pushes this row to the bottom of the card, so the buttons
    line up across cards even when stall names wrap onto two lines. */
@@ -249,4 +288,28 @@ main {
 @media (max-width: 560px) {
   .page-hero { height: 150px; }
   .page-hero h2 { font-size: 1.6rem; }
+}
+/* ---- NEA live weather chip (centres page) ----
+   Sits under the centre address on each hawker centre card. Fed by NEA's
+   2-hour forecast through our own /api/weather/centers endpoint. Neutral grey
+   by default; switches to blue-grey when the forecast is wet so it reads as an
+   advisory rather than decoration.
+   (Kaden's officer weather uses .weather-note in compliance.css - no clash.) */
+.item-weather {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.item-weather.weather-wet {
+  color: #2b5f8a;
+  font-weight: 600;
+}
+
+.weather-icon {
+  font-size: 0.95rem;
+  line-height: 1;
 }

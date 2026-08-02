@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./Template/template.css">
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./styles/compliance.css">
+    <title>NEA Officer &middot; My Profile</title>
+</head>
+<body>
+
+<!--
+  The officer's own profile page.
+
+  user.html is the CUSTOMER profile - it has a saved-payment-card row, which an
+  NEA officer will never use. Rather than hiding rows on somebody else's page,
+  the officer lane gets its own page, the same way the vendor lane has its own
+  dashboard instead of borrowing the customer one.
+
+  It reads and writes the SAME endpoints as user.html (GET and PUT
+  /api/auth/me), so no back-end logic is duplicated. Only the screen differs.
+-->
+<div id="site-header"></div>
+
+<main>
+    <nav id="breadcrumbs">
+        <ul>
+            <li><a href="./officer.html">Officer Portal</a></li>
+            <li>My Profile</li>
+        </ul>
+    </nav>
+
+    <section class="profile-section">
+        <h2>My Profile</h2>
+
+        <div class="profile-card">
+            <div class="profile-row">
+                <span class="label">Username</span>
+                <span class="value" id="pfName">-</span>
+                <button class="btn-pill" data-edit="name">Edit</button>
+            </div>
+
+            <div class="profile-row">
+                <span class="label">Role</span>
+                <!-- Read-only on purpose: an account cannot promote itself.
+                     The role is set in the database by the operator. -->
+                <span class="value" id="pfRole">-</span>
+            </div>
+
+            <div class="profile-row">
+                <span class="label">Email</span>
+                <span class="value" id="pfEmail">-</span>
+                <button class="btn-pill" data-edit="email">Edit</button>
+            </div>
+
+            <p id="pfFeedback" class="feedback" hidden></p>
+
+            <button class="primary-btn" id="logoutBtn">Logout</button>
+        </div>
+    </section>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="./scripts/sessions.js"></script>
+<script src="./scripts/officer_auth.js"></script>
+<script src="./Template/officer-template.js"></script>
+<script src="./scripts/officer_profile.js"></script>
+</body>
+</html>

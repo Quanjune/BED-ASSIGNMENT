@@ -40,6 +40,9 @@
             <label>Date
                 <input type="date" id="schedule-date" required>
             </label>
+            <!-- Filled in by officer_schedule.js from the data.gov.sg forecast
+                 (fetched through our own back end, not from the browser). -->
+            <p id="weather-note" class="weather-note" hidden></p>
             <label>Inspecting officer
                 <!-- Read-only on purpose. The back end takes the officer from
                      the login token, so a visit can never be filed under
