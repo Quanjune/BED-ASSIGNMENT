@@ -17,9 +17,29 @@ const statSpent = document.getElementById("stat-spent");
 const token = localStorage.getItem("token");
 
 // Turn a SQL datetime string into a readable date + time.
+//
+// TIMEZONE NOTE: our Orders.createdAt is stored in UTC (the checkout INSERT
+// writes SYSUTCDATETIME()). The mssql driver hands that back as an ISO string
+// ending in "Z", so `new Date(...)` reads it as UTC and toLocaleString()
+// converts it to the viewer's local time — correct for a Singapore user.
+//
+// Older orders may have been stored WITHOUT a "Z" (naive local-time strings
+// from the old GETDATE() default). To keep those consistent we normalise any
+// value that has no timezone marker by appending "Z", so every order is
+// interpreted the same way instead of some being off by 8 hours.
 function formatWhen(createdAt) {
   if (!createdAt) return "";
-  const d = new Date(createdAt);
+
+  let value = createdAt;
+  if (typeof value === "string") {
+    const hasZone = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value.trim());
+    if (!hasZone) {
+      // "2026-08-02 21:30:00" -> "2026-08-02T21:30:00Z"
+      value = value.trim().replace(" ", "T") + "Z";
+    }
+  }
+
+  const d = new Date(value);
   if (isNaN(d)) return "";
   return d.toLocaleDateString([], { day: "2-digit", month: "short" }) +
          " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
