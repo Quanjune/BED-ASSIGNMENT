@@ -13,14 +13,6 @@
    LOAD ORDER on every officer page:
        sessions.js  ->  officer_auth.js  ->  the page's own script
 
-   What it gives a page:
-     Officer.requireOfficer()   - kick anyone who is not a signed-in officer
-     Officer.api(path, opts)    - fetch with the token attached, JSON parsed,
-                                  and server errors turned into readable ones
-     Officer.formatDate(v)      - one date format across all three pages
-     Officer.gradeBadge(g)      - <span> for a grade letter
-     Officer.statusBadge(s)     - <span> for an inspection status
-     Officer.toast(el, msg, ok) - inline success/error message
    =================================================================== */
 
 (function () {

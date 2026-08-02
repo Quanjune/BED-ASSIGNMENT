@@ -1,10 +1,7 @@
 // docs/paths/inspections.js  (Kaden - NEA inspections)
 // Swagger documentation for /api/inspections. Picked up automatically by
 // docs/index.js - see backend/docs/README.md.
-//
-// Reads are public (a customer may look at a stall's inspection history);
-// every write, and the three officer worklist endpoints, need an officer
-// token. Log in as tan@nea.gov.sg / Password123 to try them here.
+
 
 const tag = {
   name: "Inspections",

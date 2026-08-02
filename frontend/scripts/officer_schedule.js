@@ -44,9 +44,6 @@ async function showWeatherFor(date) {
     return;
   }
 
-  // The call goes to OUR server, which then calls data.gov.sg. That keeps the
-  // third-party call on the back end, and the browser only ever talks to one
-  // origin.
   try {
     const w = await Officer.api(`/inspections/weather?date=${encodeURIComponent(date)}`);
 
@@ -61,7 +58,6 @@ async function showWeatherFor(date) {
     }
     weatherNote.hidden = false;
   } catch (err) {
-    // Even an unexpected failure must not stop the officer booking.
     weatherNote.hidden = true;
     console.error("weather lookup failed:", err.message);
   }
@@ -98,7 +94,6 @@ function applyFilter() {
     if (mode === "all") return true;
     if (mode === "high") return s.priority === "high";
     if (mode === "booked") return s.priority === "booked";
-    // "needs" - anything not already booked and not already fine
     return s.priority === "high" || s.priority === "medium";
   });
 
@@ -170,11 +165,9 @@ scheduleForm.addEventListener("submit", async (e) => {
     dateInput.value = Officer.todayInput();
     loadStalls(); // the stall is now "already booked", so refresh the table
   } catch (err) {
-    // The server sends 409 with a readable sentence when the slot is taken.
     Officer.toast(scheduleFeedback, err.message, false);
   }
 });
 
-// ---------- start ----------
 loadStalls();
-showWeatherFor(dateInput.value);   // the box starts on today
+showWeatherFor(dateInput.value);

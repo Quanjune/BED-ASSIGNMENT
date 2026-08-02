@@ -144,5 +144,4 @@ historySelect.addEventListener("change", async () => {
   }
 });
 
-// ---------- start ----------
 loadCurrent();

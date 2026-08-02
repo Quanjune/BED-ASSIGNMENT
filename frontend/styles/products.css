@@ -289,3 +289,27 @@ main {
   .page-hero { height: 150px; }
   .page-hero h2 { font-size: 1.6rem; }
 }
+/* ---- NEA live weather chip (centres page) ----
+   Sits under the centre address on each hawker centre card. Fed by NEA's
+   2-hour forecast through our own /api/weather/centers endpoint. Neutral grey
+   by default; switches to blue-grey when the forecast is wet so it reads as an
+   advisory rather than decoration.
+   (Kaden's officer weather uses .weather-note in compliance.css - no clash.) */
+.item-weather {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.item-weather.weather-wet {
+  color: #2b5f8a;
+  font-weight: 600;
+}
+
+.weather-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}

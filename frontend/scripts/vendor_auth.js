@@ -62,12 +62,77 @@
     if (els.dash) els.dash.hidden = false;
   }
 
+  // ---- hygiene grade badge (data from Kaden's grading module) ----
+  //
+  // GET /api/hygiene-grades/stall/:stallId is a PUBLIC endpoint - a hygiene
+  // grade is public information - so this one call deliberately uses plain
+  // fetch() rather than authFetch(). It still only ever runs with the stallId
+  // the gate resolved from the token, so a vendor only sees their own grade.
+  //
+  // The grade is a nice-to-have on top of the dashboard: if the request fails
+  // the panel simply stays hidden and the rest of the page carries on.
+  function formatGradeDate(value) {
+    if (!value) return "";
+    return new Date(value).toLocaleDateString("en-SG", {
+      year: "numeric", month: "short", day: "numeric"
+    });
+  }
+
+  async function loadGrade(stallId) {
+    if (!stallId || !els.grade || !els.gradeLetter || !els.gradeNote) return;
+    try {
+      const res = await fetch("/api/hygiene-grades/stall/" + stallId);
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // currentGrade is null the moment a grade lapses, so fall back to the
+      // newest row on record (grades[] is already sorted newest-first) and
+      // label it as expired instead of pretending the stall has no grade.
+      const current = data.currentGrade;
+      const latest = current || (data.grades && data.grades[0]) || null;
+
+      els.grade.classList.remove("vm-grade-warn");
+
+      if (!latest) {
+        els.gradeLetter.textContent = "–";              // en dash
+        els.gradeLetter.className = "vm-grade-letter vm-grade-none";
+        els.gradeNote.textContent = "Not inspected yet";
+      } else {
+        els.gradeLetter.textContent = latest.grade;
+        els.gradeLetter.className =
+          "vm-grade-letter vm-grade-" + String(latest.grade).toLowerCase();
+
+        if (!current) {
+          els.gradeNote.textContent =
+            "Expired " + formatGradeDate(latest.validTo) + " · awaiting re-inspection";
+          els.grade.classList.add("vm-grade-warn");
+        } else if (latest.daysUntilExpiry <= 30) {
+          // Worth shouting about: the vendor needs to book a re-inspection.
+          els.gradeNote.textContent =
+            "Expires in " + latest.daysUntilExpiry + " day" +
+            (latest.daysUntilExpiry === 1 ? "" : "s") +
+            " · " + formatGradeDate(latest.validTo);
+          els.grade.classList.add("vm-grade-warn");
+        } else {
+          els.gradeNote.textContent = "Valid until " + formatGradeDate(latest.validTo);
+        }
+      }
+
+      els.grade.hidden = false;
+    } catch (e) {
+      /* leave the panel hidden - never block the dashboard over a badge */
+    }
+  }
+
   // Ask the backend which stall belongs to this token, then open the dashboard.
   async function loadStall() {
     try {
       const res = await authFetch("/api/vendors/stall");
       if (!res.ok) {
-        // The no-stall case is now caught by login.html before a vendor ever reaches this page, so this just sends bad/expired sessions back to the central login.
+        // A vendor with no stall is already stopped by login.html, so by the
+        // time we get here the only realistic cause is a bad or expired
+        // token. Nothing on this page can fix that - drop the dead session
+        // and send them back to the central login.
         clearSession();
         window.location.href = "login.html";
         return;
@@ -88,6 +153,8 @@
         }
       }
       showDash();
+      // Not awaited: the menu should not sit waiting on the grade lookup.
+      loadGrade(stall.stallId);
       if (onReadyCb) onReadyCb(stall);
     } catch (e) {
       alert("Couldn't reach the server. Is the backend running?");
@@ -143,6 +210,11 @@
       stallName: document.getElementById("stall-name"),
       stallCenter: document.getElementById("stall-center"),
       stallPhoto: document.getElementById("stall-photo"),
+      // Hygiene grade panel. Only vendor.html carries this markup for now,
+      // so loadGrade() no-ops on the other vendor pages.
+      grade: document.getElementById("stall-grade"),
+      gradeLetter: document.getElementById("stall-grade-letter"),
+      gradeNote: document.getElementById("stall-grade-note"),
     };
     if (els.btnLogin) els.btnLogin.addEventListener("click", doLogin);
     if (els.password) els.password.addEventListener("keydown", (e) => {

@@ -1,12 +1,6 @@
 // weatherService.js  (Kaden - NEA inspections)
 // Third-party API: Singapore's 4-day weather outlook from data.gov.sg.
 //
-// WHY A "SERVICE" AND NOT A MODEL
-//   Everything in models/ talks to our SQL Server. This talks to somebody
-//   else's server over HTTP, so it does not belong there. Keeping it in its
-//   own folder makes the boundary obvious: if data.gov.sg changes its
-//   response, exactly one file has to change.
-//
 // WHY WEATHER
 //   Hawker centres are open-air and an inspection is a physical site visit.
 //   An officer picking a date wants to know if thundery showers are forecast,
@@ -15,27 +9,6 @@
 // NO API KEY
 //   data.gov.sg's real-time endpoints are open, so there is nothing to store
 //   in .env and nothing secret to leak.
-//
-// THE RESPONSE (trimmed - this is what the real API returns)
-//   {
-//     "code": 0,
-//     "data": { "records": [ {
-//        "date": "2026-08-02",
-//        "forecasts": [ {
-//           "timestamp": "2026-08-03T00:00:00+08:00",
-//           "day": "Sunday",
-//           "temperature": { "low": 26, "high": 34, "unit": "Degrees Celsius" },
-//           "forecast": { "code": "TL", "text": "Thundery Showers",
-//                         "summary": "Afternoon thundery showers" },
-//           "relativeHumidity": { "low": 60, "high": 90 },
-//           "wind": { "direction": "SSE", "speed": { "low": 10, "high": 20 } }
-//        } ]
-//     } ] }
-//   }
-//
-//   Note the shape is deeply nested and the useful fields sit four levels
-//   down. normalise() flattens it so the rest of the app never has to know
-//   any of that.
 
 const API_URL = "https://api-open.data.gov.sg/v2/real-time/api/four-day-outlook";
 
