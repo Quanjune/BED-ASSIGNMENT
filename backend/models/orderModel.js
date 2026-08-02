@@ -174,8 +174,13 @@ async function checkout(userId, paymentMethod, fulfillment, promoCode) {
     orderReq.input("promoCode", sql.NVarChar, promo ? promo.code : null);
     orderReq.input("discount", sql.Decimal(10, 2), fees.discount);
     const orderRes = await orderReq.query(
-      "INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status, promoCode, discount) " +
-      "VALUES (@userId, @centerId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid', @promoCode, @discount); " +
+      // createdAt is set explicitly to SYSUTCDATETIME() (UTC) rather than
+      // relying on the column's GETDATE() default (server LOCAL time). The
+      // mssql driver returns datetimes to Node as UTC, so storing UTC here is
+      // what makes the history page show the correct local time instead of
+      // being 8 hours off.
+      "INSERT INTO Orders (userId, centerId, subtotal, total, paymentMethod, fulfillment, status, promoCode, discount, createdAt) " +
+      "VALUES (@userId, @centerId, @subtotal, @total, @paymentMethod, @fulfillment, 'paid', @promoCode, @discount, SYSUTCDATETIME()); " +
       "SELECT SCOPE_IDENTITY() AS orderId;"
     );
     const orderId = orderRes.recordset[0].orderId;
