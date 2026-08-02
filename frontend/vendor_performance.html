@@ -1,4 +1,24 @@
 <!DOCTYPE html>
+<!--
+    vendor_performance.html  (Kishore - Vendor Management, Sprint 3)
+    "Performance" - a read-only dashboard of how the stall is actually doing.
+    Nothing on this page writes to the database; it only displays.
+
+    The whole page is filled by ONE request:
+        GET /api/vendors/performance?days=30
+    The reporting window selector at the top re-sends that request with a
+    different 'days' value (7 / 14 / 30 / 90) and re-renders.
+
+    Sections, top to bottom: KPI row -> revenue trend -> top dishes + peak
+    hours -> ratings + reviews -> menu snapshot + compliance.
+
+    The charts are hand-built inline SVG drawn by vendor_performance.js.
+    That is a deliberate choice: no chart library and no CDN means the
+    dashboard still renders correctly with no internet during the demo.
+
+    Scripts at the bottom must stay in this order: template.js (hamburger)
+    -> vendor_auth.js (defines VendorAuth) -> vendor_performance.js.
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,6 +31,7 @@
     <title>Vendor · Performance</title>
 </head>
 <body class="page-performance">
+    <!-- Header (same structure as index.html) -->
     <header>
         <div class="header-brand">
             <button id="hamburger">
@@ -54,6 +75,7 @@
     </header>
 
     <main>
+        <!-- Breadcrumbs -->
         <nav id="breadcrumbs">
             <ul>
                 <li><a href="./index.html">Home</a></li>
@@ -157,6 +179,7 @@
         </section>
     </main>
 
+    <!-- Footer (same as index.html) -->
     <footer>
         <div class="sub_footer">
             <div class="footer-branding">
@@ -202,8 +225,11 @@
         <p>&copy; 2026 Hawkers. All rights reserved.</p>
     </footer>
 
+    <!-- Template Script (hamburger toggle) -->
     <script src="./Template/template.js"></script>
+    <!-- Shared vendor login gate + authFetch -->
     <script src="./scripts/vendor_auth.js"></script>
+    <!-- Performance dashboard logic (fetch + SVG charts) -->
     <script src="./scripts/vendor_performance.js"></script>
 </body>
 </html>
