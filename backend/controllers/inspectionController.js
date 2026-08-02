@@ -6,10 +6,7 @@
 const inspectionModel = require("../models/inspectionModel");
 const weatherService = require("../services/weatherService");   // third-party API
 
-// ============================================================
-// Business rules, kept together at the top so they are easy to find
-// and easy to explain during the demo.
-// ============================================================
+
 
 // Points earned on the visit turn into a letter grade.
 const GRADE_BANDS = [
@@ -19,9 +16,7 @@ const GRADE_BANDS = [
   { min: 0,  grade: "D" },
 ];
 
-// How long each grade stays valid. A well-run stall is left alone for a
-// year; a poor one has to be looked at again sooner. This is what drives
-// the "expiring soon" list the officer schedules from.
+// How long each grade stays valid.
 const GRADE_VALIDITY_MONTHS = { A: 12, B: 12, C: 6, D: 3 };
 
 // Below this the stall has failed and a re-inspection is booked automatically.
@@ -207,10 +202,9 @@ async function getStallsDue(req, res) {
 // Third-party API (data.gov.sg 4-day outlook). Hawker centres are open-air,
 // so an officer picking a visit date wants to know if storms are forecast.
 //
-// This deliberately NEVER returns an error status. The weather is a helpful
-// extra, not something the scheduling page depends on - if data.gov.sg is
-// down, the officer must still be able to book an inspection. So every
-// failure comes back as 200 with available:false and a reason the page can
+
+// if data.gov.sg is down, the officer must still be able to 
+// book an inspection. So every failure comes back as 200 with available:false and a 
 // show, instead of a 500 the page has to catch.
 async function getWeatherForDate(req, res) {
   const { date } = req.query;
@@ -425,7 +419,6 @@ async function deleteInspection(req, res) {
 }
 
 module.exports = {
-  // exported for the unit tests as well as the routes
   scoreToGrade,
   getAllInspections,
   getInspectionById,

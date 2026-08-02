@@ -14,10 +14,10 @@
 -- longer errors with "There is already an object named 'Inspections'".
 --
 -- RUN ORDER
---   1) qj and kishore masterdata.sql   (master - FoodStalls + Users)
+--   1) qj and kishore masterdata.sql   
 --   2) masterdata_timely.sql
 --   3) orders_promo_columns.sql
---   4) Inspectionpage.sql              (this file)
+--   4) Inspectionpage.sql           
 --
 -- The master script MUST have been run first: officerId below is a foreign key
 -- to Users, and the sample data looks the officers up by their email address.
@@ -150,12 +150,7 @@ GO
 --
 -- All of section 4 is a single batch (no GO in the middle) because the
 -- @officer variables would be forgotten at a batch boundary.
--- ------------------------------------------------------------
--- The officer accounts are seeded by the MASTER script (Aswin added them to
--- "qj and kishore masterdata.sql"), so they are looked up by email here rather
--- than hard-coded by id. If a third officer is ever added, @raj picks them up
--- automatically; until then it falls back to Officer Nurul so this script still
--- runs against exactly the two accounts that exist today.
+
 DECLARE @tan   INT = (SELECT userId FROM Users WHERE email = N'tan@nea.gov.sg');
 DECLARE @nurul INT = (SELECT userId FROM Users WHERE email = N'nurul@nea.gov.sg');
 DECLARE @raj   INT = COALESCE(

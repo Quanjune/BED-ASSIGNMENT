@@ -79,10 +79,6 @@ const completeInspectionSchema = Joi.object({
 // ------------------------------------------------------------
 // Most grades are issued automatically when an inspection is completed.
 // This path exists for corrections, which is why a reason is required.
-//
-// uppercase() converts "a" into "A" before valid() runs, and because
-// validate() writes the cleaned value back onto req.body, the controller
-// does not need its own .toUpperCase().
 const hygieneGradeSchema = Joi.object({
   stallId,
   inspectionId: Joi.number().integer().positive().allow(null),

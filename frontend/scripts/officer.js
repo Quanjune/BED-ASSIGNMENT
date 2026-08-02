@@ -5,8 +5,6 @@
 
 // Stop immediately if the visitor is not a signed-in officer.
 if (!Officer.requireOfficer()) {
-  // requireOfficer has already redirected; throwing stops the rest of the
-  // file from running against a page that is about to be replaced.
   throw new Error("Not an officer.");
 }
 
@@ -253,6 +251,5 @@ async function deleteInspection(id) {
   }
 }
 
-// ---------- start ----------
 loadWorklist();
 loadStallOptions();

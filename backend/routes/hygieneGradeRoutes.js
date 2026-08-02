@@ -9,11 +9,6 @@
 //   POST /                  officer - manual / corrective grade entry
 //   PUT  /:id               officer - correct an issued grade
 //   DELETE /:id             officer - remove a grade
-//
-// Reads are public because a hygiene grade is public information - that is
-// the entire point of the NEA scheme, and it is what lets the customer-facing
-// stall pages show a grade badge without anyone logging in. "Expiring" is
-// officer-only because it is a work-planning list, not public information.
 const express = require("express");
 const router = express.Router();
 const hygieneGradeController = require("../controllers/hygieneGradeController");
@@ -23,8 +18,7 @@ const { validateIdParam } = require("../middlewares/idValidation");  // Quan Jun
 const { hygieneGradeSchema } = require("../validators/inspectionValidator");
 
 // ------------------------------------------------------------
-// FIXED PATHS FIRST - otherwise "/current" would be swallowed by "/:id"
-// and arrive at getGradeById with id = "current".
+// FIXED PATHS FIRST 
 // ------------------------------------------------------------
 router.get("/current", hygieneGradeController.getCurrentGrades);
 router.get("/expiring", requireOfficer, hygieneGradeController.getExpiringGrades);

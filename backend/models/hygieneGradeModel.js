@@ -5,26 +5,10 @@
 const sql = require("mssql");
 const dbConfig = require("../config/dbConfig");
 
-// ------------------------------------------------------------
-// WHY THIS HELPER EXISTS  (read before changing it)
-// ------------------------------------------------------------
-// `(await db())` uses mssql's GLOBAL connection. That works right up
-// until something else closes it - and several models in this project do
-// exactly that:
-//
-//     connection = await sql.connect(dbConfig);   // this IS the global one
-//     ...
-//     finally { await connection.close(); }       // ...and this kills it
-//
-// userModel.js does it on every login, and feedback/complaint/promo/admin
-// do it on every call. So the moment anyone logs in, the global connection
-// is gone and any later `(await db())` throws
-//     "No connection is specified for that request."
-//
-// Asking sql.connect() for the pool each time fixes it: mssql hands back the
-// existing pool if it is open, and quietly re-opens it if somebody closed it.
-// This is the same pattern productModel.js and cartModel.js use, which is why
-// the browse pages kept working while these ones did not.
+
+
+
+// Asking sql.connect() for the pool each time fixes it
 async function db() {
   const pool = await sql.connect(dbConfig);
   return pool.request();
@@ -75,8 +59,6 @@ async function inspectionExists(inspectionId) {
 // READ
 // ------------------------------------------------------------
 
-// Full register, newest first. Optional ?stallId= narrows it to one stall,
-// which is the "historical tracking" view.
 async function getAllGrades(stallId) {
   const request = (await db());
   let query = SELECT_GRADE;
@@ -100,11 +82,6 @@ async function getGradeById(gradeId) {
 }
 
 // The ONE grade each stall is displaying right now.
-//
-// Doing this in SQL matters: the old version fetched every grade ever issued
-// and worked out the newest per stall in the browser, which meant the page
-// got slower every time an inspection was recorded. ROW_NUMBER() numbers each
-// stall's grades newest-first and we keep number 1.
 async function getCurrentGrades() {
   const result = await (await db()).query(`
     WITH ranked AS (

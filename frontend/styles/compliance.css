@@ -348,12 +348,7 @@ tbody tr:last-child td {
 }
  
 /* ============================================================
-   OFFICER PORTAL ADDITIONS                    (Kaden)
-   Everything above this line is the original compliance.css and is
-   still used by the public hygiene-grades page. Everything below is
-   new styling for officer.html, officer_schedule.html and
-   officer_grades.html. Colours reuse the variables declared at the
-   top of this file so the portal matches the rest of the site.
+   OFFICER PORTAL ADDITIONS               
    ============================================================ */
 
 :root {
@@ -412,11 +407,6 @@ tbody tr:last-child td {
 .panel-warning { border-left: 5px solid var(--color-priority-medium); }
 
 /* ---------- Officer name pill in the header ---------- */
-/* Deliberately a copy of #cart in Template/template.css. The customer header
-   has an outlined "Cart" pill next to the round profile icon; the officer
-   header has the officer's name in the same slot, so the two headers line up
-   visually. #cart is styled by id, so it cannot be reused directly - this
-   mirrors its rules instead. */
 .portal-pill {
     padding: 0.6rem 1.2rem;
     border: 0.10rem solid #474747;

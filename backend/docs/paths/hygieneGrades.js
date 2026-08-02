@@ -1,14 +1,6 @@
 // docs/paths/hygieneGrades.js  (Kaden - hygiene grading)
 // Swagger documentation for /api/hygiene-grades. Picked up automatically by
 // docs/index.js - see backend/docs/README.md.
-//
-// A hygiene grade is public information - that is the point of the NEA
-// scheme - so the reads need no token. Only "expiring" is officer-only,
-// because it is a work-planning list rather than public information.
-//
-// Kept in its own file (separate from inspections.js) so the two feature
-// groups appear as two sections in Swagger UI. index.js only crashes on a
-// duplicate URL, and there is no overlap between the two files.
 
 const tag = {
   name: "Hygiene Grades",
