@@ -75,7 +75,7 @@ CREATE TABLE Inspections (
     score           INT NULL,
     remarks         NVARCHAR(500) NULL,
     -- When a stall fails (score below 55) the back end automatically books a
-    -- re-inspection and points it back at the visit that failed, so the
+    -- re-inspection and points it back at the visit that failed, so the                    
     -- follow-up chain is visible in the data.
     followUpOf      INT NULL,
     createdAt       DATETIME NOT NULL DEFAULT GETDATE(),
