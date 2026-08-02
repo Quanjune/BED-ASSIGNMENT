@@ -99,6 +99,21 @@
                         <h2 class="vm-title" id="stall-name">My stall</h2>
                         <p class="vm-subtitle" id="stall-center"></p>
                     </div>
+
+                    <!-- My stall's hygiene grade, sitting right beside the name
+                         and centre. The letter and the dates come from Kaden's
+                         grading module (GET /api/hygiene-grades/stall/:stallId),
+                         filled in by vendor_auth.js once the gate knows which
+                         stall this login owns. Starts hidden and is only
+                         revealed once that lookup answers, so a half-drawn
+                         badge never flashes up while the page is loading. -->
+                    <div id="stall-grade" class="vm-grade" hidden>
+                        <span id="stall-grade-letter" class="vm-grade-letter"></span>
+                        <div>
+                            <p class="vm-grade-label">Hygiene grade</p>
+                            <p class="vm-grade-note" id="stall-grade-note"></p>
+                        </div>
+                    </div>
                 </div>
                 <button id="btn-add" type="button" class="vm-btn vm-btn-primary vm-btn-add">+ Add dish</button>
             </div>

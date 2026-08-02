@@ -567,6 +567,68 @@ body.page-promotions  #nav-links li:nth-child(4) {
     flex-shrink: 0;
 }
 
+/* ---- Hygiene grade, beside the stall name and centre ----
+   The four letter colours are the same ones Kaden's public hygiene-grades
+   page uses, on purpose: a "B" has to look identical to the vendor and to
+   the customer, otherwise the badge stops meaning anything. */
+.vm-grade {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding-left: 1rem;
+    border-left: 1px solid #E4E4DE;
+    flex-shrink: 0;
+}
+.vm-grade-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-family: "Playfair Display", serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: #B7B7AF;   /* fallback for an unexpected letter */
+    flex-shrink: 0;
+}
+.vm-grade-a { background: #3C7A54; }
+.vm-grade-b { background: #6E8F3E; }
+.vm-grade-c { background: #D98E3B; }
+.vm-grade-d { background: #AD343E; }
+.vm-grade-none { background: #B7B7AF; }
+
+.vm-grade-label {
+    margin: 0 0 0.15rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(71, 71, 71, 0.6);
+}
+.vm-grade-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(71, 71, 71, 0.75);
+}
+/* Expired, or running out within the month - the vendor needs to act. */
+.vm-grade-warn .vm-grade-note { color: #AD343E; font-weight: 600; }
+
+/* Narrow screens: let the grade drop under the name instead of squashing it.
+   Once it has wrapped it owns the whole row, so the shrink guard that stops
+   it squashing the stall name on desktop is dropped and the longer notes
+   ("Expired 1 Jun 2026 · awaiting re-inspection") are allowed to wrap
+   rather than pushing the page sideways. */
+@media (max-width: 640px) {
+    .vm-head-main { flex-wrap: wrap; }
+    .vm-grade {
+        padding-left: 0;
+        border-left: 0;
+        flex-shrink: 1;
+        min-width: 0;
+    }
+}
+
 /* Dim backdrop that covers the page while the form is open */
 .vm-modal-overlay {
     position: fixed;
