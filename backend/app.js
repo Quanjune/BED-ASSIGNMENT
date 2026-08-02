@@ -81,6 +81,9 @@ app.use("/api/feedback", require("./routes/feedbackRoutes"));
 app.use("/api/complaints", require("./routes/complaintRoutes"));
 app.use("/api/promos", require("./routes/promoRoutes"));
  
+// --- Quan Jun: live NEA 2-hour forecast (customer-facing third-party API) ---
+app.use("/api/weather", require("./routes/weatherRoutes"));
+ 
 // --- Kaden: NEA officer — regulatory & compliance ---
 app.use("/api/inspections", require("./routes/inspectionRoutes"));
 app.use("/api/hygiene-grades", require("./routes/hygieneGradeRoutes"));
