@@ -40,16 +40,22 @@ async function loadProfile() {
     document.getElementById("pfRole").textContent = current.role || "-";
     document.getElementById("pfEmail").textContent = current.email || "-";
 
-    // Payment card (only the last 4 digits are stored)
-    const cardEl = document.getElementById("pfPayment");
-    const cardBtn = document.getElementById("pfPaymentBtn");
-    if (cardEl && cardBtn) {
-      if (current.cardLast4) {
-        cardEl.textContent = "•••• " + current.cardLast4;
-        cardBtn.textContent = "Remove";
-      } else {
-        cardEl.textContent = "Not set";
-        cardBtn.textContent = "Add";
+    // A saved card is only for customers (who place orders). Hide the whole
+    // payment row for admin / vendor / officer accounts, where it makes no sense.
+    const paymentRow = document.getElementById("pfPaymentRow");
+    if (current.role !== "customer") {
+      if (paymentRow) paymentRow.style.display = "none";
+    } else {
+      const cardEl = document.getElementById("pfPayment");
+      const cardBtn = document.getElementById("pfPaymentBtn");
+      if (cardEl && cardBtn) {
+        if (current.cardLast4) {
+          cardEl.textContent = "•••• " + current.cardLast4;
+          cardBtn.textContent = "Remove";
+        } else {
+          cardEl.textContent = "Not set";
+          cardBtn.textContent = "Add";
+        }
       }
     }
   } catch (err) {
