@@ -94,6 +94,14 @@ async function deleteProduct(req, res) {
     res.status(200).json({ message: "Product deleted." });
   } catch (err) {
     console.error("deleteProduct:", err);
+    // SQL Server error 547 = foreign key constraint. The product is still
+    // referenced by past orders, carts or addon groups, so removing it would
+    // destroy order history. That is a conflict (409), not a server fault (500).
+    if (err.number === 547) {
+      return res.status(409).json({
+        message: "This product cannot be deleted because it appears in existing orders, carts or option groups."
+      });
+    }
     res.status(500).json({ message: "Error deleting product." });
   }
 }
